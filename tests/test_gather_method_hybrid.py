@@ -391,7 +391,7 @@ class TestRunSolver(HelperMixin, helpers.PungiTestCase):
             ),
         }
         po.return_value = ([("p-1-1", "x86_64", frozenset())], ["m1"])
-        self.phase.packages = {"p-1-1.x86_64": mock.Mock()}
+        self.phase.packages = {"p-1-1.x86_64": mock.Mock(rpm_sourcerpm="p-1-1.src.rpm")}
 
         res = self.phase.run_solver(
             self.compose.variants["Server"],
@@ -431,7 +431,9 @@ class TestRunSolver(HelperMixin, helpers.PungiTestCase):
         )
 
     def test_with_comps(self, run, gc, po, wc):
-        self.phase.packages = {"pkg-1.0-1.x86_64": mock.Mock()}
+        self.phase.packages = {
+            "pkg-1.0-1.x86_64": mock.Mock(rpm_sourcerpm="pkg-1.0-1.src.rpm")
+        }
         self.phase.debuginfo = {"x86_64": {}}
         po.return_value = ([("pkg-1.0-1", "x86_64", frozenset())], [])
         res = self.phase.run_solver(
@@ -473,11 +475,23 @@ class TestRunSolver(HelperMixin, helpers.PungiTestCase):
         )
 
     def test_with_comps_with_debuginfo(self, run, gc, po, wc):
-        dbg1 = NamedMock(name="pkg-debuginfo", arch="x86_64", sourcerpm="pkg.src.rpm")
-        dbg2 = NamedMock(name="pkg-debuginfo", arch="x86_64", sourcerpm="x.src.rpm")
+        # dbg1 and dbg2 mocks both package from Kobo (with sourcerpm) and from
+        # createrepo_c (with rpm_sourcerpm)
+        dbg1 = NamedMock(
+            name="pkg-debuginfo",
+            arch="x86_64",
+            sourcerpm="pkg-1.0-1.src.rpm",
+            rpm_sourcerpm="pkg-1.0-1.src.rpm",
+        )
+        dbg2 = NamedMock(
+            name="pkg-debuginfo",
+            arch="x86_64",
+            sourcerpm="pkg-1.0-2.src.rpm",
+            rpm_sourcerpm="pkg-1.0-2.src.rpm",
+        )
         self.phase.packages = {
             "pkg-1.0-1.x86_64": NamedMock(
-                name="pkg", arch="x86_64", rpm_sourcerpm="pkg.src.rpm"
+                name="pkg", arch="x86_64", rpm_sourcerpm="pkg-1.0-1.src.rpm"
             ),
             "pkg-debuginfo-1.0-1.x86_64": dbg1,
             "pkg-debuginfo-1.0-2.x86_64": dbg2,
@@ -558,8 +572,8 @@ class TestRunSolver(HelperMixin, helpers.PungiTestCase):
         ]
         po.side_effect = [([("pkg-1.0-1", "x86_64", frozenset())], []), (final, [])]
         self.phase.packages = {
-            "pkg-1.0-1.x86_64": mock.Mock(),
-            "pkg-en-1.0-1.noarch": mock.Mock(),
+            "pkg-1.0-1.x86_64": mock.Mock(rpm_sourcerpm="pkg-1.0-1.src.rpm"),
+            "pkg-en-1.0-1.noarch": mock.Mock(rpm_sourcerpm="pkg-1.0-1.src.rpm"),
         }
 
         res = self.phase.run_solver(
@@ -628,9 +642,15 @@ class TestRunSolver(HelperMixin, helpers.PungiTestCase):
         cr.Metadata.return_value.keys.return_value = []
         self.phase.package_maps = {
             "x86_64": {
-                "pkg-devel-1.0-1.x86_64": NamedMock(name="pkg-devel"),
-                "pkg-devel-1.0-1.i686": NamedMock(name="pkg-devel"),
-                "foo-1.0-1.x86_64": NamedMock(name="foo"),
+                "pkg-devel-1.0-1.x86_64": NamedMock(
+                    name="pkg-devel", rpm_sourcerpm="pkg-1.0-1.src.rpm"
+                ),
+                "pkg-devel-1.0-1.i686": NamedMock(
+                    name="pkg-devel", rpm_sourcerpm="pkg-1.0-1.src.rpm"
+                ),
+                "foo-1.0-1.x86_64": NamedMock(
+                    name="foo", rpm_sourcerpm="foo-1.0-1.src.rpm"
+                ),
             }
         }
         self.phase.packages = self.phase.package_maps["x86_64"]
@@ -718,6 +738,7 @@ class TestRunSolver(HelperMixin, helpers.PungiTestCase):
                 release="1",
                 arch="x86_64",
                 provides=[("/usr/lib/libfoo.1.so.1", None, None)],
+                rpm_sourcerpm="foo-1.0-1.src.rpm",
             ),
             "def": NamedMock(
                 name="foo",
@@ -726,6 +747,7 @@ class TestRunSolver(HelperMixin, helpers.PungiTestCase):
                 release="1",
                 arch="i686",
                 provides=[("/usr/lib/libfoo.1.so.1", None, None)],
+                rpm_sourcerpm="foo-1.0-1.src.rpm",
             ),
             "ghi": NamedMock(
                 name="pkg-devel",
@@ -734,6 +756,7 @@ class TestRunSolver(HelperMixin, helpers.PungiTestCase):
                 release="1",
                 arch="x86_64",
                 provides=[],
+                rpm_sourcerpm="pkg-devel-1.0-1.src.rpm",
             ),
         }
         cr.Metadata.return_value.keys.return_value = packages.keys()

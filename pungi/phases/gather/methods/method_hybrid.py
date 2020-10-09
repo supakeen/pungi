@@ -349,8 +349,11 @@ class GatherMethodHybrid(pungi.phases.gather.method.GatherMethodBase):
 
             # There are two ways how the debuginfo package can be named. We
             # want to get them all.
-            for pattern in ["%s-debuginfo", "%s-debugsource"]:
-                debuginfo_name = pattern % pkg.name
+            source_name = kobo.rpmlib.parse_nvra(pkg.rpm_sourcerpm)["name"]
+            for debuginfo_name in [
+                "%s-debuginfo" % pkg.name,
+                "%s-debugsource" % source_name,
+            ]:
                 debuginfo = self._get_debuginfo(debuginfo_name, pkg_arch)
                 for dbg in debuginfo:
                     # For each debuginfo package that matches on name and
