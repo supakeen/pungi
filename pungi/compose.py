@@ -378,6 +378,10 @@ class Compose(kobo.log.LoggingBase):
         return bool(self.conf.get("module_defaults_dir", False))
 
     @property
+    def has_module_obsoletes(self):
+        return bool(self.conf.get("module_obsoletes_dir", False))
+
+    @property
     def config_dir(self):
         return os.path.dirname(self.conf._open_file or "")
 

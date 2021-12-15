@@ -28,7 +28,11 @@ from pungi.util import (
     PartialFuncWorkerThread,
     PartialFuncThreadPool,
 )
-from pungi.module_util import Modulemd, collect_module_defaults
+from pungi.module_util import (
+    Modulemd,
+    collect_module_defaults,
+    collect_module_obsoletes,
+)
 from pungi.phases.createrepo import add_modular_metadata
 
 
@@ -158,6 +162,9 @@ def _create_arch_repo(worker_thread, args, task_num):
         overrides_dir = compose.conf.get("module_defaults_override_dir")
         mod_index = collect_module_defaults(
             compose.paths.work.module_defaults_dir(), names, overrides_dir=overrides_dir
+        )
+        mod_index = collect_module_obsoletes(
+            compose.paths.work.module_obsoletes_dir(), names, mod_index
         )
         for x in mmd:
             mod_index.add_module_stream(x)

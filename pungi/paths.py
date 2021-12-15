@@ -509,6 +509,16 @@ class WorkPaths(object):
             makedirs(path)
         return path
 
+    def module_obsoletes_dir(self, create_dir=True):
+        """
+        Example:
+            work/global/module_obsoletes
+        """
+        path = os.path.join(self.topdir(create_dir=create_dir), "module_obsoletes")
+        if create_dir:
+            makedirs(path)
+        return path
+
     def pkgset_file_cache(self, pkgset_name):
         """
         Returns the path to file in which the cached version of

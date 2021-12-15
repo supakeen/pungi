@@ -33,7 +33,11 @@ except ImportError:
 import pungi.wrappers.kojiwrapper
 from pungi.arch import get_compatible_arches, split_name_arch
 from pungi.compose import get_ordered_variant_uids
-from pungi.module_util import Modulemd, collect_module_defaults
+from pungi.module_util import (
+    Modulemd,
+    collect_module_defaults,
+    collect_module_obsoletes,
+)
 from pungi.phases.base import PhaseBase
 from pungi.phases.createrepo import add_modular_metadata
 from pungi.util import get_arch_data, get_arch_variant_data, get_variant_data, makedirs
@@ -698,6 +702,8 @@ def _make_lookaside_repo(compose, variant, arch, pkg_map, package_sets=None):
         collect_module_defaults(
             defaults_dir, module_names, mod_index, overrides_dir=overrides_dir
         )
+        obsoletes_dir = compose.paths.work.module_obsoletes_dir()
+        collect_module_obsoletes(obsoletes_dir, module_names, mod_index)
 
         log_file = compose.paths.log.log_file(
             arch, "lookaside_repo_modules_%s" % (variant.uid)

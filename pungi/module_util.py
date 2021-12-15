@@ -25,9 +25,10 @@ except (ImportError, ValueError):
     Modulemd = None
 
 
-def iter_module_defaults(path):
+def iter_module_defaults_or_obsoletes(path, obsoletes=False):
     """Given a path to a directory with yaml files, yield each module default
     in there as a pair (module_name, ModuleDefaults instance).
+    The same happens for module obsoletes if the obsoletes switch is True.
     """
     # It is really tempting to merge all the module indexes into a single one
     # and work with it. However that does not allow for detecting conflicting
@@ -41,7 +42,10 @@ def iter_module_defaults(path):
         index = Modulemd.ModuleIndex()
         index.update_from_file(file, strict=False)
         for module_name in index.get_module_names():
-            yield module_name, index.get_module(module_name).get_defaults()
+            if obsoletes:
+                yield module_name, index.get_module(module_name).get_obsoletes()
+            else:
+                yield module_name, index.get_module(module_name).get_defaults()
 
 
 def collect_module_defaults(
@@ -67,5 +71,23 @@ def collect_module_defaults(
 
         if not modules_to_load or module_name in modules_to_load:
             mod_index.add_defaults(defaults)
+
+    return mod_index
+
+
+def collect_module_obsoletes(obsoletes_dir, modules_to_load, mod_index=None):
+    """Load module obsoletes into index.
+
+    This works in a similar fashion as collect_module_defaults except the overrides_dir
+    feature.
+    """
+    mod_index = mod_index or Modulemd.ModuleIndex()
+
+    for module_name, obsoletes in iter_module_defaults_or_obsoletes(
+        obsoletes_dir, obsoletes=True
+    ):
+        for obsolete in obsoletes:
+            if not modules_to_load or module_name in modules_to_load:
+                mod_index.add_obsoletes(obsoletes)
 
     return mod_index

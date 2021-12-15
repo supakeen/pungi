@@ -29,7 +29,7 @@ import productmd.rpms
 from kobo.shortcuts import relative_path, run
 from kobo.threads import ThreadPool, WorkerThread
 
-from ..module_util import Modulemd, collect_module_defaults
+from ..module_util import Modulemd, collect_module_defaults, collect_module_obsoletes
 from ..util import (
     get_arch_variant_data,
     read_single_module_stream_from_file,
@@ -265,6 +265,9 @@ def create_variant_repo(
         collect_module_defaults(
             defaults_dir, module_names, mod_index, overrides_dir=overrides_dir
         )
+
+        obsoletes_dir = compose.paths.work.module_obsoletes_dir()
+        collect_module_obsoletes(obsoletes_dir, module_names, mod_index)
 
         # Add extra modulemd files
         if variant.uid in compose.conf.get("createrepo_extra_modulemd", {}):

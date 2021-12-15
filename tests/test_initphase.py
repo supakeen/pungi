@@ -24,7 +24,7 @@ from tests.helpers import (
 
 @mock.patch("pungi.phases.init.run_in_threads", new=fake_run_in_threads)
 @mock.patch("pungi.phases.init.validate_comps")
-@mock.patch("pungi.phases.init.validate_module_defaults")
+@mock.patch("pungi.phases.init.validate_module_defaults_or_obsoletes")
 @mock.patch("pungi.phases.init.write_module_defaults")
 @mock.patch("pungi.phases.init.write_global_comps")
 @mock.patch("pungi.phases.init.write_arch_comps")
@@ -46,6 +46,7 @@ class TestInitPhase(PungiTestCase):
         compose = DummyCompose(self.topdir, {})
         compose.has_comps = True
         compose.has_module_defaults = False
+        compose.has_module_obsoletes = False
         compose.setup_optional()
         phase = init.InitPhase(compose)
         phase.run()
@@ -100,6 +101,7 @@ class TestInitPhase(PungiTestCase):
         compose = DummyCompose(self.topdir, {})
         compose.has_comps = True
         compose.has_module_defaults = False
+        compose.has_module_obsoletes = False
         compose.variants["Everything"].groups = []
         compose.variants["Everything"].modules = []
         phase = init.InitPhase(compose)
@@ -156,6 +158,7 @@ class TestInitPhase(PungiTestCase):
         compose = DummyCompose(self.topdir, {})
         compose.has_comps = False
         compose.has_module_defaults = False
+        compose.has_module_obsoletes = False
         phase = init.InitPhase(compose)
         phase.run()
 
@@ -182,6 +185,7 @@ class TestInitPhase(PungiTestCase):
         compose = DummyCompose(self.topdir, {})
         compose.has_comps = False
         compose.has_module_defaults = True
+        compose.has_module_obsoletes = False
         phase = init.InitPhase(compose)
         phase.run()
 
@@ -620,13 +624,13 @@ class TestValidateModuleDefaults(PungiTestCase):
     def test_valid_files(self):
         self._write_defaults({"httpd": ["1"], "python": ["3.6"]})
 
-        init.validate_module_defaults(self.topdir)
+        init.validate_module_defaults_or_obsoletes(self.topdir)
 
     def test_duplicated_stream(self):
         self._write_defaults({"httpd": ["1"], "python": ["3.6", "3.5"]})
 
         with self.assertRaises(RuntimeError) as ctx:
-            init.validate_module_defaults(self.topdir)
+            init.validate_module_defaults_or_obsoletes(self.topdir)
 
         self.assertIn(
             "Module python has multiple defaults: 3.5, 3.6", str(ctx.exception)
@@ -636,7 +640,7 @@ class TestValidateModuleDefaults(PungiTestCase):
         self._write_defaults({"httpd": ["1", "2"], "python": ["3.6", "3.5"]})
 
         with self.assertRaises(RuntimeError) as ctx:
-            init.validate_module_defaults(self.topdir)
+            init.validate_module_defaults_or_obsoletes(self.topdir)
 
         self.assertIn("Module httpd has multiple defaults: 1, 2", str(ctx.exception))
         self.assertIn(
@@ -661,7 +665,7 @@ class TestValidateModuleDefaults(PungiTestCase):
             ),
         )
 
-        init.validate_module_defaults(self.topdir)
+        init.validate_module_defaults_or_obsoletes(self.topdir)
 
 
 @mock.patch("pungi.phases.init.CompsWrapper")

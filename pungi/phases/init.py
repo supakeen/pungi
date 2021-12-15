@@ -24,7 +24,7 @@ from kobo.threads import run_in_threads
 from pungi.phases.base import PhaseBase
 from pungi.phases.gather import write_prepopulate_file
 from pungi.util import temp_dir
-from pungi.module_util import iter_module_defaults
+from pungi.module_util import iter_module_defaults_or_obsoletes
 from pungi.wrappers.comps import CompsWrapper
 from pungi.wrappers.createrepo import CreaterepoWrapper
 from pungi.wrappers.scm import get_dir_from_scm, get_file_from_scm
@@ -68,8 +68,16 @@ class InitPhase(PhaseBase):
         # download module defaults
         if self.compose.has_module_defaults:
             write_module_defaults(self.compose)
-            validate_module_defaults(
+            validate_module_defaults_or_obsoletes(
                 self.compose.paths.work.module_defaults_dir(create_dir=False)
+            )
+
+        # download module obsoletes
+        if self.compose.has_module_obsoletes:
+            write_module_obsoletes(self.compose)
+            validate_module_defaults_or_obsoletes(
+                self.compose.paths.work.module_obsoletes_dir(create_dir=False),
+                obsoletes=True,
             )
 
         # write prepopulate file
@@ -218,28 +226,53 @@ def write_module_defaults(compose):
         )
 
 
-def validate_module_defaults(path):
+def write_module_obsoletes(compose):
+    scm_dict = compose.conf["module_obsoletes_dir"]
+    if isinstance(scm_dict, dict):
+        if scm_dict["scm"] == "file":
+            scm_dict["dir"] = os.path.join(compose.config_dir, scm_dict["dir"])
+    else:
+        scm_dict = os.path.join(compose.config_dir, scm_dict)
+
+    with temp_dir(prefix="moduleobsoletes_") as tmp_dir:
+        get_dir_from_scm(scm_dict, tmp_dir, compose=compose)
+        compose.log_debug("Writing module obsoletes")
+        shutil.copytree(
+            tmp_dir,
+            compose.paths.work.module_obsoletes_dir(create_dir=False),
+            ignore=shutil.ignore_patterns(".git"),
+        )
+
+
+def validate_module_defaults_or_obsoletes(path, obsoletes=False):
     """Make sure there are no conflicting defaults. Each module name can only
-    have one default stream.
+    have one default stream or module obsolete.
 
-    :param str path: directory with cloned module defaults
+    :param str path: directory with cloned module defaults/obsoletes
     """
-    seen_defaults = collections.defaultdict(set)
+    seen = collections.defaultdict(set)
+    mmd_type = "obsoletes" if obsoletes else "defaults"
 
-    for module_name, defaults in iter_module_defaults(path):
-        seen_defaults[module_name].add(defaults.get_default_stream())
+    for module_name, defaults_or_obsoletes in iter_module_defaults_or_obsoletes(
+        path, obsoletes
+    ):
+        if obsoletes:
+            for obsolete in defaults_or_obsoletes:
+                seen[obsolete.props.module_name].add(obsolete)
+        else:
+            seen[module_name].add(defaults_or_obsoletes.get_default_stream())
 
     errors = []
-    for module_name, defaults in seen_defaults.items():
-        if len(defaults) > 1:
+    for module_name, defaults_or_obsoletes in seen.items():
+        if len(defaults_or_obsoletes) > 1:
             errors.append(
-                "Module %s has multiple defaults: %s"
-                % (module_name, ", ".join(sorted(defaults)))
+                "Module %s has multiple %s: %s"
+                % (module_name, mmd_type, ", ".join(sorted(defaults_or_obsoletes)))
             )
 
     if errors:
         raise RuntimeError(
-            "There are duplicated module defaults:\n%s" % "\n".join(errors)
+            "There are duplicated module %s:\n%s" % (mmd_type, "\n".join(errors))
         )
 
 

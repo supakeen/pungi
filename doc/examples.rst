@@ -30,8 +30,16 @@ This is a shortened configuration for Fedora Radhide compose as of 2019-10-14.
     module_defaults_dir = {
         'scm': 'git',
         'repo': 'https://pagure.io/releng/fedora-module-defaults.git',
-        'branch': 'master',
+        'branch': 'main',
         'dir': '.'
+    }
+    # Optional module obsoletes configuration which is merged
+    # into the module index and gets resolved
+    module_obsoletes_dir = {
+        'scm': 'git',
+        'repo': 'https://pagure.io/releng/fedora-module-defaults.git',
+        'branch': 'main',
+        'dir': 'obsoletes'
     }
 
     variants_file='variants-fedora.xml'

@@ -736,6 +736,7 @@ def make_schema():
                 "patternProperties": {".+": {"$ref": "#/definitions/strings"}},
                 "additionalProperties": False,
             },
+            "module_obsoletes_dir": {"$ref": "#/definitions/str_or_scm_dict"},
             "create_optional_isos": {"type": "boolean", "default": False},
             "symlink_isos_to": {"type": "string"},
             "dogpile_cache_backend": {"type": "string"},
