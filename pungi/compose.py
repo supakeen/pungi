@@ -607,7 +607,9 @@ class Compose(kobo.log.LoggingBase):
         <compose_topdir>/work/{global,<arch>}/tmp[-<variant>]/
         """
         path = os.path.join(self.paths.work.tmp_dir(arch=arch, variant=variant))
-        return tempfile.mkdtemp(suffix=suffix, prefix=prefix, dir=path)
+        tmpdir = tempfile.mkdtemp(suffix=suffix, prefix=prefix, dir=path)
+        os.chmod(tmpdir, 0o755)
+        return tmpdir
 
     def dump_containers_metadata(self):
         """Create a file with container metadata if there are any containers."""
