@@ -809,7 +809,9 @@ class BuildinstallThread(WorkerThread):
             chown_paths.append(_get_log_dir(compose, variant, arch))
         elif buildinstall_method == "buildinstall":
             packages += ["anaconda"]
-
+        packages += get_arch_variant_data(
+            compose.conf, "buildinstall_packages", arch, variant
+        )
         if self._reuse_old_buildinstall_result(
             compose, arch, variant, cmd, pkgset_phase
         ):

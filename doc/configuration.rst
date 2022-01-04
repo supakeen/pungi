@@ -672,6 +672,11 @@ Options
 **buildinstall_allow_reuse** = False
     (*bool*) -- When set to ``True``, *Pungi* will try to reuse buildinstall
     results from old compose specified by ``--old-composes``.
+**buildinstall_packages**
+    (list) – Additional packages to be installed in the runroot environment
+    where lorax will run to create installer. Format: ``[(variant_uid_regex,
+    {arch|*: [package_globs]})]``.
+
 
 Example
 -------
@@ -706,6 +711,13 @@ Example
         })
     ]
 
+    # Additional packages to be installed in the Koji runroot environment where
+    # lorax will run.
+    buildinstall_packages = [
+        ('^Simple$', {
+            '*': ['dummy-package'],
+        })
+    ]
 
 .. note::
 

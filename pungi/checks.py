@@ -785,6 +785,10 @@ def make_schema():
             "buildinstall_kickstart": {"$ref": "#/definitions/str_or_scm_dict"},
             "buildinstall_use_guestmount": {"type": "boolean", "default": True},
             "buildinstall_skip": _variant_arch_mapping({"type": "boolean"}),
+            "buildinstall_packages": {
+                "$ref": "#/definitions/package_mapping",
+                "default": [],
+            },
             "global_ksurl": {"type": "url"},
             "global_version": {"type": "string"},
             "global_target": {"type": "string"},
