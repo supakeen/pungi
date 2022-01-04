@@ -216,6 +216,8 @@ class ExtraIsosThread(WorkerThread):
                     "pkgset_koji_module_builds",
                 ]
             )
+            # Skip irrelevant options
+            config_whitelist.update(["osbs", "osbuild"])
             if opt in config_whitelist:
                 continue
 
