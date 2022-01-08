@@ -1,5 +1,5 @@
 Name:           pungi
-Version:        4.3.2
+Version:        4.3.3
 Release:        1%{?dist}
 Summary:        Distribution compose tool
 
@@ -111,6 +111,16 @@ pytest
 cd tests && ./test_compose.sh
 
 %changelog
+* Sat Jan 08 2022 Haibo Lin <hlin@redhat.com> - 4.3.3-1
+- hybrid: Explicitly pull in debugsource packages (lsedlar)
+- Add module obsoletes feature (fvalder)
+- buildinstall: Add ability to install extra packages in runroot (ounsal)
+- Ignore osbs/osbuild config when reusing iso images (hlin)
+- compose: Make sure temporary dirs are world readable (lsedlar)
+- Pass compose parameter for debugging git issue (hlin)
+- Generate images.json for extra_isos phase (hlin)
+- Fix tests for python 2.6 (hlin)
+
 * Thu Nov 11 2021 Haibo Lin <hlin@redhat.com> - 4.3.2-1
 - gather: Load JSON mapping relative to config dir (lsedlar)
 - gather: Stop requiring all variants/arches in JSON (lsedlar)
