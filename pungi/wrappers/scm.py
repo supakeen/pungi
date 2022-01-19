@@ -19,7 +19,9 @@ from __future__ import absolute_import
 import os
 import shutil
 import glob
+import threading
 import six
+import tempfile
 from six.moves import shlex_quote
 from six.moves.urllib.request import urlretrieve
 from fnmatch import fnmatch
@@ -28,6 +30,8 @@ import kobo.log
 from kobo.shortcuts import run, force_list
 from pungi.util import explode_rpm_package, makedirs, copy_all, temp_dir, retry
 from .kojiwrapper import KojiWrapper
+
+scm_lock = threading.Lock()
 
 
 class ScmBase(kobo.log.LoggingBase):
@@ -372,10 +376,33 @@ def get_file_from_scm(scm_dict, target_path, compose=None):
     scm = _get_wrapper(scm_type, logger=logger, command=command, compose=compose)
 
     files_copied = []
-    for i in force_list(scm_file):
-        with temp_dir(prefix="scm_checkout_") as tmp_dir:
-            scm.export_file(scm_repo, i, scm_branch=scm_branch, target_dir=tmp_dir)
-            files_copied += copy_all(tmp_dir, target_path)
+    branch = scm_branch if scm_branch else "master"
+    delete_after_flag = False
+    with scm_lock:
+        if compose and scm_repo:
+            repo = scm_repo.rsplit("/")[-1]
+            tmp_dir = compose.paths.work.tmp_dir()
+            tmp_dir = os.path.join(tmp_dir, repo, branch)
+        else:
+            tmp_dir = tempfile.mkdtemp(prefix="scm_checkout_")
+            delete_after_flag = True
+
+        if not os.path.isdir(tmp_dir):
+            makedirs(tmp_dir)
+
+        for i in force_list(scm_file):
+            # Check the files which are included with subdirectories
+            check_file = os.path.join(tmp_dir, i[i.rfind("/") + 1 :])
+            if (
+                type(scm_dict) is not dict
+                or command is not None
+                or not compose
+                or not os.path.isfile(check_file)
+            ):
+                scm.export_file(scm_repo, i, scm_branch=scm_branch, target_dir=tmp_dir)
+        files_copied += copy_all(tmp_dir, target_path)
+        if delete_after_flag:
+            shutil.rmtree(tmp_dir)
     return files_copied
 
 
@@ -459,14 +486,34 @@ def get_dir_from_scm(scm_dict, target_path, compose=None):
 
     logger = compose._logger if compose else None
     scm = _get_wrapper(scm_type, logger=logger, command=command, compose=compose)
+    branch = scm_branch if scm_branch else "master"
+    delete_after_flag = False
 
-    with temp_dir(prefix="scm_checkout_") as tmp_dir:
-        scm.export_dir(scm_repo, scm_dir, scm_branch=scm_branch, target_dir=tmp_dir)
+    with scm_lock:
+        if compose and scm_repo:
+            repo = scm_repo.rsplit("/")[-1]
+            tmp_dir = compose.paths.work.tmp_dir()
+            tmp_dir = os.path.join(tmp_dir, repo, branch)
+        else:
+            tmp_dir = tempfile.mkdtemp(prefix="scm_checkout_")
+            delete_after_flag = True
+
+        if not os.path.isdir(tmp_dir):
+            makedirs(tmp_dir)
+            scm.export_dir(scm_repo, scm_dir, scm_branch=scm_branch, target_dir=tmp_dir)
+        elif (
+            type(scm_dict) is not dict
+            or command is not None
+            or not scm_repo
+            or not compose
+        ):
+            scm.export_dir(scm_repo, scm_dir, scm_branch=scm_branch, target_dir=tmp_dir)
         files_copied = copy_all(tmp_dir, target_path)
 
-    # Make sure the directory has permissions set to 755. This is a workaround
-    # for a problem where sometimes the directory will be 700 and it will not
-    # be accessible via httpd.
-    os.chmod(target_path, 0o755)
-
+        # Make sure the directory has permissions set to 755. This is a workaround
+        # for a problem where sometimes the directory will be 700 and it will not
+        # be accessible via httpd.
+        os.chmod(target_path, 0o755)
+        if delete_after_flag:
+            shutil.rmtree(tmp_dir)
     return files_copied

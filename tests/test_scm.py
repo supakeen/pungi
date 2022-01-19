@@ -16,14 +16,17 @@ import six
 from pungi.wrappers import scm
 from tests.helpers import touch
 from kobo.shortcuts import run
+from pungi.compose import Compose
 
 
 class SCMBaseTest(unittest.TestCase):
     def setUp(self):
         self.destdir = tempfile.mkdtemp()
+        self.tmp_dir = tempfile.mkdtemp()
 
     def tearDown(self):
         shutil.rmtree(self.destdir)
+        shutil.rmtree(self.tmp_dir)
 
     def assertStructure(self, returned, expected):
         # Check we returned the correct files
@@ -143,7 +146,8 @@ class GitSCMTestCase(SCMBaseTest):
 
     @mock.patch("pungi.wrappers.scm.run")
     def test_get_file_function(self, run):
-        compose = mock.Mock(conf={})
+        with mock.patch("pungi.compose.ComposeInfo"):
+            compose = Compose({}, self.tmp_dir)
 
         def process(cmd, workdir=None, **kwargs):
             touch(os.path.join(workdir, "some_file.txt"))
@@ -338,6 +342,8 @@ class GitSCMTestCaseReal(SCMBaseTest):
         shutil.rmtree(self.gitRepositoryLocation)
 
     def test_get_file_function(self):
+        with mock.patch("pungi.compose.ComposeInfo"):
+            compose = Compose({}, self.tmp_dir)
         sourceFileLocation = random.choice(list(self.files.keys()))
         sourceFilename = os.path.basename(sourceFileLocation)
         destinationFileLocation = os.path.join(self.destdir, "other_file.txt")
@@ -348,7 +354,7 @@ class GitSCMTestCaseReal(SCMBaseTest):
                 "file": sourceFilename,
             },
             os.path.join(self.destdir, destinationFileLocation),
-            compose=self.compose,
+            compose=compose,
         )
         self.assertEqual(destinationFileActualLocation, destinationFileLocation)
         self.assertTrue(os.path.isfile(destinationFileActualLocation))
@@ -361,6 +367,8 @@ class GitSCMTestCaseReal(SCMBaseTest):
         self.assertEqual(sourceFileContent, destinationFileContent)
 
     def test_get_file_function_with_overwrite(self):
+        with mock.patch("pungi.compose.ComposeInfo"):
+            compose = Compose({}, self.tmp_dir)
         sourceFileLocation = random.choice(list(self.files.keys()))
         sourceFilename = os.path.basename(sourceFileLocation)
         destinationFileLocation = os.path.join(self.destdir, "other_file.txt")
@@ -375,7 +383,7 @@ class GitSCMTestCaseReal(SCMBaseTest):
                 "file": sourceFilename,
             },
             os.path.join(self.destdir, destinationFileLocation),
-            compose=self.compose,
+            compose=compose,
             overwrite=True,
         )
         self.assertEqual(destinationFileActualLocation, destinationFileLocation)
@@ -603,7 +611,8 @@ class KojiSCMTestCase(SCMBaseTest):
 
     @mock.patch("pungi.wrappers.scm.KojiWrapper")
     def test_doesnt_get_dirs(self, KW, dl):
-        compose = mock.Mock(conf={"koji_profile": "koji"})
+        with mock.patch("pungi.compose.ComposeInfo"):
+            compose = Compose({"koji_profile": "koji"}, self.tmp_dir)
 
         with self.assertRaises(RuntimeError) as ctx:
             scm.get_dir_from_scm(
@@ -628,7 +637,8 @@ class KojiSCMTestCase(SCMBaseTest):
 
     @mock.patch("pungi.wrappers.scm.KojiWrapper")
     def test_get_from_build(self, KW, dl):
-        compose = mock.Mock(conf={"koji_profile": "koji"})
+        with mock.patch("pungi.compose.ComposeInfo"):
+            compose = Compose({"koji_profile": "koji"}, self.tmp_dir)
 
         def download(src, dst):
             touch(dst)
@@ -659,7 +669,8 @@ class KojiSCMTestCase(SCMBaseTest):
 
     @mock.patch("pungi.wrappers.scm.KojiWrapper")
     def test_get_from_latest_build(self, KW, dl):
-        compose = mock.Mock(conf={"koji_profile": "koji"})
+        with mock.patch("pungi.compose.ComposeInfo"):
+            compose = Compose({"koji_profile": "koji"}, self.tmp_dir)
 
         def download(src, dst):
             touch(dst)
