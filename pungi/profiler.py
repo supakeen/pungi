@@ -69,10 +69,8 @@ class Profiler(object):
 
     @classmethod
     def print_results(cls, stream=sys.stdout):
-        print("Profiling results:", file=sys.stdout)
+        print("Profiling results:", file=stream)
         results = cls._data.items()
         results = sorted(results, key=lambda x: x[1]["time"], reverse=True)
         for name, data in results:
-            print(
-                "  %6.2f %5d %s" % (data["time"], data["calls"], name), file=sys.stdout
-            )
+            print("  %6.2f %5d %s" % (data["time"], data["calls"], name), file=stream)
