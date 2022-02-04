@@ -88,6 +88,6 @@ def collect_module_obsoletes(obsoletes_dir, modules_to_load, mod_index=None):
     ):
         for obsolete in obsoletes:
             if not modules_to_load or module_name in modules_to_load:
-                mod_index.add_obsoletes(obsoletes)
+                mod_index.add_obsoletes(obsolete)
 
     return mod_index
