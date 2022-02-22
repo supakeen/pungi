@@ -96,7 +96,7 @@ def main():
     f.filter_environments(opts.arch, opts.variant, opts.arch_only_environments)
 
     if not opts.no_cleanup:
-        f.cleanup(opts.keep_empty_group, opts.lookaside_group)
+        f.cleanup(opts.arch, opts.keep_empty_group, opts.lookaside_group)
 
     if opts.remove_categories:
         f.remove_categories()

@@ -118,7 +118,7 @@
     <display_order>10</display_order>
     <grouplist>
       <groupid>core</groupid>
-      <groupid>standard</groupid>
+      <groupid arch="x86_64">standard</groupid>
       <groupid>basic-desktop</groupid>
     </grouplist>
     <optionlist>

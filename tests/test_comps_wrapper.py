@@ -196,22 +196,22 @@ class CompsFilterTest(unittest.TestCase):
         self.assertOutput(os.path.join(FIXTURE_DIR, "comps-removed-environments.xml"))
 
     def test_cleanup(self):
-        self.filter.cleanup()
+        self.filter.cleanup("ppc64le")
         self.assertOutput(os.path.join(FIXTURE_DIR, "comps-cleanup.xml"))
 
     def test_cleanup_after_filter(self):
         self.filter.filter_packages("ppc64le", None)
-        self.filter.cleanup()
+        self.filter.cleanup("ppc64le")
         self.assertOutput(os.path.join(FIXTURE_DIR, "comps-cleanup-filter.xml"))
 
     def test_cleanup_after_filter_keep_group(self):
         self.filter.filter_packages("ppc64le", None)
-        self.filter.cleanup(["standard"])
+        self.filter.cleanup("ppc64le", ["standard"])
         self.assertOutput(os.path.join(FIXTURE_DIR, "comps-cleanup-keep.xml"))
 
     def test_cleanup_all(self):
         self.filter.filter_packages("ppc64le", None)
         self.filter.filter_groups("ppc64le", None)
         self.filter.filter_environments("ppc64le", None)
-        self.filter.cleanup()
+        self.filter.cleanup("ppc64le")
         self.assertOutput(os.path.join(FIXTURE_DIR, "comps-cleanup-all.xml"))

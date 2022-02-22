@@ -177,14 +177,20 @@ class CompsFilter(object):
         for i in self.tree.xpath("//*[@xml:lang]"):
             i.getparent().remove(i)
 
-    def filter_environment_groups(self, lookaside_groups=[]):
+    def filter_environment_groups(self, arch, lookaside_groups=[]):
         """
-        Remove undefined groups from environments.
+        Remove undefined groups or groups not matching given arch from environments.
         """
         all_groups = self.tree.xpath("/comps/group/id/text()") + lookaside_groups
         for environment in self.tree.xpath("/comps/environment"):
             for group in environment.xpath("grouplist/groupid"):
                 if group.text not in all_groups:
+                    group.getparent().remove(group)
+
+            for group in environment.xpath("grouplist/groupid[@arch]"):
+                value = group.attrib.get("arch")
+                values = [v for v in re.split(r"[, ]+", value) if v]
+                if arch not in values:
                     group.getparent().remove(group)
 
     def remove_empty_environments(self):
@@ -212,7 +218,7 @@ class CompsFilter(object):
         )
         file_obj.write(b"\n")
 
-    def cleanup(self, keep_groups=[], lookaside_groups=[]):
+    def cleanup(self, arch, keep_groups=[], lookaside_groups=[]):
         """
         Remove empty groups, categories and environment from the comps file.
         Groups given in ``keep_groups`` will be preserved even if empty.
@@ -223,7 +229,7 @@ class CompsFilter(object):
         self.remove_empty_groups(keep_groups)
         self.filter_category_groups()
         self.remove_empty_categories()
-        self.filter_environment_groups(lookaside_groups)
+        self.filter_environment_groups(arch, lookaside_groups)
         self.remove_empty_environments()
 
 
