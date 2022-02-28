@@ -81,9 +81,6 @@ class PungiNotifier(object):
 
         self._update_args(kwargs)
 
-        if self.compose:
-            workdir = self.compose.paths.compose.topdir()
-
         with self.lock:
             for cmd in self.cmds:
                 self._run_script(cmd, msg, workdir, kwargs)

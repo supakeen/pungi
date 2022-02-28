@@ -12,8 +12,9 @@ happened. A JSON-encoded object will be passed to standard input to provide
 more information about the event. At the very least, the object will contain a
 ``compose_id`` key.
 
-The script is invoked in compose directory and can read other information
-there.
+The notification script inherits working directory from the parent process and it
+can be called from the same directory ``pungi-koji`` is called from. The working directory
+is listed at the start of main log.
 
 Currently these messages are sent:
 

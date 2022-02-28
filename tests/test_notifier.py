@@ -73,7 +73,7 @@ class TestNotifier(unittest.TestCase):
             stdin_data=json.dumps(data),
             can_fail=True,
             return_stdout=False,
-            workdir=self.compose.paths.compose.topdir.return_value,
+            workdir=None,
             universal_newlines=True,
             show_cmd=True,
             logfile=self.logfile,
