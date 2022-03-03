@@ -71,6 +71,7 @@ class LiveMediaPhase(PhaseLoggerMixin, ImageConfigMixin, ConfigGuardedPhase):
                     "ksurl": self.get_ksurl(image_conf),
                     "ksversion": image_conf.get("ksversion"),
                     "scratch": image_conf.get("scratch", False),
+                    "nomacboot": image_conf.get("nomacboot", False),
                     "release": self.get_release(image_conf),
                     "skip_tag": image_conf.get("skip_tag"),
                     "name": name,

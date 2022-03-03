@@ -981,6 +981,7 @@ def make_schema():
                                 "arches": {"$ref": "#/definitions/list_of_strings"},
                                 "failable": {"$ref": "#/definitions/list_of_strings"},
                                 "release": {"$ref": "#/definitions/optional_string"},
+                                "nomacboot": {"type": "boolean"},
                             },
                             "required": ["name", "kickstart"],
                             "additionalProperties": False,

@@ -11,6 +11,7 @@ tests/data/repo-krb5-lookaside
 tests/_composes
 htmlcov/
 .coverage
+.eggs
 .idea/
 .tox
 .venv

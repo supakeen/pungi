@@ -60,6 +60,7 @@ class TestLiveMediaPhase(PungiTestCase):
                             "version": "Rawhide",
                             "subvariant": "Server",
                             "failable_arches": [],
+                            "nomacboot": False,
                         },
                     )
                 )
@@ -116,6 +117,7 @@ class TestLiveMediaPhase(PungiTestCase):
                             "version": "Rawhide",
                             "subvariant": "Server",
                             "failable_arches": ["amd64", "x86_64"],
+                            "nomacboot": False,
                         },
                     )
                 )
@@ -178,6 +180,7 @@ class TestLiveMediaPhase(PungiTestCase):
                             "version": "Rawhide",
                             "subvariant": "Server",
                             "failable_arches": [],
+                            "nomacboot": False,
                         },
                     )
                 ),
@@ -201,6 +204,7 @@ class TestLiveMediaPhase(PungiTestCase):
                             "version": "Rawhide",
                             "subvariant": "Server",
                             "failable_arches": [],
+                            "nomacboot": False,
                         },
                     )
                 ),
@@ -224,6 +228,7 @@ class TestLiveMediaPhase(PungiTestCase):
                             "version": "25",
                             "subvariant": "Server",
                             "failable_arches": [],
+                            "nomacboot": False,
                         },
                     )
                 ),
@@ -286,6 +291,7 @@ class TestLiveMediaPhase(PungiTestCase):
                             "version": "Rawhide",
                             "subvariant": "Server",
                             "failable_arches": [],
+                            "nomacboot": False,
                         },
                     )
                 ),
@@ -309,6 +315,7 @@ class TestLiveMediaPhase(PungiTestCase):
                             "version": "Rawhide",
                             "subvariant": "Server",
                             "failable_arches": [],
+                            "nomacboot": False,
                         },
                     )
                 ),
@@ -332,6 +339,7 @@ class TestLiveMediaPhase(PungiTestCase):
                             "version": "25",
                             "subvariant": "Server",
                             "failable_arches": [],
+                            "nomacboot": False,
                         },
                     )
                 ),
@@ -423,6 +431,7 @@ class TestLiveMediaPhase(PungiTestCase):
                             "install_tree_from": "Server-optional",
                             "subvariant": "Something",
                             "failable": ["*"],
+                            "nomacboot": True,
                         }
                     ]
                 }
@@ -436,6 +445,7 @@ class TestLiveMediaPhase(PungiTestCase):
 
         phase.run()
         self.assertTrue(phase.pool.add.called)
+
         self.assertEqual(
             phase.pool.queue_put.call_args_list,
             [
@@ -464,6 +474,7 @@ class TestLiveMediaPhase(PungiTestCase):
                             "version": "25",
                             "subvariant": "Something",
                             "failable_arches": ["x86_64"],
+                            "nomacboot": True,
                         },
                     )
                 )

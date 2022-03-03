@@ -391,6 +391,9 @@ class KojiWrapper(object):
         if "can_fail" in options:
             cmd.append("--can-fail=%s" % ",".join(options["can_fail"]))
 
+        if options.get("nomacboot"):
+            cmd.append("--nomacboot")
+
         if wait:
             cmd.append("--wait")
 

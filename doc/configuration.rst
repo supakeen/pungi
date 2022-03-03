@@ -1451,6 +1451,7 @@ Live Media Settings
       * ``repo`` (*str|[str]*) -- repos specified by URL or variant UID
       * ``title`` (*str*)
       * ``install_tree_from`` (*str*) -- variant to take install tree from
+      * ``nomacboot`` (*bool*)
 
 
 Image Build Settings
