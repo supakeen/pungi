@@ -760,7 +760,7 @@ Options
     (*bool*) -- When set to ``True``, *Pungi* will try to reuse gather results
     from old compose specified by ``--old-composes``.
 
-**greedy_method**
+**greedy_method** = none
     (*str*) -- This option controls how package requirements are satisfied in
     case a particular ``Requires`` has multiple candidates.
 
@@ -781,7 +781,7 @@ Options
           pulled in.
         * With ``greedy_method = "all"`` all three packages will be
           pulled in.
-        * With ``greedy_method = "build" ``pkg-b-provider-1`` and
+        * With ``greedy_method = "build"`` ``pkg-b-provider-1`` and
           ``pkg-b-provider-2`` will be pulled in.
 
 **gather_backend**
