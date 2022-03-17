@@ -235,7 +235,7 @@ class OSBSThreadTest(helpers.PungiTestCase):
             expect_calls.extend(
                 [
                     mock.call.koji_proxy.getBuild(54321),
-                    mock.call.koji_proxy.listArchives(54321),
+                    mock.call.koji_proxy.listArchives(54321, type="image"),
                     mock.call.koji_proxy.listRPMs(imageID=1436049),
                 ]
             )

@@ -422,7 +422,7 @@ def add_metadata(variant, task_id, compose, is_scratch):
     else:
         build_id = int(result["koji_builds"][0])
         buildinfo = koji.koji_proxy.getBuild(build_id)
-        archives = koji.koji_proxy.listArchives(build_id)
+        archives = koji.koji_proxy.listArchives(build_id, type="image")
 
         nvr = "%(name)s-%(version)s-%(release)s" % buildinfo
 
