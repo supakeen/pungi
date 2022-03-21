@@ -1876,15 +1876,22 @@ they are not scratch builds).
     ``gpgkey`` can be specified to enable gpgcheck in repo files for variants.
 
 **osbs_registries**
-   (*dict*) -- It is possible to configure extra information about where to
-   push the image (unless it is a scratch build). For each finished build,
-   Pungi will try to match NVR against a key in this mapping (using shell-style
-   globbing) and take the corresponding value and collect them across all built
-   images. The data will be saved into ``logs/global/osbs-registries.json`` as
-   a mapping from Koji NVR to the registry data. The same data is also sent to
-   the message bus on ``osbs-request-push`` topic once the compose finishes
-   successfully. Handling the message and performing the actual push is outside
-   of scope for Pungi.
+   (*dict*) -- Use this optional setting to emit ``osbs-request-push``
+   messages for each non-scratch container build. These messages can guide
+   other tools how to push the images to other registries. For example, an
+   external tool might trigger on these messages and copy the images from
+   OSBS's registry to a staging or production registry.
+
+   For each completed container build, Pungi will try to match the NVR against
+   a key in ``osbs_registries`` mapping (using shell-style globbing) and take
+   the corresponding value and collect them across all built images. Pungi
+   will save this data into ``logs/global/osbs-registries.json``, mapping each
+   Koji NVR to the registry data. Pungi will also send this data to the
+   message bus on the ``osbs-request-push`` topic once the compose finishes
+   successfully.
+
+   Pungi simply logs the mapped data and emits the messages. It does not
+   handle the messages or push images. A separate tool must do that.
 
 
 Example config
