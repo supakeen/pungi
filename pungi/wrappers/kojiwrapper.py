@@ -65,6 +65,9 @@ class KojiWrapper(object):
                 self.koji_module.config.server, session_opts
             )
 
+    # This retry should be removed once https://pagure.io/koji/issue/3170 is
+    # fixed and released.
+    @util.retry(wait_on=(xmlrpclib.ProtocolError, koji.GenericError))
     def login(self):
         """Authenticate to the hub."""
         auth_type = self.koji_module.config.authtype
