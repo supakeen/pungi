@@ -408,7 +408,7 @@ class Compose(kobo.log.LoggingBase):
                 )
         else:
             file_name = os.path.basename(scm_dict)
-            scm_dict = os.path.join(self.config_dir, os.path.basename(scm_dict))
+            scm_dict = os.path.join(self.config_dir, scm_dict)
 
         self.log_debug("Writing variants file: %s", variants_file)
         tmp_dir = self.mkdtemp(prefix="variants_file_")
