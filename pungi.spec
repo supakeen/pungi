@@ -1,5 +1,5 @@
 Name:           pungi
-Version:        4.3.3
+Version:        4.3.4
 Release:        1%{?dist}
 Summary:        Distribution compose tool
 
@@ -111,6 +111,20 @@ pytest
 cd tests && ./test_compose.sh
 
 %changelog
+* Fri Apr 01 2022 Ondřej Nosek <onosek@redhat.com> - 4.3.4-1
+- kojiwrapper: Add retries to login call (lsedlar)
+- Variants file in config can contain path (onosek)
+- nomacboot option for livemedia koji tasks (cobrien)
+- doc: improve osbs_registries explanation (kdreyer)
+- osbs: only handle archives of type "image" (kdreyer)
+- Update the default greedy_method value in doc (ounsal)
+- Fix the wrong working directory for the progress_notification script (ounsal)
+- Filter out environment groups unmatch given arch (hlin)
+- profiler: Respect provided output stream (lsedlar)
+- modules: Correct a typo in loading obsoletes (ppisar)
+- Do not clone the same repository multiple times, re-use already cloned
+  repository (ounsal)
+
 * Sat Jan 08 2022 Haibo Lin <hlin@redhat.com> - 4.3.3-1
 - hybrid: Explicitly pull in debugsource packages (lsedlar)
 - Add module obsoletes feature (fvalder)
