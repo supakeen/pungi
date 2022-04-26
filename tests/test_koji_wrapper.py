@@ -668,6 +668,30 @@ class RunrootKojiWrapperTest(KojiWrapperBaseTestCase):
             ],
         )
 
+    @mock.patch("pungi.wrappers.kojiwrapper.run")
+    def test_run_runroot_cmd_with_warnings_before_task_id(self, run):
+        cmd = ["koji", "runroot", "--task-id"]
+        run.return_value = (0, "DeprecatioNWarning: whatever\n1234\n")
+        output = "Output ..."
+        self.koji._wait_for_task = mock.Mock(return_value=(0, output))
+
+        result = self.koji.run_runroot_cmd(cmd)
+        self.assertDictEqual(result, {"retcode": 0, "output": output, "task_id": 1234})
+        self.assertEqual(
+            run.call_args_list,
+            [
+                mock.call(
+                    cmd,
+                    can_fail=True,
+                    env={"FOO": "BAR", "PYTHONUNBUFFERED": "1"},
+                    buffer_size=-1,
+                    logfile=None,
+                    show_cmd=True,
+                    universal_newlines=True,
+                )
+            ],
+        )
+
     @mock.patch("shutil.rmtree")
     @mock.patch("tempfile.mkdtemp")
     @mock.patch("pungi.wrappers.kojiwrapper.run")

@@ -291,15 +291,20 @@ class KojiWrapper(object):
                 universal_newlines=True,
             )
 
-        first_line = output.splitlines()[0]
-        match = re.search(r"^(\d+)$", first_line)
-        if not match:
+        # Look for first line that contains only a number. This is the ID of
+        # the new task. Usually this should be the first line, but there may be
+        # warnings before it.
+        for line in output.splitlines():
+            match = re.search(r"^(\d+)$", line)
+            if match:
+                task_id = int(match.groups()[0])
+                break
+
+        if not task_id:
             raise RuntimeError(
                 "Could not find task ID in output. Command '%s' returned '%s'."
                 % (" ".join(command), output)
             )
-
-        task_id = int(match.groups()[0])
 
         self.save_task_id(task_id)
 
