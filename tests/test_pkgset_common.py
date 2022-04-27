@@ -96,24 +96,51 @@ class TestMaterializedPkgsetCreate(helpers.PungiTestCase):
 
     @helpers.unittest.skipUnless(Modulemd, "Skipping tests, no module support")
     @mock.patch("pungi.phases.pkgset.common.collect_module_defaults")
+    @mock.patch("pungi.phases.pkgset.common.collect_module_obsoletes")
     @mock.patch("pungi.phases.pkgset.common.add_modular_metadata")
-    def test_run_with_modulemd(self, amm, cmd, mock_run):
-        mmd = {"x86_64": [mock.Mock()]}
+    def test_run_with_modulemd(self, amm, cmo, cmd, mock_run):
+        # Test Index for cmo
+        mod_index = Modulemd.ModuleIndex.new()
+        mmdobs = Modulemd.Obsoletes.new(
+            1, 10993435, "mod_name", "mod_stream", "testmsg"
+        )
+        mmdobs.set_obsoleted_by("mod_name", "mod_name_2")
+        mod_index.add_obsoletes(mmdobs)
+        cmo.return_value = mod_index
+
+        mmd = {
+            "x86_64": [
+                Modulemd.ModuleStream.new(
+                    Modulemd.ModuleStreamVersionEnum.TWO, "mod_name", "stream_name"
+                )
+            ]
+        }
         common.MaterializedPackageSet.create(
             self.compose, self.pkgset, self.prefix, mmd=mmd
         )
         cmd.assert_called_once_with(
             os.path.join(self.topdir, "work/global/module_defaults"),
-            set(x.get_module_name.return_value for x in mmd["x86_64"]),
+            {"mod_name"},
             overrides_dir=None,
         )
-        amm.assert_called_once_with(
-            mock.ANY,
-            os.path.join(self.topdir, "work/x86_64/repo/foo"),
-            cmd.return_value,
+
+        cmo.assert_called_once()
+        cmd.assert_called_once()
+        amm.assert_called_once()
+
+        self.assertEqual(
+            amm.mock_calls[0].args[1], os.path.join(self.topdir, "work/x86_64/repo/foo")
+        )
+        self.assertIsInstance(amm.mock_calls[0].args[2], Modulemd.ModuleIndex)
+        self.assertIsNotNone(amm.mock_calls[0].args[2].get_module("mod_name"))
+        # Check if proper Index is used by add_modular_metadata
+        self.assertIsNotNone(
+            amm.mock_calls[0].args[2].get_module("mod_name").get_obsoletes()
+        )
+        self.assertEqual(
+            amm.mock_calls[0].args[3],
             os.path.join(self.topdir, "logs/x86_64/arch_repo_modulemd.foo.x86_64.log"),
         )
-        cmd.return_value.add_module_stream.assert_called_once_with(mmd["x86_64"][0])
 
 
 class TestCreateArchRepos(helpers.PungiTestCase):

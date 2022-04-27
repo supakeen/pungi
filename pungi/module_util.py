@@ -25,10 +25,9 @@ except (ImportError, ValueError):
     Modulemd = None
 
 
-def iter_module_defaults_or_obsoletes(path, obsoletes=False):
+def iter_module_defaults(path):
     """Given a path to a directory with yaml files, yield each module default
     in there as a pair (module_name, ModuleDefaults instance).
-    The same happens for module obsoletes if the obsoletes switch is True.
     """
     # It is really tempting to merge all the module indexes into a single one
     # and work with it. However that does not allow for detecting conflicting
@@ -42,10 +41,31 @@ def iter_module_defaults_or_obsoletes(path, obsoletes=False):
         index = Modulemd.ModuleIndex()
         index.update_from_file(file, strict=False)
         for module_name in index.get_module_names():
-            if obsoletes:
-                yield module_name, index.get_module(module_name).get_obsoletes()
-            else:
-                yield module_name, index.get_module(module_name).get_defaults()
+            yield module_name, index.get_module(module_name).get_defaults()
+
+
+def get_module_obsoletes_idx(path, mod_list):
+    """Given a path to a directory with yaml files, return Index with
+    merged all obsoletes.
+    """
+
+    merger = Modulemd.ModuleIndexMerger.new()
+    md_idxs = []
+
+    # associate_index does NOT copy it's argument (nor increases a
+    # reference counter on the object). It only stores a pointer.
+    for file in glob.glob(os.path.join(path, "*.yaml")):
+        index = Modulemd.ModuleIndex()
+        index.update_from_file(file, strict=False)
+        mod_name = index.get_module_names()[0]
+
+        if mod_name and (mod_name in mod_list or not mod_list):
+            md_idxs.append(index)
+            merger.associate_index(md_idxs[-1], 0)
+
+    merged_idx = merger.resolve()
+
+    return merged_idx
 
 
 def collect_module_defaults(
@@ -78,16 +98,21 @@ def collect_module_defaults(
 def collect_module_obsoletes(obsoletes_dir, modules_to_load, mod_index=None):
     """Load module obsoletes into index.
 
-    This works in a similar fashion as collect_module_defaults except the overrides_dir
-    feature.
+    This works in a similar fashion as collect_module_defaults except it
+    merges indexes together instead of adding them during iteration.
+
+    Additionally if modules_to_load is not empty returned Index will include
+    only obsoletes for those modules.
     """
-    mod_index = mod_index or Modulemd.ModuleIndex()
 
-    for module_name, obsoletes in iter_module_defaults_or_obsoletes(
-        obsoletes_dir, obsoletes=True
-    ):
-        for obsolete in obsoletes:
-            if not modules_to_load or module_name in modules_to_load:
-                mod_index.add_obsoletes(obsolete)
+    obsoletes_index = get_module_obsoletes_idx(obsoletes_dir, modules_to_load)
 
-    return mod_index
+    # Merge Obsoletes with Modules Index.
+    if mod_index:
+        merger = Modulemd.ModuleIndexMerger.new()
+        merger.associate_index(mod_index, 0)
+        merger.associate_index(obsoletes_index, 0)
+        merged_idx = merger.resolve()
+        obsoletes_index = merged_idx
+
+    return obsoletes_index

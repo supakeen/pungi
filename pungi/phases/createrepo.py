@@ -267,7 +267,7 @@ def create_variant_repo(
         )
 
         obsoletes_dir = compose.paths.work.module_obsoletes_dir()
-        collect_module_obsoletes(obsoletes_dir, module_names, mod_index)
+        mod_index = collect_module_obsoletes(obsoletes_dir, module_names, mod_index)
 
         # Add extra modulemd files
         if variant.uid in compose.conf.get("createrepo_extra_modulemd", {}):

@@ -24,7 +24,8 @@ from tests.helpers import (
 
 @mock.patch("pungi.phases.init.run_in_threads", new=fake_run_in_threads)
 @mock.patch("pungi.phases.init.validate_comps")
-@mock.patch("pungi.phases.init.validate_module_defaults_or_obsoletes")
+@mock.patch("pungi.phases.init.validate_module_defaults")
+@mock.patch("pungi.phases.init.write_module_obsoletes")
 @mock.patch("pungi.phases.init.write_module_defaults")
 @mock.patch("pungi.phases.init.write_global_comps")
 @mock.patch("pungi.phases.init.write_arch_comps")
@@ -40,6 +41,7 @@ class TestInitPhase(PungiTestCase):
         write_arch,
         write_global,
         write_defaults,
+        write_obsoletes,
         validate_defaults,
         validate_comps,
     ):
@@ -85,6 +87,7 @@ class TestInitPhase(PungiTestCase):
             ],
         )
         self.assertEqual(write_defaults.call_args_list, [])
+        self.assertEqual(write_obsoletes.call_args_list, [])
         self.assertEqual(validate_defaults.call_args_list, [])
 
     def test_run_with_preserve(
@@ -95,6 +98,7 @@ class TestInitPhase(PungiTestCase):
         write_arch,
         write_global,
         write_defaults,
+        write_obsoletes,
         validate_defaults,
         validate_comps,
     ):
@@ -142,6 +146,7 @@ class TestInitPhase(PungiTestCase):
             ],
         )
         self.assertEqual(write_defaults.call_args_list, [])
+        self.assertEqual(write_obsoletes.call_args_list, [])
         self.assertEqual(validate_defaults.call_args_list, [])
 
     def test_run_without_comps(
@@ -152,6 +157,7 @@ class TestInitPhase(PungiTestCase):
         write_arch,
         write_global,
         write_defaults,
+        write_obsoletes,
         validate_defaults,
         validate_comps,
     ):
@@ -169,6 +175,7 @@ class TestInitPhase(PungiTestCase):
         self.assertEqual(create_comps.mock_calls, [])
         self.assertEqual(write_variant.mock_calls, [])
         self.assertEqual(write_defaults.call_args_list, [])
+        self.assertEqual(write_obsoletes.call_args_list, [])
         self.assertEqual(validate_defaults.call_args_list, [])
 
     def test_with_module_defaults(
@@ -179,6 +186,7 @@ class TestInitPhase(PungiTestCase):
         write_arch,
         write_global,
         write_defaults,
+        write_obsoletes,
         validate_defaults,
         validate_comps,
     ):
@@ -196,10 +204,40 @@ class TestInitPhase(PungiTestCase):
         self.assertEqual(create_comps.mock_calls, [])
         self.assertEqual(write_variant.mock_calls, [])
         self.assertEqual(write_defaults.call_args_list, [mock.call(compose)])
+        self.assertEqual(write_obsoletes.call_args_list, [])
         self.assertEqual(
             validate_defaults.call_args_list,
             [mock.call(compose.paths.work.module_defaults_dir())],
         )
+
+    def test_with_module_obsoletes(
+        self,
+        write_prepopulate,
+        write_variant,
+        create_comps,
+        write_arch,
+        write_global,
+        write_defaults,
+        write_obsoletes,
+        validate_defaults,
+        validate_comps,
+    ):
+        compose = DummyCompose(self.topdir, {})
+        compose.has_comps = False
+        compose.has_module_defaults = False
+        compose.has_module_obsoletes = True
+        phase = init.InitPhase(compose)
+        phase.run()
+
+        self.assertEqual(write_global.mock_calls, [])
+        self.assertEqual(validate_comps.call_args_list, [])
+        self.assertEqual(write_prepopulate.mock_calls, [mock.call(compose)])
+        self.assertEqual(write_arch.mock_calls, [])
+        self.assertEqual(create_comps.mock_calls, [])
+        self.assertEqual(write_variant.mock_calls, [])
+        self.assertEqual(write_defaults.call_args_list, [])
+        self.assertEqual(write_obsoletes.call_args_list, [mock.call(compose)])
+        self.assertEqual(validate_defaults.call_args_list, [])
 
 
 class TestWriteArchComps(PungiTestCase):
@@ -624,13 +662,13 @@ class TestValidateModuleDefaults(PungiTestCase):
     def test_valid_files(self):
         self._write_defaults({"httpd": ["1"], "python": ["3.6"]})
 
-        init.validate_module_defaults_or_obsoletes(self.topdir)
+        init.validate_module_defaults(self.topdir)
 
     def test_duplicated_stream(self):
         self._write_defaults({"httpd": ["1"], "python": ["3.6", "3.5"]})
 
         with self.assertRaises(RuntimeError) as ctx:
-            init.validate_module_defaults_or_obsoletes(self.topdir)
+            init.validate_module_defaults(self.topdir)
 
         self.assertIn(
             "Module python has multiple defaults: 3.5, 3.6", str(ctx.exception)
@@ -640,7 +678,7 @@ class TestValidateModuleDefaults(PungiTestCase):
         self._write_defaults({"httpd": ["1", "2"], "python": ["3.6", "3.5"]})
 
         with self.assertRaises(RuntimeError) as ctx:
-            init.validate_module_defaults_or_obsoletes(self.topdir)
+            init.validate_module_defaults(self.topdir)
 
         self.assertIn("Module httpd has multiple defaults: 1, 2", str(ctx.exception))
         self.assertIn(
@@ -665,7 +703,10 @@ class TestValidateModuleDefaults(PungiTestCase):
             ),
         )
 
-        init.validate_module_defaults_or_obsoletes(self.topdir)
+        with self.assertRaises(RuntimeError) as ctx:
+            init.validate_module_defaults(self.topdir)
+
+        self.assertIn("Defaults contains not valid default file", str(ctx.exception))
 
 
 @mock.patch("pungi.phases.init.CompsWrapper")

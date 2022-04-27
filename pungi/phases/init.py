@@ -16,6 +16,7 @@
 
 import collections
 import os
+import glob
 import shutil
 
 from kobo.shortcuts import run
@@ -24,7 +25,7 @@ from kobo.threads import run_in_threads
 from pungi.phases.base import PhaseBase
 from pungi.phases.gather import write_prepopulate_file
 from pungi.util import temp_dir
-from pungi.module_util import iter_module_defaults_or_obsoletes
+from pungi.module_util import iter_module_defaults
 from pungi.wrappers.comps import CompsWrapper
 from pungi.wrappers.createrepo import CreaterepoWrapper
 from pungi.wrappers.scm import get_dir_from_scm, get_file_from_scm
@@ -68,17 +69,13 @@ class InitPhase(PhaseBase):
         # download module defaults
         if self.compose.has_module_defaults:
             write_module_defaults(self.compose)
-            validate_module_defaults_or_obsoletes(
+            validate_module_defaults(
                 self.compose.paths.work.module_defaults_dir(create_dir=False)
             )
 
         # download module obsoletes
         if self.compose.has_module_obsoletes:
             write_module_obsoletes(self.compose)
-            validate_module_defaults_or_obsoletes(
-                self.compose.paths.work.module_obsoletes_dir(create_dir=False),
-                obsoletes=True,
-            )
 
         # write prepopulate file
         write_prepopulate_file(self.compose)
@@ -244,36 +241,37 @@ def write_module_obsoletes(compose):
         )
 
 
-def validate_module_defaults_or_obsoletes(path, obsoletes=False):
-    """Make sure there are no conflicting defaults. Each module name can only
-    have one default stream or module obsolete.
+def validate_module_defaults(path):
+    """Make sure there are no conflicting defaults and every default can be loaded.
+    Each module name can onlyhave one default stream.
 
-    :param str path: directory with cloned module defaults/obsoletes
+    :param str path: directory with cloned module defaults
     """
-    seen = collections.defaultdict(set)
-    mmd_type = "obsoletes" if obsoletes else "defaults"
 
-    for module_name, defaults_or_obsoletes in iter_module_defaults_or_obsoletes(
-        path, obsoletes
-    ):
-        if obsoletes:
-            for obsolete in defaults_or_obsoletes:
-                seen[obsolete.props.module_name].add(obsolete)
-        else:
-            seen[module_name].add(defaults_or_obsoletes.get_default_stream())
+    defaults_num = len(glob.glob(os.path.join(path, "*.yaml")))
+
+    seen_defaults = collections.defaultdict(set)
+
+    for module_name, defaults in iter_module_defaults(path):
+        seen_defaults[module_name].add(defaults.get_default_stream())
 
     errors = []
-    for module_name, defaults_or_obsoletes in seen.items():
-        if len(defaults_or_obsoletes) > 1:
+    for module_name, defaults in seen_defaults.items():
+        if len(defaults) > 1:
             errors.append(
-                "Module %s has multiple %s: %s"
-                % (module_name, mmd_type, ", ".join(sorted(defaults_or_obsoletes)))
+                "Module %s has multiple defaults: %s"
+                % (module_name, ", ".join(sorted(defaults)))
             )
 
     if errors:
         raise RuntimeError(
-            "There are duplicated module %s:\n%s" % (mmd_type, "\n".join(errors))
+            "There are duplicated module defaults:\n%s" % "\n".join(errors)
         )
+
+    # Make sure all defaults are valid otherwise update_from_defaults_directory
+    # will return empty object
+    if defaults_num != len(seen_defaults):
+        raise RuntimeError("Defaults contains not valid default file")
 
 
 def validate_comps(path):
