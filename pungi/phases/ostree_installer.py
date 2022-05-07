@@ -272,6 +272,7 @@ class OstreeInstallerThread(WorkerThread):
                 rootfs_size=config.get("rootfs_size"),
                 is_final=compose.supported,
                 log_dir=self.logdir,
+                skip_branding=config.get("skip_branding"),
             )
             cmd = "rm -rf %s && %s" % (
                 shlex_quote(output_dir),

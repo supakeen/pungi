@@ -1078,6 +1078,7 @@ def make_schema():
                         "template_repo": {"type": "string"},
                         "template_branch": {"type": "string"},
                         "extra_runroot_pkgs": {"$ref": "#/definitions/list_of_strings"},
+                        "skip_branding": {"type": "boolean"},
                     },
                     "additionalProperties": False,
                 }

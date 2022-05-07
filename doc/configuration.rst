@@ -1786,6 +1786,8 @@ an OSTree repository. This always runs in Koji as a ``runroot`` task.
     with the optional key:
 
     * ``extra_runroot_pkgs`` -- (*[str]*)
+    * ``skip_branding`` -- (*bool*) Stops lorax to install packages with branding.
+      Defaults to ``False``.
 
 **ostree_installer_overwrite** = False
     (*bool*) -- by default if a variant including OSTree installer also creates
