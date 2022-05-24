@@ -24,6 +24,7 @@ import time
 import tempfile
 import shutil
 import json
+import socket
 
 import kobo.log
 import kobo.tback
@@ -98,6 +99,8 @@ def get_compose_info(
         authentication = get_authentication(conf)
         if cts_keytab:
             environ_copy = dict(os.environ)
+            if "$HOSTNAME" in cts_keytab:
+                cts_keytab = cts_keytab.replace("$HOSTNAME", socket.gethostname())
             os.environ["KRB5_CLIENT_KTNAME"] = cts_keytab
 
         try:
