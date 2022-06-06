@@ -15,6 +15,7 @@ CreateIsoOpts = namedtuple(
     "CreateIsoOpts",
     [
         "buildinstall_method",
+        "boot_iso",
         "arch",
         "output_dir",
         "jigdo_dir",
@@ -26,6 +27,7 @@ CreateIsoOpts = namedtuple(
         "hfs_compat",
         "use_xorrisofs",
         "iso_level",
+        "script_dir",
     ],
 )
 CreateIsoOpts.__new__.__defaults__ = (None,) * len(CreateIsoOpts._fields)
@@ -116,6 +118,27 @@ def make_jigdo(f, opts):
     emit(f, cmd)
 
 
+def write_xorriso_commands(opts):
+    script = os.path.join(opts.script_dir, "xorriso-%s.txt" % id(opts))
+    with open(script, "w") as f:
+        emit(f, "-indev %s" % opts.boot_iso)
+        emit(f, "-outdev %s" % os.path.join(opts.output_dir, opts.iso_name))
+        emit(f, "-boot_image any replay")
+        emit(f, "-volid %s" % opts.volid)
+
+        with open(opts.graft_points) as gp:
+            for line in gp:
+                iso_path, fs_path = line.strip().split("=", 1)
+                emit(f, "-map %s %s" % (fs_path, iso_path))
+
+        if opts.arch == "ppc64le":
+            # This is needed for the image to be bootable.
+            emit(f, "-as mkisofs -U --")
+
+        emit(f, "-end")
+    return script
+
+
 def write_script(opts, f):
     if bool(opts.jigdo_dir) != bool(opts.os_tree):
         raise RuntimeError("jigdo_dir must be used together with os_tree")
@@ -123,8 +146,14 @@ def write_script(opts, f):
     emit(f, "#!/bin/bash")
     emit(f, "set -ex")
     emit(f, "cd %s" % opts.output_dir)
-    make_image(f, opts)
-    run_isohybrid(f, opts)
+
+    if opts.use_xorrisofs and opts.buildinstall_method:
+        script = write_xorriso_commands(opts)
+        emit(f, "xorriso -dialog on <%s" % script)
+    else:
+        make_image(f, opts)
+        run_isohybrid(f, opts)
+
     implant_md5(f, opts)
     make_manifest(f, opts)
     if opts.jigdo_dir:

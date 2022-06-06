@@ -124,6 +124,7 @@ class CreateisoPhaseTest(helpers.PungiTestCase):
                     os_tree=None,
                     hfs_compat=True,
                     use_xorrisofs=False,
+                    script_dir="%s/work/x86_64/tmp-Server" % self.topdir,
                 )
             ],
         )
@@ -240,6 +241,9 @@ class CreateisoPhaseTest(helpers.PungiTestCase):
             [
                 CreateIsoOpts(
                     output_dir="%s/compose/Server/x86_64/iso" % self.topdir,
+                    boot_iso=(
+                        "%s/compose/Server/x86_64/os/images/boot.iso" % self.topdir
+                    ),
                     iso_name="image-name",
                     volid="test-1.0 Server.x86_64",
                     graft_points="dummy-graft-points",
@@ -250,6 +254,7 @@ class CreateisoPhaseTest(helpers.PungiTestCase):
                     os_tree=None,
                     hfs_compat=True,
                     use_xorrisofs=False,
+                    script_dir="%s/work/x86_64/tmp-Server" % self.topdir,
                 ),
                 CreateIsoOpts(
                     output_dir="%s/compose/Server/source/iso" % self.topdir,
@@ -262,6 +267,7 @@ class CreateisoPhaseTest(helpers.PungiTestCase):
                     os_tree=None,
                     hfs_compat=True,
                     use_xorrisofs=False,
+                    script_dir="%s/work/src/tmp-Server" % self.topdir,
                 ),
             ],
         )
@@ -394,6 +400,7 @@ class CreateisoPhaseTest(helpers.PungiTestCase):
                     os_tree=None,
                     hfs_compat=True,
                     use_xorrisofs=False,
+                    script_dir="%s/work/src/tmp-Server" % self.topdir,
                 )
             ],
         )
@@ -501,6 +508,7 @@ class CreateisoPhaseTest(helpers.PungiTestCase):
                     os_tree=None,
                     hfs_compat=False,
                     use_xorrisofs=False,
+                    script_dir="%s/work/x86_64/tmp-Server" % self.topdir,
                 )
             ],
         )

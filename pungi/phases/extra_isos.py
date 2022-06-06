@@ -132,14 +132,15 @@ class ExtraIsosThread(WorkerThread):
             use_xorrisofs=compose.conf.get("createiso_use_xorrisofs"),
             iso_level=compose.conf.get("iso_level"),
         )
+        os_tree = compose.paths.compose.os_tree(arch, variant)
         if compose.conf["create_jigdo"]:
             jigdo_dir = compose.paths.compose.jigdo_dir(arch, variant)
-            os_tree = compose.paths.compose.os_tree(arch, variant)
             opts = opts._replace(jigdo_dir=jigdo_dir, os_tree=os_tree)
 
         if bootable:
             opts = opts._replace(
-                buildinstall_method=compose.conf["buildinstall_method"]
+                buildinstall_method=compose.conf["buildinstall_method"],
+                boot_iso=os.path.join(os_tree, "images", "boot.iso"),
             )
 
         # Check if it can be reused.
@@ -148,9 +149,9 @@ class ExtraIsosThread(WorkerThread):
         config_hash = hash.hexdigest()
 
         if not self.try_reuse(compose, variant, arch, config_hash, opts):
-            script_file = os.path.join(
-                compose.paths.work.tmp_dir(arch, variant), "extraiso-%s.sh" % filename
-            )
+            script_dir = compose.paths.work.tmp_dir(arch, variant)
+            opts = opts._replace(script_dir=script_dir)
+            script_file = os.path.join(script_dir, "extraiso-%s.sh" % filename)
             with open(script_file, "w") as f:
                 createiso.write_script(opts, f)
 

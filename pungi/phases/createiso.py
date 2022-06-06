@@ -343,7 +343,10 @@ class CreateisoPhase(PhaseLoggerMixin, PhaseBase):
 
                     if bootable:
                         opts = opts._replace(
-                            buildinstall_method=self.compose.conf["buildinstall_method"]
+                            buildinstall_method=self.compose.conf[
+                                "buildinstall_method"
+                            ],
+                            boot_iso=os.path.join(os_tree, "images", "boot.iso"),
                         )
 
                     if self.compose.conf["create_jigdo"]:
@@ -355,10 +358,9 @@ class CreateisoPhase(PhaseLoggerMixin, PhaseBase):
                         # Reuse was successful, go to next ISO
                         continue
 
-                    script_file = os.path.join(
-                        self.compose.paths.work.tmp_dir(arch, variant),
-                        "createiso-%s.sh" % filename,
-                    )
+                    script_dir = self.compose.paths.work.tmp_dir(arch, variant)
+                    opts = opts._replace(script_dir=script_dir)
+                    script_file = os.path.join(script_dir, "createiso-%s.sh" % filename)
                     with open(script_file, "w") as f:
                         createiso.write_script(opts, f)
                     cmd["cmd"] = ["bash", script_file]
