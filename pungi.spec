@@ -1,5 +1,5 @@
 Name:           pungi
-Version:        4.3.4
+Version:        4.3.5
 Release:        1%{?dist}
 Summary:        Distribution compose tool
 
@@ -111,6 +111,17 @@ pytest
 cd tests && ./test_compose.sh
 
 %changelog
+* Wed Jun 15 2022 Lubomír Sedlář <lsedlar@redhat.com> - 4.3.5-1
+- Fix module defaults and obsoletes validation (mkulik)
+- Update the cts_keytab field in order to get the hostname of the server
+  (ounsal)
+- Add skip_branding to ostree_installer. (lzhuang)
+- kojiwrapper: Ignore warnings before task id (lsedlar)
+- Restrict jsonschema version (lsedlar)
+- Revert "Do not clone the same repository multiple times, re-use already
+  cloned repository" (hlin)
+- Involve bandit (hlin)
+
 * Fri Apr 01 2022 Ondřej Nosek <onosek@redhat.com> - 4.3.4-1
 - kojiwrapper: Add retries to login call (lsedlar)
 - Variants file in config can contain path (onosek)
