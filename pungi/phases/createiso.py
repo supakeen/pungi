@@ -387,11 +387,18 @@ def read_packages(graft_points):
     which can change checksum despite data being the same.
     """
     with open(graft_points) as f:
-        return set(line.split("=", 1)[0] for line in f if line.startswith("Packages/"))
+        return set(
+            line.split("=", 1)[0]
+            for line in f
+            if line.startswith("Packages/") or "/Packages/" in line
+        )
 
 
 def compare_packages(old_graft_points, new_graft_points):
-    """Read packages from the two files and compare them."""
+    """Read packages from the two files and compare them.
+
+    :returns bool: True if there are differences, False otherwise
+    """
     old_files = read_packages(old_graft_points)
     new_files = read_packages(new_graft_points)
     return old_files != new_files
