@@ -819,11 +819,16 @@ def populate_global_pkgset(compose, koji_wrapper, path_prefix, event):
             compose.paths.work.pkgset_file_cache(compose_tag)
         )
         if old_cache_path:
-            pkgset.set_old_file_cache(
-                pungi.phases.pkgset.pkgsets.KojiPackageSet.load_old_file_cache(
-                    old_cache_path
+            try:
+                pkgset.set_old_file_cache(
+                    pungi.phases.pkgset.pkgsets.KojiPackageSet.load_old_file_cache(
+                        old_cache_path
+                    )
                 )
-            )
+            except Exception as e:
+                compose.log_debug(
+                    "Failed to load old cache file %s : %s" % (old_cache_path, str(e))
+                )
 
         is_traditional = compose_tag in compose.conf.get("pkgset_koji_tag", [])
         should_inherit = inherit if is_traditional else inherit_modules

@@ -193,9 +193,16 @@ def load_old_gather_result(compose, arch, variant):
         return None
 
     compose.log_info("Loading old GATHER phase results: %s", old_gather_result)
-    with open(old_gather_result, "rb") as f:
-        old_result = pickle.load(f)
-        return old_result
+    try:
+        with open(old_gather_result, "rb") as f:
+            old_result = pickle.load(f)
+            return old_result
+    except Exception as e:
+        compose.log_debug(
+            "Failed to load old GATHER phase results %s : %s"
+            % (old_gather_result, str(e))
+        )
+        return None
 
 
 def reuse_old_gather_packages(compose, arch, variant, package_sets, methods):

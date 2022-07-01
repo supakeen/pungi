@@ -669,9 +669,16 @@ class BuildinstallThread(WorkerThread):
             return None
 
         compose.log_info("Loading old BUILDINSTALL phase metadata: %s", old_metadata)
-        with open(old_metadata, "rb") as f:
-            old_result = pickle.load(f)
-            return old_result
+        try:
+            with open(old_metadata, "rb") as f:
+                old_result = pickle.load(f)
+                return old_result
+        except Exception as e:
+            compose.log_debug(
+                "Failed to load old BUILDINSTALL phase metadata %s : %s"
+                % (old_metadata, str(e))
+            )
+            return None
 
     def _reuse_old_buildinstall_result(self, compose, arch, variant, cmd, pkgset_phase):
         """
