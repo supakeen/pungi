@@ -14,6 +14,8 @@
 # along with this program; if not, see <https://gnu.org/licenses/>.
 
 import logging
+import math
+import time
 
 from pungi import util
 
@@ -58,6 +60,7 @@ class PhaseBase(object):
             self.compose.log_warning("[SKIP ] %s" % self.msg)
             self.finished = True
             return
+        self._start_time = time.time()
         self.compose.log_info("[BEGIN] %s" % self.msg)
         self.compose.notifier.send("phase-start", phase_name=self.name)
         self.run()
@@ -108,6 +111,13 @@ class PhaseBase(object):
             self.pool.stop()
         self.finished = True
         self.compose.log_info("[DONE ] %s" % self.msg)
+
+        if hasattr(self, "_start_time"):
+            self.compose.log_info(
+                "PHASE %s took %d seconds"
+                % (self.name.upper(), math.ceil(time.time() - self._start_time))
+            )
+
         if self.used_patterns is not None:
             # We only want to report this if the config was actually queried.
             self.report_unused_patterns()
