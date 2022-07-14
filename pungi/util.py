@@ -292,7 +292,8 @@ def resolve_git_ref(repourl, ref):
         _, output = git_ls_remote(repourl, ref)
     except RuntimeError as e:
         raise GitUrlResolveError(
-            "ref does not exist in remote repo %s with the error %s" % (repourl, e)
+            "ref does not exist in remote repo %s with the error %s %s"
+            % (repourl, e, e.output)
         )
 
     lines = []
