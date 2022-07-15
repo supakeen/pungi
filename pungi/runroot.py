@@ -15,6 +15,7 @@
 
 import os
 import re
+import six
 from six.moves import shlex_quote
 import kobo.log
 from kobo.shortcuts import run
@@ -149,7 +150,11 @@ class Runroot(kobo.log.LoggingBase):
         """
         formatted_cmd = command.format(**fmt_dict) if fmt_dict else command
         ssh_cmd = ["ssh", "-oBatchMode=yes", "-n", "-l", user, hostname, formatted_cmd]
-        return run(ssh_cmd, show_cmd=True, logfile=log_file)[1]
+        output = run(ssh_cmd, show_cmd=True, logfile=log_file)[1]
+        if six.PY3 and isinstance(output, bytes):
+            return output.decode()
+        else:
+            return output
 
     def _log_file(self, base, suffix):
         return base.replace(".log", "." + suffix + ".log")
