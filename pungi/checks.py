@@ -229,7 +229,6 @@ def validate(config, offline=False, schema=None):
     )
     validator = DefaultValidator(
         schema,
-        {"array": (tuple, list), "regex": six.string_types, "url": six.string_types},
     )
     errors = []
     warnings = []
@@ -445,6 +444,16 @@ def _extend_with_default_and_alias(validator_class, offline=False):
                 context=all_errors,
             )
 
+    def is_array(checker, instance):
+        return isinstance(instance, (tuple, list))
+
+    def is_string_type(checker, instance):
+        return isinstance(instance, six.string_types)
+
+    type_checker = validator_class.TYPE_CHECKER.redefine_many(
+        {"array": is_array, "regex": is_string_type, "url": is_string_type}
+    )
+
     return jsonschema.validators.extend(
         validator_class,
         {
@@ -455,6 +464,7 @@ def _extend_with_default_and_alias(validator_class, offline=False):
             "additionalProperties": _validate_additional_properties,
             "anyOf": _validate_any_of,
         },
+        type_checker=type_checker,
     )
 
 

@@ -3,7 +3,7 @@ dict.sorted
 dogpile.cache
 fedmsg
 funcsigs
-jsonschema < 4.0.0
+jsonschema
 kobo
 koji
 lxml
