@@ -1592,7 +1592,7 @@ OSBuild Composer for building images
 
     * ``name`` -- name of the Koji package
     * ``distro`` -- image for which distribution should be build TODO examples
-    * ``image_type`` -- a list of image types to build (e.g. ``qcow2``)
+    * ``image_types`` -- a list of image types to build (e.g. ``qcow2``)
 
     Optional keys:
 
