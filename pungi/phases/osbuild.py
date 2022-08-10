@@ -113,8 +113,19 @@ class RunOSBuildThread(WorkerThread):
         koji = kojiwrapper.KojiWrapper(compose)
         koji.login()
 
+        ostree = {}
+        if config.get("ostree_url"):
+            ostree["url"] = config["ostree_url"]
+        if config.get("ostree_ref"):
+            ostree["ref"] = config["ostree_ref"]
+        if config.get("ostree_parent"):
+            ostree["parent"] = config["ostree_parent"]
+
         # Start task
         opts = {"repo": repo}
+        if ostree:
+            opts["ostree"] = ostree
+
         if release:
             opts["release"] = release
         task_id = koji.koji_proxy.osbuildImage(

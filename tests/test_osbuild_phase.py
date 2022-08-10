@@ -178,7 +178,6 @@ class RunOSBuildThreadTest(helpers.PungiTestCase):
 
         # Verify two Koji instances were created.
         self.assertEqual(len(KojiWrapper.call_args), 2)
-        print(koji.mock_calls)
         # Verify correct calls to Koji
         self.assertEqual(
             koji.mock_calls,
@@ -241,6 +240,139 @@ class RunOSBuildThreadTest(helpers.PungiTestCase):
                     % {"arch": arch},
                     self.topdir
                     + "/compose/Everything/%(arch)s/images/disk.%(arch)s.qcow2"
+                    % {"arch": arch},
+                    link_type="hardlink-or-copy",
+                )
+                for arch in ["aarch64", "x86_64"]
+            ],
+        )
+
+    @mock.patch("pungi.util.get_file_size", new=lambda fp: 65536)
+    @mock.patch("pungi.util.get_mtime", new=lambda fp: 1024)
+    @mock.patch("pungi.phases.osbuild.Linker")
+    @mock.patch("pungi.phases.osbuild.kojiwrapper.KojiWrapper")
+    def test_process_ostree(self, KojiWrapper, Linker):
+        cfg = {
+            "name": "test-image",
+            "distro": "rhel-8",
+            "image_types": ["edge-raw-disk"],
+            "ostree_url": "http://edge.example.com/repo",
+            "ostree_ref": "test/iot",
+            "ostree_parent": "test/iot-parent",
+        }
+        build_id = 5678
+        koji = KojiWrapper.return_value
+        koji.watch_task.side_effect = self.make_fake_watch(0)
+        koji.koji_proxy.osbuildImage.return_value = 1234
+        koji.koji_proxy.getTaskResult.return_value = {
+            "composer": {"server": "https://composer.osbuild.org", "id": ""},
+            "koji": {"build": build_id},
+        }
+        koji.koji_proxy.getBuild.return_value = {
+            "build_id": build_id,
+            "name": "test-image",
+            "version": "1",
+            "release": "1",
+        }
+        koji.koji_proxy.listArchives.return_value = [
+            {
+                "extra": {"image": {"arch": "aarch64"}},
+                "filename": "image.aarch64.raw.xz",
+                "type_name": "raw-xz",
+            },
+            {
+                "extra": {"image": {"arch": "x86_64"}},
+                "filename": "image.x86_64.raw.xz",
+                "type_name": "raw-xz",
+            },
+        ]
+        koji.koji_module.pathinfo = orig_koji.pathinfo
+
+        self.t.process(
+            (
+                self.compose,
+                self.compose.variants["Everything"],
+                cfg,
+                ["aarch64", "x86_64"],
+                "1",  # version
+                "15",  # release
+                "image-target",
+                [self.topdir + "/compose/Everything/$arch/os"],
+                ["x86_64"],
+            ),
+            1,
+        )
+
+        # Verify two Koji instances were created.
+        self.assertEqual(len(KojiWrapper.call_args), 2)
+        # Verify correct calls to Koji
+        self.assertEqual(
+            koji.mock_calls,
+            [
+                mock.call.login(),
+                mock.call.koji_proxy.osbuildImage(
+                    "test-image",
+                    "1",
+                    "rhel-8",
+                    ["edge-raw-disk"],
+                    "image-target",
+                    ["aarch64", "x86_64"],
+                    opts={
+                        "release": "15",
+                        "repo": [self.topdir + "/compose/Everything/$arch/os"],
+                        "ostree": {
+                            "url": "http://edge.example.com/repo",
+                            "ref": "test/iot",
+                            "parent": "test/iot-parent",
+                        },
+                    },
+                ),
+                mock.call.save_task_id(1234),
+                mock.call.watch_task(1234, mock.ANY),
+                mock.call.koji_proxy.getTaskResult(1234),
+                mock.call.koji_proxy.getBuild(build_id),
+                mock.call.koji_proxy.listArchives(buildID=build_id),
+            ],
+        )
+
+        # Assert there are 2 images added to manifest and the arguments are sane
+        self.assertEqual(
+            self.compose.im.add.call_args_list,
+            [
+                mock.call(arch="aarch64", variant="Everything", image=mock.ANY),
+                mock.call(arch="x86_64", variant="Everything", image=mock.ANY),
+            ],
+        )
+        for call in self.compose.im.add.call_args_list:
+            _, kwargs = call
+            image = kwargs["image"]
+            self.assertEqual(kwargs["variant"], "Everything")
+            self.assertIn(kwargs["arch"], ("aarch64", "x86_64"))
+            self.assertEqual(kwargs["arch"], image.arch)
+            self.assertEqual(
+                "Everything/%(arch)s/images/image.%(arch)s.raw.xz"
+                % {"arch": image.arch},
+                image.path,
+            )
+            self.assertEqual("raw.xz", image.format)
+            self.assertEqual("raw-xz", image.type)
+            self.assertEqual("Everything", image.subvariant)
+
+        self.assertTrue(
+            os.path.isdir(self.topdir + "/compose/Everything/aarch64/images")
+        )
+        self.assertTrue(
+            os.path.isdir(self.topdir + "/compose/Everything/x86_64/images")
+        )
+
+        self.assertEqual(
+            Linker.return_value.mock_calls,
+            [
+                mock.call.link(
+                    "/mnt/koji/packages/test-image/1/1/images/image.%(arch)s.raw.xz"
+                    % {"arch": arch},
+                    self.topdir
+                    + "/compose/Everything/%(arch)s/images/image.%(arch)s.raw.xz"
                     % {"arch": arch},
                     link_type="hardlink-or-copy",
                 )

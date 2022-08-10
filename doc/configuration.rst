@@ -1610,6 +1610,11 @@ OSBuild Composer for building images
     * ``arches`` -- list of architectures for which to build the image. By
       default, the variant arches are used. This option can only restrict it,
       not add a new one.
+    * ``ostree_url`` -- URL of the repository that's used to fetch the parent
+      commit from.
+    * ``ostree_ref`` -- name of the ostree branch
+    * ``ostree_parent`` -- commit hash or a a branch-like reference to the
+      parent commit.
 
 .. note::
    There is initial support for having this task as failable without aborting
