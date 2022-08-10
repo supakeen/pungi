@@ -61,7 +61,7 @@ class EqualsAny(object):
         return True
 
     def __repr__(self):
-        return u"ANYTHING"
+        return "ANYTHING"
 
 
 ANYTHING = EqualsAny()

@@ -1105,8 +1105,8 @@ class SplitIsoTest(helpers.PungiTestCase):
             os.path.join(self.topdir, "compose/Server/x86_64/os/n/media.repo")
         )
 
-        M = 1024 ** 2
-        G = 1024 ** 3
+        M = 1024**2
+        G = 1024**3
 
         with mock.patch(
             "os.path.getsize",
@@ -1157,8 +1157,8 @@ class SplitIsoTest(helpers.PungiTestCase):
             os.path.join(self.topdir, "compose/Server/x86_64/os/n/media.repo")
         )
 
-        M = 1024 ** 2
-        G = 1024 ** 3
+        M = 1024**2
+        G = 1024**3
 
         with mock.patch(
             "os.path.getsize",
@@ -1209,7 +1209,7 @@ class SplitIsoTest(helpers.PungiTestCase):
             os.path.join(self.topdir, "compose/Server/x86_64/os/Packages/x/pad.rpm")
         )
 
-        M = 1024 ** 2
+        M = 1024**2
 
         # treeinfo has size 0, spacer leaves 11M of free space, so with 10M
         # reserve the padding package should be on second disk
@@ -1233,7 +1233,7 @@ class SplitIsoTest(helpers.PungiTestCase):
         )
 
     def test_can_customize_reserve(self):
-        compose = helpers.DummyCompose(self.topdir, {"split_iso_reserve": 1024 ** 2})
+        compose = helpers.DummyCompose(self.topdir, {"split_iso_reserve": 1024**2})
         helpers.touch(
             os.path.join(self.topdir, "compose/Server/x86_64/os/.treeinfo"), TREEINFO
         )
@@ -1244,7 +1244,7 @@ class SplitIsoTest(helpers.PungiTestCase):
             os.path.join(self.topdir, "compose/Server/x86_64/os/Packages/x/pad.rpm")
         )
 
-        M = 1024 ** 2
+        M = 1024**2
 
         with mock.patch(
             "os.path.getsize", DummySize({"spacer": 4688465664, "pad": 5 * M})
@@ -1265,7 +1265,7 @@ class SplitIsoTest(helpers.PungiTestCase):
             os.path.join(self.topdir, "compose/Server/x86_64/os/Packages/x/pad.rpm")
         )
 
-        M = 1024 ** 2
+        M = 1024**2
 
         with mock.patch(
             "os.path.getsize", DummySize({"spacer": 4688465664, "pad": 5 * M})

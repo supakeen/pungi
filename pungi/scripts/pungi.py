@@ -476,14 +476,14 @@ def main():
                     else:
                         mypungi.downloadSRPMs()
 
-                print("RPM size:       %s MiB" % (mypungi.size_packages() / 1024 ** 2))
+                print("RPM size:       %s MiB" % (mypungi.size_packages() / 1024**2))
                 if not opts.nodebuginfo:
                     print(
                         "DEBUGINFO size: %s MiB"
-                        % (mypungi.size_debuginfo() / 1024 ** 2)
+                        % (mypungi.size_debuginfo() / 1024**2)
                     )
                 if not opts.nosource:
-                    print("SRPM size:      %s MiB" % (mypungi.size_srpms() / 1024 ** 2))
+                    print("SRPM size:      %s MiB" % (mypungi.size_srpms() / 1024**2))
 
     # Furthermore (but without the yumlock...)
     if not opts.sourceisos:

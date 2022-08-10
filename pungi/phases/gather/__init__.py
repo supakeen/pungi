@@ -541,7 +541,8 @@ def write_packages(compose, arch, variant, pkg_map, path_prefix):
 
 
 def trim_packages(compose, arch, variant, pkg_map, parent_pkgs=None, remove_pkgs=None):
-    """Remove parent variant's packages from pkg_map <-- it gets modified in this function
+    """Remove parent variant's packages from pkg_map <-- it gets modified in
+    this function
 
     There are three cases where changes may happen:
 
