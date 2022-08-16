@@ -1554,3 +1554,38 @@ class CreateisoPerformReusePhaseTest(helpers.PungiTestCase):
                 mock.call.abort(),
             ],
         )
+
+
+class ComposeConfGetIsoLevelTest(helpers.PungiTestCase):
+    def test_global_config(self):
+        compose = helpers.DummyCompose(self.topdir, {"iso_level": 3})
+
+        self.assertEqual(
+            createiso.get_iso_level_config(
+                compose, compose.variants["Server"], "x86_64"
+            ),
+            3,
+        )
+
+    def test_src_only_config(self):
+        compose = helpers.DummyCompose(
+            self.topdir,
+            {"iso_level": [(".*", {"src": 4})]},
+        )
+
+        self.assertEqual(
+            createiso.get_iso_level_config(compose, compose.variants["Server"], "src"),
+            4,
+        )
+
+    def test_no_match(self):
+        compose = helpers.DummyCompose(
+            self.topdir,
+            {"iso_level": [("^Server$", {"*": 4})]},
+        )
+
+        self.assertIsNone(
+            createiso.get_iso_level_config(
+                compose, compose.variants["Client"], "x86_64"
+            ),
+        )

@@ -338,7 +338,7 @@ class CreateisoPhase(PhaseLoggerMixin, PhaseBase):
                         supported=self.compose.supported,
                         hfs_compat=self.compose.conf["iso_hfs_ppc64le_compatible"],
                         use_xorrisofs=self.compose.conf.get("createiso_use_xorrisofs"),
-                        iso_level=self.compose.conf.get("iso_level"),
+                        iso_level=get_iso_level_config(self.compose, variant, arch),
                     )
 
                     if bootable:
@@ -821,3 +821,15 @@ class OldFileLinker(object):
         """Clean up all files created by this instance."""
         for f in self.linked_files:
             os.unlink(f)
+
+
+def get_iso_level_config(compose, variant, arch):
+    """
+    Get configured ISO level for this variant and architecture.
+    """
+    level = compose.conf.get("iso_level")
+    if isinstance(level, list):
+        level = None
+        for c in get_arch_variant_data(compose.conf, "iso_level", arch, variant):
+            level = c
+    return level

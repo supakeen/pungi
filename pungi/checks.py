@@ -760,8 +760,10 @@ def make_schema():
             "createiso_break_hardlinks": {"type": "boolean", "default": False},
             "createiso_use_xorrisofs": {"type": "boolean", "default": False},
             "iso_level": {
-                "type": "number",
-                "enum": [1, 2, 3, 4],
+                "anyOf": [
+                    {"type": "number", "enum": [1, 2, 3, 4]},
+                    _variant_arch_mapping({"type": "number", "enum": [1, 2, 3, 4]}),
+                ],
             },
             "iso_hfs_ppc64le_compatible": {"type": "boolean", "default": True},
             "multilib": _variant_arch_mapping(

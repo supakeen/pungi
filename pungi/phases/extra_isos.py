@@ -32,6 +32,7 @@ from pungi.phases.createiso import (
     load_and_tweak_treeinfo,
     compare_packages,
     OldFileLinker,
+    get_iso_level_config,
 )
 from pungi.util import (
     failable,
@@ -130,7 +131,7 @@ class ExtraIsosThread(WorkerThread):
             supported=compose.supported,
             hfs_compat=compose.conf["iso_hfs_ppc64le_compatible"],
             use_xorrisofs=compose.conf.get("createiso_use_xorrisofs"),
-            iso_level=compose.conf.get("iso_level"),
+            iso_level=get_iso_level_config(compose, variant, arch),
         )
         os_tree = compose.paths.compose.os_tree(arch, variant)
         if compose.conf["create_jigdo"]:

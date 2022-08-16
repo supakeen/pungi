@@ -1286,7 +1286,9 @@ Options
     suffix (using multiples of 1024).
 
 **iso_level**
-    (*int*) [optional] -- Set the ISO9660 conformance level. Valid numbers are 1 to 4.
+    (*int|list*) [optional] -- Set the ISO9660 conformance level. This is
+    either a global single value (a number from 1 to 4), or a variant/arch
+    mapping.
 
 **split_iso_reserve** = 10MiB
     (*int|str*) -- how much free space should be left on each disk. The format
