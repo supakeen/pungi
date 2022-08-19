@@ -65,6 +65,11 @@ def main(args=None):
         action="store_true",
         help="do not use rpm-ostree's built-in change detection",
     )
+    treep.add_argument(
+        "--unified-core",
+        action="store_true",
+        help="use unified core mode in rpm-ostree",
+    )
 
     installerp = subparser.add_parser(
         "installer", help="Create an OSTree installer image"

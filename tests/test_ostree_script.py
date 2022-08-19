@@ -239,6 +239,22 @@ class OstreeTreeScriptTest(helpers.PungiTestCase):
         self.assertCorrectCall(run, extra_args=["--force-nocache"])
 
     @mock.patch("kobo.shortcuts.run")
+    def test_unified_core(self, run):
+        helpers.touch(os.path.join(self.repo, "initialized"))
+
+        ostree.main(
+            [
+                "tree",
+                "--repo=%s" % self.repo,
+                "--log-dir=%s" % os.path.join(self.topdir, "logs", "Atomic"),
+                "--treefile=%s/fedora-atomic-docker-host.json" % self.topdir,
+                "--unified-core",
+            ]
+        )
+
+        self.assertCorrectCall(run, extra_args=["--unified-core"])
+
+    @mock.patch("kobo.shortcuts.run")
     def test_extra_config_with_extra_repos(self, run):
         configdir = os.path.join(self.topdir, "config")
         self._make_dummy_config_dir(configdir)

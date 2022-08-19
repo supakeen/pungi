@@ -1707,6 +1707,8 @@ repository with a new commit.
     * ``force_new_commit`` -- (*bool*) Do not use rpm-ostree's built-in change
       detection.
       Defaults to ``False``.
+    * ``unified_core`` -- (*bool*) Use rpm-ostree in unified core mode for composes.
+      Defaults to ``False``.
     * ``version`` -- (*str*) Version string to be added as versioning metadata.
       If this option is set to ``!OSTREE_VERSION_FROM_LABEL_DATE_TYPE_RESPIN``,
       a value will be generated automatically as ``$VERSION.$RELEASE``.

@@ -325,6 +325,7 @@ class OSTreeThreadTest(helpers.PungiTestCase):
                         "ostree-ref": None,
                         "force-new-commit": False,
                         "version": None,
+                        "unified-core": False,
                     },
                     channel=None,
                     mounts=[self.topdir, self.repo],

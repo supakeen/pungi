@@ -332,6 +332,8 @@ This is a shortened configuration for Fedora Radhide compose as of 2019-10-14.
             "tag_ref": False,
             # Don't use change detection in ostree.
             "force_new_commit": True,
+            # Use unified core mode for rpm-ostree composes
+            "unified_core": True,
             # This is the location for the repo where new commit will be
             # created. Note that this is outside of the compose dir.
             "ostree_repo": "/mnt/koji/compose/ostree/repo/",

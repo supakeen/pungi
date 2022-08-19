@@ -165,6 +165,7 @@ class OSTreeThread(WorkerThread):
                 ("update-summary", config.get("update_summary", False)),
                 ("ostree-ref", config.get("ostree_ref")),
                 ("force-new-commit", config.get("force_new_commit", False)),
+                ("unified-core", config.get("unified_core", False)),
             ]
         )
         packages = ["pungi", "ostree", "rpm-ostree"]

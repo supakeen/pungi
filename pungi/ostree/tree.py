@@ -43,6 +43,9 @@ class Tree(OSTree):
             # because something went wrong.
             "--touch-if-changed=%s.stamp" % self.commitid_file,
         ]
+        if self.unified_core:
+            # See https://github.com/coreos/rpm-ostree/issues/729
+            cmd.append("--unified-core")
         if self.version:
             # Add versioning metadata
             cmd.append("--add-metadata-string=version=%s" % self.version)
@@ -121,6 +124,7 @@ class Tree(OSTree):
         self.extra_config = self.args.extra_config
         self.ostree_ref = self.args.ostree_ref
         self.force_new_commit = self.args.force_new_commit
+        self.unified_core = self.args.unified_core
 
         if self.extra_config or self.ostree_ref:
             if self.extra_config:
