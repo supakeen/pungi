@@ -69,6 +69,11 @@ class Profiler(object):
 
     @classmethod
     def print_results(cls, stream=sys.stdout):
+        # Ensure all data that was printed to stdout was already flushed. If
+        # the caller is redirecting stderr to stdout, and there's buffered
+        # data, we may end up in a situation where the stderr output printed
+        # below ends up mixed with the stdout lines.
+        sys.stdout.flush()
         print("Profiling results:", file=stream)
         results = cls._data.items()
         results = sorted(results, key=lambda x: x[1]["time"], reverse=True)
