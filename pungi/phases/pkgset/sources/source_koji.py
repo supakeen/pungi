@@ -264,8 +264,14 @@ def _add_module_to_variant(
             compose.log_debug("Module %s is filtered from %s.%s", nsvc, variant, arch)
             continue
 
+        filename = "modulemd.%s.txt" % arch
+        if filename not in mmds:
+            raise RuntimeError(
+                "Module %s does not have metadata for arch %s and is not filtered "
+                "out via filter_modules option." % (nsvc, arch)
+            )
         mod_stream = read_single_module_stream_from_file(
-            mmds["modulemd.%s.txt" % arch], compose, arch, build
+            mmds[filename], compose, arch, build
         )
         if mod_stream:
             added = True
