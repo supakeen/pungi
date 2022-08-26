@@ -1,5 +1,5 @@
 Name:           pungi
-Version:        4.3.5
+Version:        4.3.6
 Release:        1%{?dist}
 Summary:        Distribution compose tool
 
@@ -111,6 +111,21 @@ pytest
 cd tests && ./test_compose.sh
 
 %changelog
+* Fri Aug 26 2022 Lubomír Sedlář <lsedlar@redhat.com> - 4.3.6-1
+- pkgset: Report better error when module is missing an arch (lsedlar)
+- osbuild: add support for building ostree artifacts (ondrej)
+- ostree: Add unified core mode for compose in rpm-ostree (tim)
+- createiso: Make ISO level more granular (lsedlar)
+- Create DVDs with xorriso (lsedlar)
+- Fix compatibility with jsonschema >= 4.0.0 (lsedlar)
+- Fix black complaint (lsedlar)
+- doc: fix osbuild's image_types field name (ondrej)
+- Convert _ssh_run output to str for python3 (hlin)
+- Print more logs for git_ls_remote (hlin)
+- Log time taken of each phase (hlin)
+- Avoid crash when loading pickle file failed (hlin)
+- extra_isos: Fix detection of changed packages (lsedlar)
+
 * Wed Jun 15 2022 Lubomír Sedlář <lsedlar@redhat.com> - 4.3.5-1
 - Fix module defaults and obsoletes validation (mkulik)
 - Update the cts_keytab field in order to get the hostname of the server
