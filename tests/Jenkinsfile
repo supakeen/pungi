@@ -1,0 +1,59 @@
+def DUFFY_SESSION_ID
+
+pipeline {
+    agent {
+        label 'cico-workspace'
+    }
+
+    parameters {
+        string(name: 'REPO', defaultValue: '', description: 'Git repo URL where the pull request from')
+        string(name: 'BRANCH', defaultValue: '', description: 'Git branch where the pull request from')
+    }
+
+    stages {
+        stage('CI') {
+            steps {
+                script {
+                    if (params.REPO == "" || params.BRANCH == "") {
+                        error "Please supply both params (REPO and BRANCH)"
+                    }
+                    try {
+                        echo "Requesting duffy node ..."
+                        def session_str = sh returnStdout: true, script: "set +x; duffy client --url https://duffy.ci.centos.org/api/v1 --auth-name fedora-infra --auth-key $CICO_API_KEY request-session pool=virt-ec2-t2-centos-9s-x86_64,quantity=1"
+                        def session = readJSON text: session_str
+                        DUFFY_SESSION_ID= session.session.id
+                        def hostname = session.session.nodes[0].hostname
+                        echo "duffy session id: $DUFFY_SESSION_ID hostname: $hostname"
+                        def remote_dir = "/tmp/$JENKINS_AGENT_NAME"
+                        echo "remote_dir: $remote_dir"
+                        writeFile file: 'job.sh', text: """
+set -xe
+dnf install -y git podman
+git config --global user.email "jenkins@localhost"
+git config --global user.name "jenkins"
+cd $remote_dir
+git clone https://pagure.io/pungi.git -b master
+cd pungi
+git remote rm proposed || true
+git remote add proposed "$params.REPO"
+git fetch proposed
+git checkout origin/master
+git merge --no-ff "proposed/$params.BRANCH" -m "Merge PR"
+podman run --rm -v .:/src:Z quay.io/exd-guild-compose/pungi-test tox -r -e flake8,black,py3,bandit
+podman run --rm -v .:/src:Z quay.io/exd-guild-compose/pungi-test-py2 tox -r -e py27
+                        """
+                        sh "cat job.sh"
+                        sh "ssh -o StrictHostKeyChecking=no root@$hostname mkdir $remote_dir"
+                        sh "scp job.sh root@$hostname:$remote_dir"
+                        sh "ssh root@$hostname sh $remote_dir/job.sh"
+                    } finally {
+                        if (DUFFY_SESSION_ID) {
+                            echo "Release duffy node ..."
+                            sh "set +x; duffy client --url https://duffy.ci.centos.org/api/v1 --auth-name fedora-infra --auth-key $CICO_API_KEY retire-session $DUFFY_SESSION_ID > /dev/null"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
