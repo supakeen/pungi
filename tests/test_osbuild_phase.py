@@ -8,6 +8,7 @@ import koji as orig_koji
 
 from tests import helpers
 from pungi.phases import osbuild
+from pungi.checks import validate
 
 
 class OSBuildPhaseTest(helpers.PungiTestCase):
@@ -104,6 +105,24 @@ class OSBuildPhaseTest(helpers.PungiTestCase):
         compose.skip_phases = []
         phase = osbuild.OSBuildPhase(compose)
         self.assertTrue(phase.skip())
+
+    def test_fail_multiple_image_types(self):
+        cfg = {
+            "name": "test-image",
+            "distro": "rhel-8",
+            # more than one image type is not allowed
+            "image_types": ["qcow2", "rhel-ec2"],
+        }
+        compose = helpers.DummyCompose(
+            self.topdir,
+            {
+                "osbuild": {"^Everything$": [cfg]},
+                "osbuild_target": "image-target",
+                "osbuild_version": "1",
+                "osbuild_release": "2",
+            },
+        )
+        self.assertNotEqual(validate(compose.conf), ([], []))
 
 
 class RunOSBuildThreadTest(helpers.PungiTestCase):

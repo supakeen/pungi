@@ -1171,7 +1171,21 @@ def make_schema():
                                 "version": {"type": "string"},
                                 "distro": {"type": "string"},
                                 "target": {"type": "string"},
-                                "image_types": {"$ref": "#/definitions/strings"},
+                                # Only a single image_type can be specified
+                                # https://github.com/osbuild/koji-osbuild/commit/c7252650814f82281ee57b598cb2ad970b580451
+                                # https://github.com/osbuild/koji-osbuild/commit/f21a2de39b145eb94f3d49cb4d8775a33ba56752
+                                "image_types": {
+                                    "oneOf": [
+                                        {
+                                            "type": "array",
+                                            "items": {"type": "string"},
+                                            "description": "Deprecated variant",
+                                            "minItems": 1,
+                                            "maxItems": 1,
+                                        },
+                                        {"type": "string"},
+                                    ]
+                                },
                                 "arches": {"$ref": "#/definitions/list_of_strings"},
                                 "release": {"type": "string"},
                                 "repo": {"$ref": "#/definitions/list_of_strings"},
