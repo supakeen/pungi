@@ -1617,6 +1617,45 @@ OSBuild Composer for building images
     * ``ostree_ref`` -- name of the ostree branch
     * ``ostree_parent`` -- commit hash or a a branch-like reference to the
       parent commit.
+    * ``upload_options`` -- a dictionary with upload options specific to the
+      target cloud environment. If provided, the image will be uploaded to the
+      cloud environment, in addition to the Koji server. One can't combine
+      arbitrary image types with arbitrary upload options.
+      The dictionary keys differ based on the target cloud environment. The
+      following keys are supported:
+
+      * **AWS EC2 upload options** -- upload to Amazon Web Services.
+
+        * ``region`` -- AWS region to upload the image to
+        * ``share_with_accounts`` -- list of AWS account IDs to share the image
+          with
+        * ``snapshot_name`` -- Snapshot name of the uploaded EC2 image
+          (optional)
+
+      * **AWS S3 upload options** -- upload to Amazon Web Services S3.
+
+        * ``region`` -- AWS region to upload the image to
+
+      * **Azure upload options** -- upload to Microsoft Azure.
+
+        * ``tenant_id`` -- Azure tenant ID to upload the image to
+        * ``subscription_id`` -- Azure subscription ID to upload the image to
+        * ``resource_group`` -- Azure resource group to upload the image to
+        * ``location`` -- Azure location to upload the image to
+        * ``image_name`` -- Image name of the uploaded Azure image (optional)
+
+      * **GCP upload options** -- upload to Google Cloud Platform.
+
+        * ``region`` -- GCP region to upload the image to
+        * ``bucket`` -- GCP bucket to upload the image to
+        * ``share_with_accounts`` -- list of GCP accounts to share the image
+          with
+        * ``image_name`` -- Image name of the uploaded GCP image (optional)
+
+      * **Container upload options** -- upload to a container registry.
+
+        * ``name`` -- name of the container image (optional)
+        * ``tag`` -- container tag to upload the image to (optional)
 
 .. note::
    There is initial support for having this task as failable without aborting

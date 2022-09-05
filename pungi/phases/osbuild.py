@@ -126,6 +126,10 @@ class RunOSBuildThread(WorkerThread):
         if ostree:
             opts["ostree"] = ostree
 
+        upload_options = config.get("upload_options")
+        if upload_options:
+            opts["upload_options"] = upload_options
+
         if release:
             opts["release"] = release
         task_id = koji.koji_proxy.osbuildImage(

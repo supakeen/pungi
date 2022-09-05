@@ -1194,6 +1194,86 @@ def make_schema():
                                 "ostree_url": {"type": "string"},
                                 "ostree_ref": {"type": "string"},
                                 "ostree_parent": {"type": "string"},
+                                "upload_options": {
+                                    "oneOf": [
+                                        # AWSEC2UploadOptions
+                                        {
+                                            "type": "object",
+                                            "additionalProperties": False,
+                                            "required": [
+                                                "region",
+                                                "share_with_accounts",
+                                            ],
+                                            "properties": {
+                                                "region": {
+                                                    "type": "string",
+                                                },
+                                                "snapshot_name": {
+                                                    "type": "string",
+                                                },
+                                                "share_with_accounts": {
+                                                    "type": "array",
+                                                    "items": {"type": "string"},
+                                                },
+                                            },
+                                        },
+                                        # AWSS3UploadOptions
+                                        {
+                                            "type": "object",
+                                            "additionalProperties": False,
+                                            "required": ["region"],
+                                            "properties": {
+                                                "region": {"type": "string"}
+                                            },
+                                        },
+                                        # AzureUploadOptions
+                                        {
+                                            "type": "object",
+                                            "additionalProperties": False,
+                                            "required": [
+                                                "tenant_id",
+                                                "subscription_id",
+                                                "resource_group",
+                                                "location",
+                                            ],
+                                            "properties": {
+                                                "tenant_id": {"type": "string"},
+                                                "subscription_id": {"type": "string"},
+                                                "resource_group": {"type": "string"},
+                                                "location": {"type": "string"},
+                                                "image_name": {
+                                                    "type": "string",
+                                                },
+                                            },
+                                        },
+                                        # GCPUploadOptions
+                                        {
+                                            "type": "object",
+                                            "additionalProperties": False,
+                                            "required": ["region", "bucket"],
+                                            "properties": {
+                                                "region": {"type": "string"},
+                                                "bucket": {"type": "string"},
+                                                "image_name": {
+                                                    "type": "string",
+                                                },
+                                                "share_with_accounts": {
+                                                    "type": "array",
+                                                    "items": {"type": "string"},
+                                                },
+                                            },
+                                        },
+                                        # ContainerUploadOptions
+                                        {
+                                            "type": "object",
+                                            "additionalProperties": False,
+                                            "properties": {
+                                                "name": {"type": "string"},
+                                                "tag": {"type": "string"},
+                                            },
+                                        },
+                                    ]
+                                },
                             },
                             "required": ["name", "distro", "image_types"],
                             "additionalProperties": False,
