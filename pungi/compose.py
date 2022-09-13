@@ -102,6 +102,7 @@ def get_compose_info(
             if "$HOSTNAME" in cts_keytab:
                 cts_keytab = cts_keytab.replace("$HOSTNAME", socket.gethostname())
             os.environ["KRB5_CLIENT_KTNAME"] = cts_keytab
+            os.environ["KRB5CCNAME"] = "DIR:%s" % tempfile.mkdtemp()
 
         try:
             # Create compose in CTS and get the reserved compose ID.
@@ -116,6 +117,7 @@ def get_compose_info(
             rv.raise_for_status()
         finally:
             if cts_keytab:
+                shutil.rmtree(os.environ["KRB5CCNAME"].split(":", 1)[1])
                 os.environ.clear()
                 os.environ.update(environ_copy)
 
