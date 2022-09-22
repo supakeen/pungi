@@ -934,6 +934,28 @@ class TestMergePackageSets(PkgsetCompareMixin, unittest.TestCase):
             first.rpms_by_arch, {"i686": ["rpms/bash@4.3.42@4.fc24@i686"], "noarch": []}
         )
 
+    def test_merge_doesnt_exclude_noarch_exclude_arch_when_configured(self):
+        first = pkgsets.PackageSetBase("first", [None])
+        second = pkgsets.PackageSetBase("second", [None])
+
+        pkg = first.file_cache.add("rpms/bash@4.3.42@4.fc24@i686")
+        first.rpms_by_arch.setdefault(pkg.arch, []).append(pkg)
+
+        pkg = second.file_cache.add("rpms/pungi@4.1.3@3.fc25@noarch")
+        pkg.excludearch = ["i686"]
+        second.rpms_by_arch.setdefault(pkg.arch, []).append(pkg)
+
+        first.merge(second, "i386", ["i686", "noarch"], inherit_to_noarch=False)
+
+        print(first.rpms_by_arch)
+        self.assertPkgsetEqual(
+            first.rpms_by_arch,
+            {
+                "i686": ["rpms/bash@4.3.42@4.fc24@i686"],
+                "noarch": ["rpms/pungi@4.1.3@3.fc25@noarch"],
+            },
+        )
+
     def test_merge_excludes_noarch_exclusive_arch(self):
         first = pkgsets.PackageSetBase("first", [None])
         second = pkgsets.PackageSetBase("second", [None])

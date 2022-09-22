@@ -47,7 +47,7 @@ class TestMaterializedPkgsetCreate(helpers.PungiTestCase):
         pkgset.name = name
         pkgset.reuse = None
 
-        def mock_subset(primary, arch_list, exclusive_noarch):
+        def mock_subset(primary, arch_list, **kwargs):
             self.subsets[primary] = mock.Mock()
             return self.subsets[primary]
 
@@ -73,10 +73,16 @@ class TestMaterializedPkgsetCreate(helpers.PungiTestCase):
         self.assertEqual(result["amd64"], self.subsets["amd64"])
 
         self.pkgset.subset.assert_any_call(
-            "x86_64", ["x86_64", "noarch", "src"], exclusive_noarch=True
+            "x86_64",
+            ["x86_64", "noarch", "src"],
+            exclusive_noarch=True,
+            inherit_to_noarch=True,
         )
         self.pkgset.subset.assert_any_call(
-            "amd64", ["amd64", "x86_64", "noarch", "src"], exclusive_noarch=True
+            "amd64",
+            ["amd64", "x86_64", "noarch", "src"],
+            exclusive_noarch=True,
+            inherit_to_noarch=True,
         )
 
         for arch, pkgset in result.package_sets.items():

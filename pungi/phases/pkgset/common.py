@@ -38,12 +38,17 @@ from pungi.phases.createrepo import add_modular_metadata
 
 def populate_arch_pkgsets(compose, path_prefix, global_pkgset):
     result = {}
-    exclusive_noarch = compose.conf["pkgset_exclusive_arch_considers_noarch"]
+
     for arch in compose.get_arches():
         compose.log_info("Populating package set for arch: %s", arch)
         is_multilib = is_arch_multilib(compose.conf, arch)
         arches = get_valid_arches(arch, is_multilib, add_src=True)
-        pkgset = global_pkgset.subset(arch, arches, exclusive_noarch=exclusive_noarch)
+        pkgset = global_pkgset.subset(
+            arch,
+            arches,
+            exclusive_noarch=compose.conf["pkgset_exclusive_arch_considers_noarch"],
+            inherit_to_noarch=compose.conf["pkgset_inherit_exclusive_arch_to_noarch"],
+        )
         pkgset.save_file_list(
             compose.paths.work.package_list(arch=arch, pkgset=global_pkgset),
             remove_path_prefix=path_prefix,

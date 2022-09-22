@@ -581,6 +581,16 @@ Options
     with everything. Set this option to ``False`` to ignore ``noarch`` in
     ``ExclusiveArch`` and always consider only binary architectures.
 
+**pkgset_inherit_exclusive_arch_to_noarch** = True
+    (*bool*) -- When set to ``True``, the value of ``ExclusiveArch`` or
+    ``ExcludeArch`` will be copied from source rpm to all its noarch packages.
+    That will than limit which architectures the noarch packages can be
+    included in.
+
+    By setting this option to ``False`` this step is skipped, and noarch
+    packages will by default land in all architectures. They can still be
+    excluded by listing them in a relevant section of ``filter_packages``.
+
 **pkgset_allow_reuse** = True
     (*bool*) -- When set to ``True``, *Pungi* will try to reuse pkgset data
     from the old composes specified by ``--old-composes``. When enabled, this

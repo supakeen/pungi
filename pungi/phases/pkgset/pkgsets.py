@@ -203,16 +203,31 @@ class PackageSetBase(kobo.log.LoggingBase):
 
         return self.rpms_by_arch
 
-    def subset(self, primary_arch, arch_list, exclusive_noarch=True):
+    def subset(
+        self, primary_arch, arch_list, exclusive_noarch=True, inherit_to_noarch=True
+    ):
         """Create a subset of this package set that only includes
         packages compatible with"""
         pkgset = PackageSetBase(
             self.name, self.sigkey_ordering, logger=self._logger, arches=arch_list
         )
-        pkgset.merge(self, primary_arch, arch_list, exclusive_noarch=exclusive_noarch)
+        pkgset.merge(
+            self,
+            primary_arch,
+            arch_list,
+            exclusive_noarch=exclusive_noarch,
+            inherit_to_noarch=inherit_to_noarch,
+        )
         return pkgset
 
-    def merge(self, other, primary_arch, arch_list, exclusive_noarch=True):
+    def merge(
+        self,
+        other,
+        primary_arch,
+        arch_list,
+        exclusive_noarch=True,
+        inherit_to_noarch=True,
+    ):
         """
         Merge ``other`` package set into this instance.
         """
@@ -251,7 +266,7 @@ class PackageSetBase(kobo.log.LoggingBase):
                 if i.file_path in self.file_cache:
                     # TODO: test if it really works
                     continue
-                if exclusivearch_list and arch == "noarch":
+                if inherit_to_noarch and exclusivearch_list and arch == "noarch":
                     if is_excluded(i, exclusivearch_list, logger=self._logger):
                         continue
 

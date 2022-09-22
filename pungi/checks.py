@@ -830,6 +830,10 @@ def make_schema():
                 "type": "boolean",
                 "default": True,
             },
+            "pkgset_inherit_exclusive_arch_to_noarch": {
+                "type": "boolean",
+                "default": True,
+            },
             "pkgset_scratch_modules": {
                 "type": "object",
                 "patternProperties": {
