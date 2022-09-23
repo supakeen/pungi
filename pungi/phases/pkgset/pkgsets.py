@@ -728,6 +728,12 @@ class KojiPackageSet(PackageSetBase):
                         "srpms_by_name": self.srpms_by_name,
                         "extra_builds": self.extra_builds,
                         "include_packages": include_packages,
+                        "inherit_to_noarch": compose.conf[
+                            "pkgset_inherit_exclusive_arch_to_noarch"
+                        ],
+                        "exclusive_noarch": compose.conf[
+                            "pkgset_exclusive_arch_considers_noarch"
+                        ],
                     },
                     f,
                     protocol=pickle.HIGHEST_PROTOCOL,
@@ -822,6 +828,8 @@ class KojiPackageSet(PackageSetBase):
             self.log_debug("Failed to load reuse file: %s" % str(e))
             return False
 
+        inherit_to_noarch = compose.conf["pkgset_inherit_exclusive_arch_to_noarch"]
+        exclusive_noarch = compose.conf["pkgset_exclusive_arch_considers_noarch"]
         if (
             reuse_data["allow_invalid_sigkeys"] == self._allow_invalid_sigkeys
             and reuse_data["packages"] == self.packages
@@ -829,6 +837,10 @@ class KojiPackageSet(PackageSetBase):
             and reuse_data["extra_builds"] == self.extra_builds
             and reuse_data["sigkeys"] == self.sigkey_ordering
             and reuse_data["include_packages"] == include_packages
+            # If the value is not present in reuse data, the compose was
+            # generated with older version of Pungi. Best to not reuse.
+            and reuse_data.get("inherit_to_noarch") == inherit_to_noarch
+            and reuse_data.get("exclusive_noarch") == exclusive_noarch
         ):
             self.log_info("Copying repo data for reuse: %s" % old_repo_dir)
             copy_all(old_repo_dir, repo_dir)

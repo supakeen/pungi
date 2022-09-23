@@ -853,6 +853,8 @@ class TestReuseKojiPkgset(helpers.PungiTestCase):
                 "include_packages": None,
                 "rpms_by_arch": mock.Mock(),
                 "srpms_by_name": mock.Mock(),
+                "exclusive_noarch": True,
+                "inherit_to_noarch": True,
             }
         )
         self.pkgset.old_file_cache = mock.Mock()
