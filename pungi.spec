@@ -100,7 +100,6 @@ rm -rf %{buildroot}
 %{_bindir}/%{name}-config-validate
 %{_bindir}/%{name}-fedmsg-notification
 %{_bindir}/%{name}-notification-report-progress
-%{_bindir}/%{name}-orchestrate
 %{_bindir}/%{name}-patch-iso
 %{_bindir}/%{name}-compare-depsolving
 %{_bindir}/%{name}-wait-for-signed-ostree-handler

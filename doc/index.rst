@@ -22,4 +22,3 @@ Contents:
     comps
     contributing
     testing
-    multi_compose

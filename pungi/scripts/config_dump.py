@@ -171,31 +171,10 @@ def main():
     group.add_argument(
         "--offline", action="store_true", help="Do not resolve git references."
     )
-    parser.add_argument(
-        "--multi",
-        metavar="DIR",
-        help=(
-            "Treat source as config for pungi-orchestrate and store dump into "
-            "given directory."
-        ),
-    )
 
     args = parser.parse_args()
 
     defines = config_utils.extract_defines(args.define)
-
-    if args.multi:
-        if len(args.sources) > 1:
-            parser.error("Only one multi config can be specified.")
-
-        return dump_multi_config(
-            args.sources[0],
-            dest=args.multi,
-            defines=defines,
-            just_dump=args.just_dump,
-            event=args.freeze_event,
-            offline=args.offline,
-        )
 
     return process_file(
         args.sources,
