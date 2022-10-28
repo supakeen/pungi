@@ -13,7 +13,9 @@ import tempfile
 import shutil
 import json
 
-from pungi.compose import Compose
+from requests.exceptions import HTTPError
+
+from pungi.compose import Compose, retry_request
 
 
 class ConfigWrapper(dict):
@@ -608,8 +610,9 @@ class ComposeTestCase(unittest.TestCase):
         ci_json = json.loads(ci.dumps())
         self.assertEqual(ci_json, self.ci_json)
 
+    @mock.patch("pungi.compose.requests")
     @mock.patch("time.strftime", new=lambda fmt, time: "20200526")
-    def test_get_compose_info_cts(self):
+    def test_get_compose_info_cts(self, mocked_requests):
         conf = ConfigWrapper(
             release_name="Test",
             release_version="1.0",
@@ -626,7 +629,6 @@ class ComposeTestCase(unittest.TestCase):
         ci_copy["header"]["version"] = "1.2"
         mocked_response = mock.MagicMock()
         mocked_response.text = json.dumps(self.ci_json)
-        mocked_requests = mock.MagicMock()
         mocked_requests.post.return_value = mocked_response
 
         mocked_requests_kerberos = mock.MagicMock()
@@ -637,7 +639,6 @@ class ComposeTestCase(unittest.TestCase):
         # `import`.
         with mock.patch.dict(
             "sys.modules",
-            requests=mocked_requests,
             requests_kerberos=mocked_requests_kerberos,
         ):
             ci = Compose.get_compose_info(conf, respin_of="Fedora-Rawhide-20200517.n.1")
@@ -807,3 +808,22 @@ class TracebackTest(unittest.TestCase):
     def test_with_detail(self):
         self.compose.traceback("extra-info")
         self.assertTraceback("traceback-extra-info")
+
+
+class RetryRequestTest(unittest.TestCase):
+    @mock.patch("pungi.compose.requests")
+    def test_retry_timeout(self, mocked_requests):
+        mocked_requests.post.side_effect = [
+            HTTPError("Gateway Timeout", response=mock.Mock(status_code=504)),
+            mock.Mock(status_code=200),
+        ]
+        url = "http://locahost/api/1/composes/"
+        rv = retry_request("post", url)
+        self.assertEqual(
+            mocked_requests.mock_calls,
+            [
+                mock.call.post(url, json=None, auth=None),
+                mock.call.post(url, json=None, auth=None),
+            ],
+        )
+        self.assertEqual(rv.status_code, 200)

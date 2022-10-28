@@ -28,6 +28,8 @@ import socket
 
 import kobo.log
 import kobo.tback
+import requests
+from requests.exceptions import RequestException
 from productmd.composeinfo import ComposeInfo
 from productmd.images import Images
 from dogpile.cache import make_region
@@ -42,6 +44,7 @@ from pungi.util import (
     get_arch_variant_data,
     get_format_substs,
     get_variant_data,
+    retry,
     translate_path_raw,
 )
 from pungi.metadata import compose_to_composeinfo
@@ -52,6 +55,14 @@ try:
     from productmd.composeinfo import SUPPORTED_MILESTONES
 except ImportError:
     SUPPORTED_MILESTONES = ["RC", "Update", "SecurityFix"]
+
+
+@retry(wait_on=RequestException)
+def retry_request(method, url, data=None, auth=None):
+    request_method = getattr(requests, method)
+    rv = request_method(url, json=data, auth=auth)
+    rv.raise_for_status()
+    return rv
 
 
 def get_compose_info(
@@ -86,10 +97,6 @@ def get_compose_info(
 
     cts_url = conf.get("cts_url", None)
     if cts_url:
-        # Import requests and requests-kerberos here so it is not needed
-        # if running without Compose Tracking Service.
-        import requests
-
         # Requests-kerberos cannot accept custom keytab, we need to use
         # environment variable for this. But we need to change environment
         # only temporarily just for this single requests.post.
@@ -113,8 +120,7 @@ def get_compose_info(
                 "parent_compose_ids": parent_compose_ids,
                 "respin_of": respin_of,
             }
-            rv = requests.post(url, json=data, auth=authentication)
-            rv.raise_for_status()
+            rv = retry_request("post", url, data=data, auth=authentication)
         finally:
             if cts_keytab:
                 shutil.rmtree(os.environ["KRB5CCNAME"].split(":", 1)[1])
@@ -156,8 +162,6 @@ def write_compose_info(compose_dir, ci):
 
 
 def update_compose_url(compose_id, compose_dir, conf):
-    import requests
-
     authentication = get_authentication(conf)
     cts_url = conf.get("cts_url", None)
     if cts_url:
@@ -168,7 +172,7 @@ def update_compose_url(compose_id, compose_dir, conf):
             "action": "set_url",
             "compose_url": compose_url,
         }
-        return requests.patch(url, json=data, auth=authentication)
+        return retry_request("patch", url, data=data, auth=authentication)
 
 
 def get_compose_dir(
