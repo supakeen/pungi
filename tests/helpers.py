@@ -79,6 +79,7 @@ class MockVariant(mock.Mock):
         self.variants = {}
         self.pkgsets = set()
         self.modules = None
+        self.modular_koji_tags = None
         self.name = name
         self.nsvc_to_pkgset = defaultdict(lambda: mock.Mock(rpms_by_arch={}))
 

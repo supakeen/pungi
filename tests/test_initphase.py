@@ -499,6 +499,45 @@ class TestWriteVariantComps(PungiTestCase):
 
     @mock.patch("pungi.phases.init.run")
     @mock.patch("pungi.phases.init.CompsWrapper")
+    def test_run_filter_for_modular_koji_tags(self, CompsWrapper, run):
+        compose = DummyCompose(self.topdir, {})
+        variant = compose.variants["Server"]
+        variant.groups = []
+        variant.modular_koji_tags = ["f38-modular"]
+        comps = CompsWrapper.return_value
+        comps.filter_groups.return_value = []
+
+        init.write_variant_comps(compose, "x86_64", variant)
+
+        self.assertEqual(
+            run.mock_calls,
+            [
+                mock.call(
+                    [
+                        "comps_filter",
+                        "--arch=x86_64",
+                        "--keep-empty-group=conflicts",
+                        "--keep-empty-group=conflicts-server",
+                        "--variant=Server",
+                        "--output=%s/work/x86_64/comps/comps-Server.x86_64.xml"
+                        % self.topdir,
+                        self.topdir + "/work/global/comps/comps-global.xml",
+                    ]
+                )
+            ],
+        )
+        self.assertEqual(
+            CompsWrapper.call_args_list,
+            [mock.call(self.topdir + "/work/x86_64/comps/comps-Server.x86_64.xml")],
+        )
+        self.assertEqual(comps.filter_groups.call_args_list, [mock.call([])])
+        self.assertEqual(
+            comps.filter_environments.mock_calls, [mock.call(variant.environments)]
+        )
+        self.assertEqual(comps.write_comps.mock_calls, [mock.call()])
+
+    @mock.patch("pungi.phases.init.run")
+    @mock.patch("pungi.phases.init.CompsWrapper")
     def test_run_report_unmatched(self, CompsWrapper, run):
         compose = DummyCompose(self.topdir, {})
         variant = compose.variants["Server"]

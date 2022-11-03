@@ -165,12 +165,18 @@ def write_variant_comps(compose, arch, variant):
     run(cmd)
 
     comps = CompsWrapper(comps_file)
-    if variant.groups or variant.modules is not None or variant.type != "variant":
-        # Filter groups if the variant has some, or it's a modular variant, or
-        # is not a base variant.
+    # Filter groups if the variant has some, or it's a modular variant, or
+    # is not a base variant.
+    if (
+        variant.groups
+        or variant.modules is not None
+        or variant.modular_koji_tags is not None
+        or variant.type != "variant"
+    ):
         unmatched = comps.filter_groups(variant.groups)
         for grp in unmatched:
             compose.log_warning(UNMATCHED_GROUP_MSG % (variant.uid, arch, grp))
+
     contains_all = not variant.groups and not variant.environments
     if compose.conf["comps_filter_environments"] and not contains_all:
         # We only want to filter environments if it's enabled by configuration
