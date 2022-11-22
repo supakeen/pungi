@@ -125,6 +125,8 @@ def write_xorriso_commands(opts):
         emit(f, "-outdev %s" % os.path.join(opts.output_dir, opts.iso_name))
         emit(f, "-boot_image any replay")
         emit(f, "-volid %s" % opts.volid)
+        # isoinfo -J uses the Joliet tree, and it's used by virt-install
+        emit(f, "-joliet on")
 
         with open(opts.graft_points) as gp:
             for line in gp:
