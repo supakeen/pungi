@@ -1641,13 +1641,13 @@ OSBuild Composer for building images
         * ``tenant_id`` -- Azure tenant ID to upload the image to
         * ``subscription_id`` -- Azure subscription ID to upload the image to
         * ``resource_group`` -- Azure resource group to upload the image to
-        * ``location`` -- Azure location to upload the image to
+        * ``location`` -- Azure location of the resource group (optional)
         * ``image_name`` -- Image name of the uploaded Azure image (optional)
 
       * **GCP upload options** -- upload to Google Cloud Platform.
 
         * ``region`` -- GCP region to upload the image to
-        * ``bucket`` -- GCP bucket to upload the image to
+        * ``bucket`` -- GCP bucket to upload the image to (optional)
         * ``share_with_accounts`` -- list of GCP accounts to share the image
           with
         * ``image_name`` -- Image name of the uploaded GCP image (optional)

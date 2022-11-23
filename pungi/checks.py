@@ -1195,7 +1195,10 @@ def make_schema():
                                 "ostree_ref": {"type": "string"},
                                 "ostree_parent": {"type": "string"},
                                 "upload_options": {
-                                    "oneOf": [
+                                    # this should be really 'oneOf', but the minimal
+                                    # required properties in AWSEC2 and GCP options
+                                    # overlap.
+                                    "anyOf": [
                                         # AWSEC2UploadOptions
                                         {
                                             "type": "object",
@@ -1234,7 +1237,6 @@ def make_schema():
                                                 "tenant_id",
                                                 "subscription_id",
                                                 "resource_group",
-                                                "location",
                                             ],
                                             "properties": {
                                                 "tenant_id": {"type": "string"},
@@ -1250,7 +1252,7 @@ def make_schema():
                                         {
                                             "type": "object",
                                             "additionalProperties": False,
-                                            "required": ["region", "bucket"],
+                                            "required": ["region"],
                                             "properties": {
                                                 "region": {"type": "string"},
                                                 "bucket": {"type": "string"},
