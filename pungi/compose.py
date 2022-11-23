@@ -174,6 +174,9 @@ def update_compose_url(compose_id, compose_dir, conf):
         url = os.path.join(cts_url, "api/1/composes", compose_id)
         tp = conf.get("translate_paths", None)
         compose_url = translate_path_raw(tp, compose_dir)
+        if compose_url == compose_dir:
+            # We do not have a URL, do not attempt the update.
+            return
         data = {
             "action": "set_url",
             "compose_url": compose_url,
