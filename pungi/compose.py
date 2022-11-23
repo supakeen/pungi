@@ -61,6 +61,12 @@ except ImportError:
 def retry_request(method, url, data=None, auth=None):
     request_method = getattr(requests, method)
     rv = request_method(url, json=data, auth=auth)
+    if rv.status_code >= 400 and rv.status_code < 500:
+        try:
+            error = rv.json()["message"]
+        except ValueError:
+            error = rv.text
+        raise RuntimeError("CTS responded with %d: %s" % (rv.status_code, error))
     rv.raise_for_status()
     return rv
 

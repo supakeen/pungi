@@ -628,6 +628,7 @@ class ComposeTestCase(unittest.TestCase):
         ci_copy = dict(self.ci_json)
         ci_copy["header"]["version"] = "1.2"
         mocked_response = mock.MagicMock()
+        mocked_response.status_code = 200
         mocked_response.text = json.dumps(self.ci_json)
         mocked_requests.post.return_value = mocked_response
 
@@ -827,3 +828,17 @@ class RetryRequestTest(unittest.TestCase):
             ],
         )
         self.assertEqual(rv.status_code, 200)
+
+    @mock.patch("pungi.compose.requests")
+    def test_no_retry_on_client_error(self, mocked_requests):
+        mocked_requests.post.side_effect = [
+            mock.Mock(status_code=400, json=lambda: {"message": "You made a mistake"}),
+        ]
+        url = "http://locahost/api/1/composes/"
+        with self.assertRaises(RuntimeError):
+            retry_request("post", url)
+
+        self.assertEqual(
+            mocked_requests.mock_calls,
+            [mock.call.post(url, json=None, auth=None)],
+        )
