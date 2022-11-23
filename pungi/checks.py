@@ -1188,7 +1188,26 @@ def make_schema():
                                 },
                                 "arches": {"$ref": "#/definitions/list_of_strings"},
                                 "release": {"type": "string"},
-                                "repo": {"$ref": "#/definitions/list_of_strings"},
+                                "repo": {
+                                    "type": "array",
+                                    "items": {
+                                        "oneOf": [
+                                            {
+                                                "type": "object",
+                                                "additionalProperties": False,
+                                                "required": ["baseurl"],
+                                                "properties": {
+                                                    "baseurl": {"type": "string"},
+                                                    "package_sets": {
+                                                        "type": "array",
+                                                        "items": {"type": "string"},
+                                                    },
+                                                },
+                                            },
+                                            {"type": "string"},
+                                        ]
+                                    },
+                                },
                                 "failable": {"$ref": "#/definitions/list_of_strings"},
                                 "subvariant": {"type": "string"},
                                 "ostree_url": {"type": "string"},

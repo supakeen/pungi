@@ -251,7 +251,13 @@ class RunOSBuildThreadTest(helpers.PungiTestCase):
                 "1",  # version
                 "15",  # release
                 "image-target",
-                [self.topdir + "/compose/Everything/$arch/os"],
+                [
+                    self.topdir + "/compose/Everything/$arch/os",
+                    {
+                        "baseurl": self.topdir + "/compose/Everything/$arch/os",
+                        "package_sets": ["build"],
+                    },
+                ],
                 ["x86_64"],
             ),
             1,
@@ -273,7 +279,13 @@ class RunOSBuildThreadTest(helpers.PungiTestCase):
                     ["aarch64", "x86_64"],
                     opts={
                         "release": "15",
-                        "repo": [self.topdir + "/compose/Everything/$arch/os"],
+                        "repo": [
+                            self.topdir + "/compose/Everything/$arch/os",
+                            {
+                                "baseurl": self.topdir + "/compose/Everything/$arch/os",
+                                "package_sets": ["build"],
+                            },
+                        ],
                     },
                 ),
                 mock.call.save_task_id(1234),

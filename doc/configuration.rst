@@ -1607,8 +1607,23 @@ OSBuild Composer for building images
     * ``release`` -- release part of the final NVR. If neither this option nor
       the global ``osbuild_release`` is set, Koji will automatically generate a
       value.
-    * ``repo`` -- a list of repository URLs from which to consume packages for
+    * ``repo`` -- a list of repositories from which to consume packages for
       building the image. By default only the variant repository is used.
+      The list items may use one of the following formats:
+
+      * String with just the repository URL.
+
+      * Dictionary with the following keys:
+
+        * ``baseurl`` -- URL of the repository.
+        * ``package_sets`` -- a list of package set names to use for this
+            repository. Package sets are an internal concept of Image Builder
+            and are used in image definitions. If specified, the repository is
+            used by Image Builder only for the pipeline with the same name.
+            For example, specifying the ``build`` package set name will make
+            the repository to be used only for the build environment in which
+            the image will be built. (optional)
+
     * ``arches`` -- list of architectures for which to build the image. By
       default, the variant arches are used. This option can only restrict it,
       not add a new one.
