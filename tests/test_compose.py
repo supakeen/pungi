@@ -812,6 +812,7 @@ class TracebackTest(unittest.TestCase):
 
 
 class RetryRequestTest(unittest.TestCase):
+    @mock.patch("time.sleep", new=lambda x: x)
     @mock.patch("pungi.compose.requests")
     def test_retry_timeout(self, mocked_requests):
         mocked_requests.post.side_effect = [
