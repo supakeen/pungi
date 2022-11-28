@@ -27,6 +27,35 @@ class OSBuildPhase(
             arches = set(image_conf["arches"]) & arches
         return sorted(arches)
 
+    @staticmethod
+    def _get_repo_urls(compose, repos, arch="$basearch"):
+        """
+        Get list of repos with resolved repo URLs. Preserve repos defined
+        as dicts.
+        """
+        resolved_repos = []
+
+        for repo in repos:
+            if isinstance(repo, dict):
+                try:
+                    url = repo["baseurl"]
+                except KeyError:
+                    raise RuntimeError(
+                        "`baseurl` is required in repo dict %s" % str(repo)
+                    )
+                url = util.get_repo_url(compose, url, arch=arch)
+                if url is None:
+                    raise RuntimeError("Failed to resolve repo URL for %s" % str(repo))
+                repo["baseurl"] = url
+                resolved_repos.append(repo)
+            else:
+                repo = util.get_repo_url(compose, repo, arch=arch)
+                if repo is None:
+                    raise RuntimeError("Failed to resolve repo URL for %s" % repo)
+                resolved_repos.append(repo)
+
+        return resolved_repos
+
     def _get_repo(self, image_conf, variant):
         """
         Get a list of repos. First included are those explicitly listed in
@@ -38,7 +67,7 @@ class OSBuildPhase(
         if not variant.is_empty and variant.uid not in repos:
             repos.append(variant.uid)
 
-        return util.get_repo_urls(self.compose, repos, arch="$arch")
+        return OSBuildPhase._get_repo_urls(self.compose, repos, arch="$arch")
 
     def run(self):
         for variant in self.compose.get_variants():

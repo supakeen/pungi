@@ -3,12 +3,74 @@
 import mock
 
 import os
+import shutil
+import tempfile
+import unittest
 
 import koji as orig_koji
 
 from tests import helpers
+from pungi import compose
 from pungi.phases import osbuild
 from pungi.checks import validate
+
+
+class OSBuildPhaseHelperFuncsTest(unittest.TestCase):
+    @mock.patch("pungi.compose.ComposeInfo")
+    def setUp(self, ci):
+        self.tmp_dir = tempfile.mkdtemp()
+        conf = {"translate_paths": [(self.tmp_dir, "http://example.com")]}
+        ci.return_value.compose.respin = 0
+        ci.return_value.compose.id = "RHEL-8.0-20180101.n.0"
+        ci.return_value.compose.date = "20160101"
+        ci.return_value.compose.type = "nightly"
+        ci.return_value.compose.type_suffix = ".n"
+        ci.return_value.compose.label = "RC-1.0"
+        ci.return_value.compose.label_major_version = "1"
+
+        compose_dir = os.path.join(self.tmp_dir, ci.return_value.compose.id)
+        self.compose = compose.Compose(conf, compose_dir)
+        server_variant = mock.Mock(uid="Server", type="variant")
+        client_variant = mock.Mock(uid="Client", type="variant")
+        self.compose.all_variants = {
+            "Server": server_variant,
+            "Client": client_variant,
+        }
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp_dir)
+
+    def test__get_repo_urls(self):
+        repos = [
+            "http://example.com/repo",
+            "Server",
+            {
+                "baseurl": "Client",
+                "package_sets": ["build"],
+            },
+            {
+                "baseurl": "ftp://example.com/linux/repo",
+                "package_sets": ["build"],
+            },
+        ]
+
+        expect = [
+            "http://example.com/repo",
+            "http://example.com/RHEL-8.0-20180101.n.0/compose/Server/$basearch/os",
+            {
+                "baseurl": "http://example.com/RHEL-8.0-20180101.n.0/compose/Client/"
+                + "$basearch/os",
+                "package_sets": ["build"],
+            },
+            {
+                "baseurl": "ftp://example.com/linux/repo",
+                "package_sets": ["build"],
+            },
+        ]
+
+        self.assertEqual(
+            osbuild.OSBuildPhase._get_repo_urls(self.compose, repos), expect
+        )
 
 
 class OSBuildPhaseTest(helpers.PungiTestCase):
