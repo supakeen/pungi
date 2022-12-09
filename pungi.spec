@@ -1,5 +1,5 @@
 Name:           pungi
-Version:        4.3.6
+Version:        4.3.7
 Release:        1%{?dist}
 Summary:        Distribution compose tool
 
@@ -111,6 +111,23 @@ pytest
 cd tests && ./test_compose.sh
 
 %changelog
+* Fri Dec 09 2022 Ondřej Nosek <onosek@redhat.com>
+- osbuild: test passing of rich repos from configuration (lsedlar)
+- osbuild: support specifying `package_sets` for repos (thozza)
+- osbuild: don't use `util.get_repo_urls()` (thozza)
+- osbuild: update schema and config documentation (thozza)
+- Speed up tests by 30 seconds (lsedlar)
+- Stop sending compose paths to CTS (lsedlar)
+- Report errors from CTS (lsedlar)
+- createiso: Create Joliet tree with xorriso (lsedlar)
+- init: Filter comps for modular variants with tags (lsedlar)
+- Retry failed cts requests (hlin)
+- Ignore existing kerberos ticket for CTS auth (lsedlar)
+- osbuild: support specifying upload_options (thozza)
+- osbuild: accept only a single image type in the configuration (thozza)
+- Add Jenkinsfile for CI (hlin)
+- profiler: Flush stdout before printing (lsedlar)
+
 * Fri Aug 26 2022 Lubomír Sedlář <lsedlar@redhat.com> - 4.3.6-1
 - pkgset: Report better error when module is missing an arch (lsedlar)
 - osbuild: add support for building ostree artifacts (ondrej)
