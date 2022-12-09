@@ -5,12 +5,7 @@
 import os
 import glob
 
-import distutils.command.sdist
 from setuptools import setup
-
-
-# override default tarball format with bzip2
-distutils.command.sdist.sdist.default_format = {"posix": "bztar"}
 
 
 # recursively scan for python modules to be included

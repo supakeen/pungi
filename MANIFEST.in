@@ -2,6 +2,7 @@ include AUTHORS
 include COPYING
 include GPL
 include pungi.spec
+include setup.cfg
 include tox.ini
 include share/*
 include share/multilib/*
