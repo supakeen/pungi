@@ -1,6 +1,8 @@
 # Some packages must be installed via dnf/yum first, see doc/contributing.rst
 dict.sorted
 dogpile.cache
+flufl.lock ; python_version >= '3.0'
+flufl.lock < 3.0 ; python_version <= '2.7'
 funcsigs
 jsonschema
 kobo

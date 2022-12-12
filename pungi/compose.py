@@ -39,6 +39,7 @@ from dogpile.cache import make_region
 from pungi.graph import SimpleAcyclicOrientedGraph
 from pungi.wrappers.variants import VariantsXmlParser
 from pungi.paths import Paths
+from pungi.wrappers.kojiwrapper import KojiDownloadProxy
 from pungi.wrappers.scm import get_file_from_scm
 from pungi.util import (
     makedirs,
@@ -408,6 +409,8 @@ class Compose(kobo.log.LoggingBase):
             )
         else:
             self.cache_region = make_region().configure("dogpile.cache.null")
+
+        self.koji_downloader = KojiDownloadProxy.from_config(self.conf, self._logger)
 
     get_compose_info = staticmethod(get_compose_info)
     write_compose_info = staticmethod(write_compose_info)

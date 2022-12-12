@@ -461,6 +461,9 @@ def get_volid(compose, arch, variant=None, disc_type=False, formats=None, **kwar
         if not variant_uid and "%(variant)s" in i:
             continue
         try:
+            # fmt: off
+            # Black wants to add a comma after kwargs, but that's not valid in
+            # Python 2.7
             args = get_format_substs(
                 compose,
                 variant=variant_uid,
@@ -472,6 +475,7 @@ def get_volid(compose, arch, variant=None, disc_type=False, formats=None, **kwar
                 base_product_version=base_product_version,
                 **kwargs
             )
+            # fmt: on
             volid = (i % args).format(**args)
         except KeyError as err:
             raise RuntimeError(
@@ -1146,3 +1150,16 @@ def read_json_file(file_path):
     """A helper function to read a JSON file."""
     with open(file_path) as f:
         return json.load(f)
+
+
+UNITS = ["", "Ki", "Mi", "Gi", "Ti"]
+
+
+def format_size(sz):
+    sz = float(sz)
+    unit = 0
+    while sz > 1024:
+        sz /= 1024
+        unit += 1
+
+    return "%.3g %sB" % (sz, UNITS[unit])

@@ -193,17 +193,13 @@ class PkgsetSourceKoji(pungi.phases.pkgset.source.PkgsetSourceBase):
     def __call__(self):
         compose = self.compose
         self.koji_wrapper = pungi.wrappers.kojiwrapper.KojiWrapper(compose)
-        # path prefix must contain trailing '/'
-        path_prefix = self.koji_wrapper.koji_module.config.topdir.rstrip("/") + "/"
-        package_sets = get_pkgset_from_koji(
-            self.compose, self.koji_wrapper, path_prefix
-        )
-        return (package_sets, path_prefix)
+        package_sets = get_pkgset_from_koji(self.compose, self.koji_wrapper)
+        return (package_sets, self.compose.koji_downloader.cache_dir)
 
 
-def get_pkgset_from_koji(compose, koji_wrapper, path_prefix):
+def get_pkgset_from_koji(compose, koji_wrapper):
     event_info = get_koji_event_info(compose, koji_wrapper)
-    return populate_global_pkgset(compose, koji_wrapper, path_prefix, event_info)
+    return populate_global_pkgset(compose, koji_wrapper, event_info)
 
 
 def _add_module_to_variant(
@@ -232,7 +228,7 @@ def _add_module_to_variant(
             continue
         typedir = koji_wrapper.koji_module.pathinfo.typedir(build, archive["btype"])
         filename = archive["filename"]
-        file_path = os.path.join(typedir, filename)
+        file_path = compose.koji_downloader.get_file(os.path.join(typedir, filename))
         try:
             # If there are two dots, the arch is in the middle. MBS uploads
             # files with actual architecture in the filename, but Pungi deals
@@ -400,7 +396,13 @@ def _is_filtered_out(compose, variant, arch, module_name, module_stream):
 
 
 def _get_modules_from_koji(
-    compose, koji_wrapper, event, variant, variant_tags, tag_to_mmd, exclude_module_ns
+    compose,
+    koji_wrapper,
+    event,
+    variant,
+    variant_tags,
+    tag_to_mmd,
+    exclude_module_ns,
 ):
     """
     Loads modules for given `variant` from koji `session`, adds them to
@@ -675,7 +677,7 @@ def _get_modules_from_koji_tags(
         )
 
 
-def populate_global_pkgset(compose, koji_wrapper, path_prefix, event):
+def populate_global_pkgset(compose, koji_wrapper, event):
     all_arches = get_all_arches(compose)
 
     # List of compose tags from which we create this compose
@@ -769,7 +771,12 @@ def populate_global_pkgset(compose, koji_wrapper, path_prefix, event):
 
         if extra_modules:
             _add_extra_modules_to_variant(
-                compose, koji_wrapper, variant, extra_modules, variant_tags, tag_to_mmd
+                compose,
+                koji_wrapper,
+                variant,
+                extra_modules,
+                variant_tags,
+                tag_to_mmd,
             )
 
         variant_scratch_modules = get_variant_data(
@@ -826,6 +833,7 @@ def populate_global_pkgset(compose, koji_wrapper, path_prefix, event):
             cache_region=compose.cache_region,
             signed_packages_retries=compose.conf["signed_packages_retries"],
             signed_packages_wait=compose.conf["signed_packages_wait"],
+            downloader=compose.koji_downloader,
             **kwargs
         )
 
@@ -912,7 +920,7 @@ def populate_global_pkgset(compose, koji_wrapper, path_prefix, event):
                 MaterializedPackageSet.create,
                 compose,
                 pkgset,
-                path_prefix,
+                compose.koji_downloader.cache_dir,
                 mmd=tag_to_mmd.get(pkgset.name),
             )
         )

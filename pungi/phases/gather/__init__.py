@@ -644,9 +644,10 @@ def _make_lookaside_repo(compose, variant, arch, pkg_map, package_sets=None):
             compose.paths.work.topdir(arch="global"), "download"
         )
         + "/",
-        "koji": lambda: pungi.wrappers.kojiwrapper.KojiWrapper(
-            compose
-        ).koji_module.config.topdir.rstrip("/")
+        "koji": lambda: compose.conf.get(
+            "koji_cache",
+            pungi.wrappers.kojiwrapper.KojiWrapper(compose).koji_module.config.topdir,
+        ).rstrip("/")
         + "/",
     }
     path_prefix = prefixes[compose.conf["pkgset_source"]]()

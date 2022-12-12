@@ -14,17 +14,23 @@
 # along with this program; if not, see <https://gnu.org/licenses/>.
 
 
+import contextlib
 import os
 import re
+import socket
+import shutil
 import time
 import threading
-import contextlib
+
+import requests
 
 import koji
 from kobo.shortcuts import run, force_list
 import six
 from six.moves import configparser, shlex_quote
 import six.moves.xmlrpc_client as xmlrpclib
+from flufl.lock import Lock
+from datetime import timedelta
 
 from .. import util
 from ..arch_utils import getBaseArch
@@ -894,3 +900,144 @@ def get_buildroot_rpms(compose, task_id):
                 continue
             result.append(i)
     return sorted(result)
+
+
+class KojiDownloadProxy:
+    def __init__(self, topdir, topurl, cache_dir, logger):
+        if not topdir:
+            self.has_local_access = True
+            return
+
+        self.cache_dir = cache_dir
+        self.logger = logger
+
+        self.topdir = topdir
+        self.topurl = topurl
+
+        self.has_local_access = os.path.isdir(self.topdir)
+        # This is used for temporary downloaded files. The suffix is unique
+        # per-process. To prevent threads in the same process from colliding, a
+        # thread id is added later.
+        self.unique_suffix = "%s.%s" % (socket.gethostname(), os.getpid())
+        self.session = None
+        if not self.has_local_access:
+            self.session = requests.Session()
+
+    @classmethod
+    def from_config(klass, conf, logger):
+        topdir = None
+        topurl = None
+        path_prefix = None
+        if "koji_profile" in conf:
+            koji_module = koji.get_profile_module(conf["koji_profile"])
+            topdir = koji_module.config.topdir
+            topurl = koji_module.config.topurl
+
+            path_prefix = topdir.rstrip("/") + "/"
+            if not os.path.exists(path_prefix):
+                path_prefix = conf["koji_cache"].rstrip("/") + "/"
+        return klass(topdir, topurl, path_prefix, logger)
+
+    @util.retry(wait_on=requests.exceptions.RequestException)
+    def _download(self, url, dest):
+        """Download file into given location
+
+        :param str url: URL of the file to download
+        :param str dest: file path to store the result in
+        :returns: path to the downloaded file (same as dest) or None if the URL
+        """
+        with self.session.get(url, stream=True) as r:
+            if r.status_code == 404:
+                self.logger.warning("GET %s NOT FOUND", url)
+                return None
+            if r.status_code != 200:
+                self.logger.error("GET %s %s", url, r.status_code)
+                r.raise_for_status()
+                # The exception from here will be retried by the decorator.
+
+            file_size = int(r.headers.get("Content-Length", 0))
+            self.logger.info("GET %s OK %s", url, util.format_size(file_size))
+            with open(dest, "wb") as f:
+                shutil.copyfileobj(r.raw, f)
+        return dest
+
+    def _atomic_download(self, url, dest):
+        """Atomically download a file
+
+        :param str url: URL of the file to download
+        :param str dest: file path to store the result in
+        :returns: path to the downloaded file (same as dest) or None if the URL
+                  return 404.
+        """
+        temp_file = "%s.%s.%s" % (dest, self.unique_suffix, threading.get_ident())
+
+        # First download to the temporary location.
+        try:
+            if self._download(url, temp_file) is None:
+                # The file was not found.
+                return None
+        except Exception:
+            # Download failed, let's make sure to clean up potentially partial
+            # temporary file.
+            try:
+                os.remove(temp_file)
+            except Exception:
+                self.logger.warning("Failed to delete %s", temp_file)
+                pass
+            raise
+
+        # Atomically move the temporary file into final location
+        os.rename(temp_file, dest)
+        return dest
+
+    def _download_file(self, path):
+        """Ensure file on Koji volume in ``path`` is present in the local
+        cache.
+
+        :returns: path to the local file or None if file is not found
+        """
+        url = path.replace(self.topdir, self.topurl)
+        destination_file = path.replace(self.topdir, self.cache_dir)
+        util.makedirs(os.path.dirname(destination_file))
+
+        lock = Lock(destination_file + ".lock")
+        # Hold the lock for this file for 5 minutes. If another compose needs
+        # the same file but it's not downloaded yet, the process will wait.
+        #
+        # If the download finishes in time, the downloaded file will be used
+        # here.
+        #
+        # If the download takes longer, this process will steal the lock and
+        # start its own download.
+        #
+        # That should not be a problem: the same file will be downloaded and
+        # then replaced atomically on the filesystem. If the original process
+        # managed to hardlink the first file already, that hardlink will be
+        # broken, but that will only result in the same file stored twice.
+        lock.lifetime = timedelta(minutes=5)
+
+        with lock:
+            # Check if the file already exists. If yes, return the path.
+            if os.path.exists(destination_file):
+                # Update mtime of the file. This covers the case of packages in the
+                # tag that are not included in the compose. Updating mtime will
+                # exempt them from cleanup for extra time.
+                os.utime(destination_file)
+                return destination_file
+
+            return self._atomic_download(url, destination_file)
+
+    def get_file(self, path):
+        """
+        If path refers to an existing file in Koji, return a valid local path
+        to it. If no such file exists, return None.
+        """
+        if self.has_local_access:
+            # We have koji volume mounted locally. No transformation needed for
+            # the path, just check it exists.
+            if os.path.exists(path):
+                return path
+            return None
+        else:
+            # We need to download the file.
+            return self._download_file(path)

@@ -836,6 +836,7 @@ def make_schema():
             "cts_oidc_client_id": {"type": "string"},
             "koji_profile": {"type": "string"},
             "koji_event": {"type": "number"},
+            "koji_cache": {"type": "string"},
             "pkgset_koji_tag": {"$ref": "#/definitions/strings"},
             "pkgset_koji_builds": {"$ref": "#/definitions/strings"},
             "pkgset_koji_scratch_tasks": {"$ref": "#/definitions/strings"},

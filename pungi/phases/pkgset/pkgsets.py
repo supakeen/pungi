@@ -354,6 +354,7 @@ class KojiPackageSet(PackageSetBase):
         extra_tasks=None,
         signed_packages_retries=0,
         signed_packages_wait=30,
+        downloader=None,
     ):
         """
         Creates new KojiPackageSet.
@@ -407,6 +408,8 @@ class KojiPackageSet(PackageSetBase):
         self.reuse = None
         self.signed_packages_retries = signed_packages_retries
         self.signed_packages_wait = signed_packages_wait
+
+        self.downloader = downloader
 
     def __getstate__(self):
         result = self.__dict__.copy()
@@ -526,7 +529,7 @@ class KojiPackageSet(PackageSetBase):
         # Check if this RPM is coming from scratch task. In this case, we already
         # know the path.
         if "path_from_task" in rpm_info:
-            return rpm_info["path_from_task"]
+            return self.downloader.get_file(rpm_info["path_from_task"])
 
         pathinfo = self.koji_wrapper.koji_module.pathinfo
         paths = []
@@ -543,8 +546,9 @@ class KojiPackageSet(PackageSetBase):
                 )
                 if rpm_path not in paths:
                     paths.append(rpm_path)
-                if os.path.isfile(rpm_path):
-                    return rpm_path
+                path = self.downloader.get_file(rpm_path)
+                if path:
+                    return path
 
             # No signed copy was found, wait a little and try again.
             attempts_left -= 1
@@ -557,16 +561,18 @@ class KojiPackageSet(PackageSetBase):
             # use an unsigned copy (if allowed)
             rpm_path = os.path.join(pathinfo.build(build_info), pathinfo.rpm(rpm_info))
             paths.append(rpm_path)
-            if os.path.isfile(rpm_path):
-                return rpm_path
+            path = self.downloader.get_file(rpm_path)
+            if path:
+                return path
 
         if self._allow_invalid_sigkeys and rpm_info["name"] not in self.packages:
             # use an unsigned copy (if allowed)
             rpm_path = os.path.join(pathinfo.build(build_info), pathinfo.rpm(rpm_info))
             paths.append(rpm_path)
-            if os.path.isfile(rpm_path):
+            path = self.downloader.get_file(rpm_path)
+            if path:
                 self._invalid_sigkey_rpms.append(rpm_info)
-                return rpm_path
+                return path
 
         self._invalid_sigkey_rpms.append(rpm_info)
         self.log_error(

@@ -19,6 +19,7 @@ Contents:
     scm_support
     messaging
     gathering
+    koji
     comps
     contributing
     testing
