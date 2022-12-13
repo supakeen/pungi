@@ -41,6 +41,7 @@ setup(
             "pungi-gather = pungi.scripts.pungi_gather:cli_main",
             "pungi-config-dump = pungi.scripts.config_dump:cli_main",
             "pungi-config-validate = pungi.scripts.config_validate:cli_main",
+            "pungi-cache-cleanup = pungi.scripts.cache_cleanup:main",
         ]
     },
     scripts=["contrib/yum-dnf-compare/pungi-compare-depsolving"],
