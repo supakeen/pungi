@@ -232,7 +232,7 @@ class CreateLiveImageThread(WorkerThread):
                 "Got %d images from task %d, expected 1."
                 % (len(image_path), output["task_id"])
             )
-        image_path = image_path[0]
+        image_path = compose.koji_downloader.get_file(image_path[0])
         filename = cmd.get("filename") or os.path.basename(image_path)
         destination = os.path.join(cmd["dest_dir"], filename)
         shutil.copy2(image_path, destination)

@@ -228,8 +228,11 @@ class RunOSBuildThread(WorkerThread):
 
             image_dest = os.path.join(image_dir, archive["filename"])
 
-            src_file = os.path.join(
-                koji.koji_module.pathinfo.imagebuild(build_info), archive["filename"]
+            src_file = compose.koji_downloader.get_file(
+                os.path.join(
+                    koji.koji_module.pathinfo.imagebuild(build_info),
+                    archive["filename"],
+                ),
             )
 
             linker.link(src_file, image_dest, link_type=compose.conf["link_type"])

@@ -182,7 +182,9 @@ class LiveMediaThread(WorkerThread):
             # let's not change filename of koji outputs
             image_dest = os.path.join(image_dir, os.path.basename(image_info["path"]))
 
-            src_file = os.path.realpath(image_info["path"])
+            src_file = compose.koji_downloader.get_file(
+                os.path.realpath(image_info["path"])
+            )
             linker.link(src_file, image_dest, link_type=link_type)
 
             # Update image manifest
