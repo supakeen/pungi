@@ -39,6 +39,7 @@ EXTENSIONS = {
     "vdi": ["vdi"],
     "vmdk": ["vmdk"],
     "vpc": ["vhd"],
+    "vhd-compressed": ["vhd.xz"],
     "vsphere-ova": ["vsphere.ova"],
 }
 
