@@ -36,7 +36,7 @@ class TestLiveMediaPhase(PungiTestCase):
         phase = LiveMediaPhase(compose)
 
         phase.run()
-        self.assertTrue(phase.pool.add.called)
+        phase.pool.add.assert_called()
         self.assertEqual(
             phase.pool.queue_put.call_args_list,
             [
@@ -93,7 +93,7 @@ class TestLiveMediaPhase(PungiTestCase):
         phase = LiveMediaPhase(compose)
 
         phase.run()
-        self.assertTrue(phase.pool.add.called)
+        phase.pool.add.assert_called()
         self.assertEqual(
             phase.pool.queue_put.call_args_list,
             [
@@ -156,7 +156,7 @@ class TestLiveMediaPhase(PungiTestCase):
         phase = LiveMediaPhase(compose)
 
         phase.run()
-        self.assertTrue(phase.pool.add.called)
+        phase.pool.add.assert_called()
         self.assertEqual(
             phase.pool.queue_put.call_args_list,
             [
@@ -267,7 +267,7 @@ class TestLiveMediaPhase(PungiTestCase):
         phase = LiveMediaPhase(compose)
 
         phase.run()
-        self.assertTrue(phase.pool.add.called)
+        phase.pool.add.assert_called()
         self.assertEqual(
             phase.pool.queue_put.call_args_list,
             [
@@ -444,7 +444,7 @@ class TestLiveMediaPhase(PungiTestCase):
         phase = LiveMediaPhase(compose)
 
         phase.run()
-        self.assertTrue(phase.pool.add.called)
+        phase.pool.add.assert_called()
 
         self.assertEqual(
             phase.pool.queue_put.call_args_list,

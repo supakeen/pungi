@@ -133,7 +133,7 @@ class TestNotifier(unittest.TestCase):
     def test_does_not_run_without_config(self, run, makedirs):
         n = PungiNotifier(None)
         n.send("cmd", foo="bar", baz="quux")
-        self.assertFalse(run.called)
+        run.assert_not_called()
 
     @mock.patch("pungi.util.translate_path")
     @mock.patch("kobo.shortcuts.run")
@@ -146,4 +146,4 @@ class TestNotifier(unittest.TestCase):
         n.send("cmd", **self.data)
 
         self.assertEqual(run.call_args_list, [self._call("run-notify", "cmd")])
-        self.assertTrue(self.compose.log_warning.called)
+        self.compose.log_warning.assert_called()

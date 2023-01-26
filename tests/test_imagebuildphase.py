@@ -45,7 +45,7 @@ class TestImageBuildPhase(PungiTestCase):
         phase.run()
 
         # assert at least one thread was started
-        self.assertTrue(phase.pool.add.called)
+        phase.pool.add.assert_called()
         client_args = {
             "original_image_conf": original_image_conf,
             "image_conf": {
@@ -137,7 +137,7 @@ class TestImageBuildPhase(PungiTestCase):
         phase.run()
 
         # assert at least one thread was started
-        self.assertTrue(phase.pool.add.called)
+        phase.pool.add.assert_called()
         server_args = {
             "original_image_conf": original_image_conf,
             "image_conf": {
@@ -196,7 +196,7 @@ class TestImageBuildPhase(PungiTestCase):
         phase.run()
 
         # assert at least one thread was started
-        self.assertTrue(phase.pool.add.called)
+        phase.pool.add.assert_called()
         server_args = {
             "original_image_conf": original_image_conf,
             "image_conf": {
@@ -261,8 +261,8 @@ class TestImageBuildPhase(PungiTestCase):
         phase.run()
 
         # assert at least one thread was started
-        self.assertFalse(phase.pool.add.called)
-        self.assertFalse(phase.pool.queue_put.called)
+        phase.pool.add.assert_not_called()
+        phase.pool.queue_put.assert_not_called()
 
     @mock.patch("pungi.phases.image_build.ThreadPool")
     def test_image_build_set_install_tree(self, ThreadPool):
@@ -297,9 +297,9 @@ class TestImageBuildPhase(PungiTestCase):
         phase.run()
 
         # assert at least one thread was started
-        self.assertTrue(phase.pool.add.called)
+        phase.pool.add.assert_called()
 
-        self.assertTrue(phase.pool.queue_put.called_once)
+        phase.pool.queue_put.assert_called_once()
         args, kwargs = phase.pool.queue_put.call_args
         self.assertEqual(args[0][0], compose)
         self.assertDictEqual(
@@ -364,9 +364,9 @@ class TestImageBuildPhase(PungiTestCase):
         phase.run()
 
         # assert at least one thread was started
-        self.assertTrue(phase.pool.add.called)
+        phase.pool.add.assert_called()
 
-        self.assertTrue(phase.pool.queue_put.called_once)
+        phase.pool.queue_put.assert_called_once()
         args, kwargs = phase.pool.queue_put.call_args
         self.assertEqual(args[0][0], compose)
         self.assertDictEqual(
@@ -430,9 +430,9 @@ class TestImageBuildPhase(PungiTestCase):
         phase.run()
 
         # assert at least one thread was started
-        self.assertTrue(phase.pool.add.called)
+        phase.pool.add.assert_called()
 
-        self.assertTrue(phase.pool.queue_put.called_once)
+        phase.pool.queue_put.assert_called_once()
         args, kwargs = phase.pool.queue_put.call_args
         self.assertEqual(args[0][0], compose)
         self.assertDictEqual(
@@ -501,9 +501,9 @@ class TestImageBuildPhase(PungiTestCase):
         phase.run()
 
         # assert at least one thread was started
-        self.assertTrue(phase.pool.add.called)
+        phase.pool.add.assert_called()
 
-        self.assertTrue(phase.pool.queue_put.called_once)
+        phase.pool.queue_put.assert_called_once()
         args, kwargs = phase.pool.queue_put.call_args
         self.assertEqual(args[0][0], compose)
         self.assertDictEqual(
@@ -569,9 +569,9 @@ class TestImageBuildPhase(PungiTestCase):
         phase.run()
 
         # assert at least one thread was started
-        self.assertTrue(phase.pool.add.called)
+        phase.pool.add.assert_called()
 
-        self.assertTrue(phase.pool.queue_put.called_once)
+        phase.pool.queue_put.assert_called_once()
         args, kwargs = phase.pool.queue_put.call_args
         self.assertEqual(
             args[0][1].get("image_conf", {}).get("image-build", {}).get("release"),
@@ -612,9 +612,9 @@ class TestImageBuildPhase(PungiTestCase):
         phase.run()
 
         # assert at least one thread was started
-        self.assertTrue(phase.pool.add.called)
+        phase.pool.add.assert_called()
 
-        self.assertTrue(phase.pool.queue_put.called_once)
+        phase.pool.queue_put.assert_called_once()
         args, kwargs = phase.pool.queue_put.call_args
         self.assertEqual(
             args[0][1].get("image_conf", {}).get("image-build", {}).get("release"),
@@ -655,9 +655,9 @@ class TestImageBuildPhase(PungiTestCase):
         phase.run()
 
         # assert at least one thread was started
-        self.assertTrue(phase.pool.add.called)
+        phase.pool.add.assert_called()
 
-        self.assertTrue(phase.pool.queue_put.called_once)
+        phase.pool.queue_put.assert_called_once()
         args, kwargs = phase.pool.queue_put.call_args
         self.assertTrue(args[0][1].get("scratch"))
 
@@ -692,7 +692,7 @@ class TestImageBuildPhase(PungiTestCase):
         phase.run()
 
         # assert at least one thread was started
-        self.assertTrue(phase.pool.add.called)
+        phase.pool.add.assert_called()
         server_args = {
             "original_image_conf": original_image_conf,
             "image_conf": {
@@ -755,7 +755,7 @@ class TestImageBuildPhase(PungiTestCase):
         phase.run()
 
         # assert at least one thread was started
-        self.assertTrue(phase.pool.add.called)
+        phase.pool.add.assert_called()
         server_args = {
             "original_image_conf": original_image_conf,
             "image_conf": {

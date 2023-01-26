@@ -43,7 +43,7 @@ class TestLiveImagesPhase(PungiTestCase):
         phase.run()
 
         # assert at least one thread was started
-        self.assertTrue(phase.pool.add.called)
+        phase.pool.add.assert_called()
         self.maxDiff = None
         six.assertCountEqual(
             self,
@@ -124,7 +124,7 @@ class TestLiveImagesPhase(PungiTestCase):
         phase.run()
 
         # assert at least one thread was started
-        self.assertTrue(phase.pool.add.called)
+        phase.pool.add.assert_called()
         self.maxDiff = None
         six.assertCountEqual(
             self,
@@ -192,7 +192,7 @@ class TestLiveImagesPhase(PungiTestCase):
         phase.run()
 
         # assert at least one thread was started
-        self.assertTrue(phase.pool.add.called)
+        phase.pool.add.assert_called()
         self.maxDiff = None
         six.assertCountEqual(
             self,
@@ -265,7 +265,7 @@ class TestLiveImagesPhase(PungiTestCase):
         phase.run()
 
         # assert at least one thread was started
-        self.assertTrue(phase.pool.add.called)
+        phase.pool.add.assert_called()
         self.maxDiff = None
         six.assertCountEqual(
             self,
@@ -363,7 +363,7 @@ class TestLiveImagesPhase(PungiTestCase):
         phase.run()
 
         # assert at least one thread was started
-        self.assertTrue(phase.pool.add.called)
+        phase.pool.add.assert_called()
         self.maxDiff = None
         six.assertCountEqual(
             self,
@@ -433,7 +433,7 @@ class TestLiveImagesPhase(PungiTestCase):
         phase.run()
 
         # assert at least one thread was started
-        self.assertTrue(phase.pool.add.called)
+        phase.pool.add.assert_called()
         self.maxDiff = None
         six.assertCountEqual(
             self,
@@ -503,7 +503,7 @@ class TestLiveImagesPhase(PungiTestCase):
         phase.run()
 
         # assert at least one thread was started
-        self.assertTrue(phase.pool.add.called)
+        phase.pool.add.assert_called()
         self.maxDiff = None
         six.assertCountEqual(
             self,
@@ -571,7 +571,7 @@ class TestLiveImagesPhase(PungiTestCase):
         phase.run()
 
         # assert at least one thread was started
-        self.assertTrue(phase.pool.add.called)
+        phase.pool.add.assert_called()
         self.maxDiff = None
         six.assertCountEqual(
             self,
