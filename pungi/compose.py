@@ -17,6 +17,7 @@
 __all__ = ("Compose",)
 
 
+import contextlib
 import errno
 import logging
 import os
@@ -71,6 +72,33 @@ def retry_request(method, url, data=None, auth=None):
     return rv
 
 
+@contextlib.contextmanager
+def cts_auth(cts_keytab):
+    auth = None
+    if cts_keytab:
+        # requests-kerberos cannot accept custom keytab, we need to use
+        # environment variable for this. But we need to change environment
+        # only temporarily just for this single requests.post.
+        # So at first backup the current environment and revert to it
+        # after the requests call.
+        from requests_kerberos import HTTPKerberosAuth
+
+        auth = HTTPKerberosAuth()
+        environ_copy = dict(os.environ)
+        if "$HOSTNAME" in cts_keytab:
+            cts_keytab = cts_keytab.replace("$HOSTNAME", socket.gethostname())
+        os.environ["KRB5_CLIENT_KTNAME"] = cts_keytab
+        os.environ["KRB5CCNAME"] = "DIR:%s" % tempfile.mkdtemp()
+
+    try:
+        yield auth
+    finally:
+        if cts_keytab:
+            shutil.rmtree(os.environ["KRB5CCNAME"].split(":", 1)[1])
+            os.environ.clear()
+            os.environ.update(environ_copy)
+
+
 def get_compose_info(
     conf,
     compose_type="production",
@@ -100,38 +128,19 @@ def get_compose_info(
     ci.compose.type = compose_type
     ci.compose.date = compose_date or time.strftime("%Y%m%d", time.localtime())
     ci.compose.respin = compose_respin or 0
+    ci.compose.id = ci.create_compose_id()
 
-    cts_url = conf.get("cts_url", None)
+    cts_url = conf.get("cts_url")
     if cts_url:
-        # Requests-kerberos cannot accept custom keytab, we need to use
-        # environment variable for this. But we need to change environment
-        # only temporarily just for this single requests.post.
-        # So at first backup the current environment and revert to it
-        # after the requests.post call.
-        cts_keytab = conf.get("cts_keytab", None)
-        authentication = get_authentication(conf)
-        if cts_keytab:
-            environ_copy = dict(os.environ)
-            if "$HOSTNAME" in cts_keytab:
-                cts_keytab = cts_keytab.replace("$HOSTNAME", socket.gethostname())
-            os.environ["KRB5_CLIENT_KTNAME"] = cts_keytab
-            os.environ["KRB5CCNAME"] = "DIR:%s" % tempfile.mkdtemp()
-
-        try:
-            # Create compose in CTS and get the reserved compose ID.
-            ci.compose.id = ci.create_compose_id()
-            url = os.path.join(cts_url, "api/1/composes/")
-            data = {
-                "compose_info": json.loads(ci.dumps()),
-                "parent_compose_ids": parent_compose_ids,
-                "respin_of": respin_of,
-            }
+        # Create compose in CTS and get the reserved compose ID.
+        url = os.path.join(cts_url, "api/1/composes/")
+        data = {
+            "compose_info": json.loads(ci.dumps()),
+            "parent_compose_ids": parent_compose_ids,
+            "respin_of": respin_of,
+        }
+        with cts_auth(conf.get("cts_keytab")) as authentication:
             rv = retry_request("post", url, data=data, auth=authentication)
-        finally:
-            if cts_keytab:
-                shutil.rmtree(os.environ["KRB5CCNAME"].split(":", 1)[1])
-                os.environ.clear()
-                os.environ.update(environ_copy)
 
         # Update local ComposeInfo with received ComposeInfo.
         cts_ci = ComposeInfo()
@@ -139,20 +148,7 @@ def get_compose_info(
         ci.compose.respin = cts_ci.compose.respin
         ci.compose.id = cts_ci.compose.id
 
-    else:
-        ci.compose.id = ci.create_compose_id()
-
     return ci
-
-
-def get_authentication(conf):
-    authentication = None
-    cts_keytab = conf.get("cts_keytab", None)
-    if cts_keytab:
-        from requests_kerberos import HTTPKerberosAuth
-
-        authentication = HTTPKerberosAuth()
-    return authentication
 
 
 def write_compose_info(compose_dir, ci):
@@ -168,7 +164,6 @@ def write_compose_info(compose_dir, ci):
 
 
 def update_compose_url(compose_id, compose_dir, conf):
-    authentication = get_authentication(conf)
     cts_url = conf.get("cts_url", None)
     if cts_url:
         url = os.path.join(cts_url, "api/1/composes", compose_id)
@@ -181,7 +176,8 @@ def update_compose_url(compose_id, compose_dir, conf):
             "action": "set_url",
             "compose_url": compose_url,
         }
-        return retry_request("patch", url, data=data, auth=authentication)
+        with cts_auth(conf.get("cts_keytab")) as authentication:
+            return retry_request("patch", url, data=data, auth=authentication)
 
 
 def get_compose_dir(
