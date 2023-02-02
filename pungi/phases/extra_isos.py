@@ -76,7 +76,7 @@ class ExtraIsosPhase(PhaseLoggerMixin, ConfigGuardedPhase, PhaseBase):
                 for arch in sorted(arches):
                     commands.append((config, variant, arch))
 
-        for (config, variant, arch) in commands:
+        for config, variant, arch in commands:
             self.pool.add(ExtraIsosThread(self.pool, self.bi))
             self.pool.queue_put((self.compose, config, variant, arch))
 

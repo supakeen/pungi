@@ -319,7 +319,6 @@ def get_arguments(config):
 
 
 def main():
-
     config = pungi.config.Config()
     opts = get_arguments(config)
 

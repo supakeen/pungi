@@ -315,7 +315,6 @@ class OstreeTreeScriptTest(helpers.PungiTestCase):
 
     @mock.patch("kobo.shortcuts.run")
     def test_extra_config_with_keep_original_sources(self, run):
-
         configdir = os.path.join(self.topdir, "config")
         self._make_dummy_config_dir(configdir)
         treefile = os.path.join(configdir, "fedora-atomic-docker-host.json")

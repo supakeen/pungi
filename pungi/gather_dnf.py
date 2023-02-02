@@ -616,7 +616,6 @@ class Gather(GatherBase):
             return added
 
         for pkg in self.result_debug_packages.copy():
-
             if pkg not in self.finished_add_debug_package_deps:
                 deps = self._get_package_deps(pkg, debuginfo=True)
                 for i, req in deps:

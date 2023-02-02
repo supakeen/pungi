@@ -1118,7 +1118,6 @@ class Pungi(PungiBase):
         self.logger.info("Finished gathering package objects.")
 
     def gather(self):
-
         # get package objects according to the input list
         self.getPackageObjects()
         if self.is_sources:

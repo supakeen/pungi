@@ -297,7 +297,7 @@ class BuildinstallPhase(PhaseBase):
                     "Unsupported buildinstall method: %s" % self.buildinstall_method
                 )
 
-            for (variant, cmd) in commands:
+            for variant, cmd in commands:
                 self.pool.add(BuildinstallThread(self.pool))
                 self.pool.queue_put(
                     (self.compose, arch, variant, cmd, self.pkgset_phase)

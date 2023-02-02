@@ -121,7 +121,6 @@ class KojiWrapperTest(KojiWrapperBaseTestCase):
         )
 
     def test_get_image_paths(self):
-
         # The data for this tests is obtained from the actual Koji build. It
         # includes lots of fields that are not used, but for the sake of
         # completeness is fully preserved.
@@ -321,7 +320,6 @@ class KojiWrapperTest(KojiWrapperBaseTestCase):
         )
 
     def test_get_image_paths_failed_subtask(self):
-
         failed = set()
 
         def failed_callback(arch):

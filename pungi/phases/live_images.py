@@ -117,7 +117,7 @@ class LiveImagesPhase(
 
                     commands.append((cmd, variant, arch))
 
-        for (cmd, variant, arch) in commands:
+        for cmd, variant, arch in commands:
             self.pool.add(CreateLiveImageThread(self.pool))
             self.pool.queue_put((self.compose, cmd, variant, arch))
 

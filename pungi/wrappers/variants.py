@@ -276,7 +276,6 @@ class Variant(object):
         modules=None,
         modular_koji_tags=None,
     ):
-
         environments = environments or []
         buildinstallpackages = buildinstallpackages or []
 

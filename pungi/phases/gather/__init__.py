@@ -90,7 +90,7 @@ class GatherPhase(PhaseBase):
 
         # check whether variants from configuration value
         # 'variant_as_lookaside' are correct
-        for (requiring, required) in variant_as_lookaside:
+        for requiring, required in variant_as_lookaside:
             if requiring in all_variants and required not in all_variants:
                 errors.append(
                     "variant_as_lookaside: variant %r doesn't exist but is "
@@ -99,7 +99,7 @@ class GatherPhase(PhaseBase):
 
         # check whether variants from configuration value
         # 'variant_as_lookaside' have same architectures
-        for (requiring, required) in variant_as_lookaside:
+        for requiring, required in variant_as_lookaside:
             if (
                 requiring in all_variants
                 and required in all_variants
@@ -235,7 +235,7 @@ def reuse_old_gather_packages(compose, arch, variant, package_sets, methods):
     if not hasattr(compose, "_gather_reused_variant_arch"):
         setattr(compose, "_gather_reused_variant_arch", [])
     variant_as_lookaside = compose.conf.get("variant_as_lookaside", [])
-    for (requiring, required) in variant_as_lookaside:
+    for requiring, required in variant_as_lookaside:
         if (
             requiring == variant.uid
             and (required, arch) not in compose._gather_reused_variant_arch
@@ -468,9 +468,7 @@ def gather_packages(compose, arch, variant, package_sets, fulltree_excludes=None
         )
 
     else:
-
         for source_name in ("module", "comps", "json"):
-
             packages, groups, filter_packages = get_variant_packages(
                 compose, arch, variant, source_name, package_sets
             )
@@ -575,7 +573,6 @@ def trim_packages(compose, arch, variant, pkg_map, parent_pkgs=None, remove_pkgs
     move_to_parent_pkgs = _mk_pkg_map()
     removed_pkgs = _mk_pkg_map()
     for pkg_type, pkgs in pkg_map.items():
-
         new_pkgs = []
         for pkg in pkgs:
             pkg_path = pkg["path"]

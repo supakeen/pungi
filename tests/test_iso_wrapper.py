@@ -28,6 +28,7 @@ def fake_listdir(pattern, result=None, exc=None):
     """Create a function that mocks os.listdir. If the path contains pattern,
     result will be returned or exc raised. Otherwise it's normal os.listdir
     """
+
     # The point of this is to avoid issues on Python 2, where apparently
     # isdir() is using listdir(), so the mocking is breaking it.
     def worker(path):

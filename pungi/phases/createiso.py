@@ -369,7 +369,7 @@ class CreateisoPhase(PhaseLoggerMixin, PhaseBase):
         if self.compose.notifier:
             self.compose.notifier.send("createiso-targets", deliverables=deliverables)
 
-        for (cmd, variant, arch) in commands:
+        for cmd, variant, arch in commands:
             self.pool.add(CreateIsoThread(self.pool))
             self.pool.queue_put((self.compose, cmd, variant, arch))
 
