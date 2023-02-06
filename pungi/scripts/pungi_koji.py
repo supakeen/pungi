@@ -380,6 +380,14 @@ def run_compose(
     compose.log_info("Current timezone offset: %s" % pungi.util.get_tz_offset())
     compose.log_info("COMPOSE_ID=%s" % compose.compose_id)
 
+    installed_pkgs_log = compose.paths.log.log_file("global", "installed-pkgs")
+    compose.log_info("Logging installed packages to %s" % installed_pkgs_log)
+    try:
+        with open(installed_pkgs_log, "w") as f:
+            subprocess.Popen(["rpm", "-qa"], stdout=f)
+    except Exception as e:
+        compose.log_warning("Failed to log installed packages: %s" % str(e))
+
     compose.read_variants()
 
     # dump the config file
