@@ -783,7 +783,6 @@ class Gather(GatherBase):
                 continue
 
             debug_pkgs = []
-            pkg_in_lookaside = pkg.repoid in self.opts.lookaside_repos
             for i in candidates:
                 if pkg.arch != i.arch:
                     continue
@@ -791,7 +790,7 @@ class Gather(GatherBase):
                     # If it's not debugsource package or does not match name of
                     # the package, we don't want it in.
                     continue
-                if i.repoid in self.opts.lookaside_repos or pkg_in_lookaside:
+                if self.is_from_lookaside(i):
                     self._set_flag(i, PkgFlag.lookaside)
                 if i not in self.result_debug_packages:
                     added.add(i)
