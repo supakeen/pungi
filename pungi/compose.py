@@ -58,11 +58,22 @@ except ImportError:
     SUPPORTED_MILESTONES = ["RC", "Update", "SecurityFix"]
 
 
+def is_status_fatal(status_code):
+    """Check if status code returned from CTS reports an error that is unlikely
+    to be fixed by retrying. Generally client errors (4XX) are fatal, with the
+    exception of 401 Unauthorized which could be caused by transient network
+    issue between compose host and KDC.
+    """
+    if status_code == 401:
+        return False
+    return status_code >= 400 and status_code < 500
+
+
 @retry(wait_on=RequestException)
 def retry_request(method, url, data=None, auth=None):
     request_method = getattr(requests, method)
     rv = request_method(url, json=data, auth=auth)
-    if rv.status_code >= 400 and rv.status_code < 500:
+    if is_status_fatal(rv.status_code):
         try:
             error = rv.json()["message"]
         except ValueError:
