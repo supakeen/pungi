@@ -212,10 +212,18 @@ class RunOSBuildThread(WorkerThread):
             # image_dir is absolute path to which the image should be copied.
             # We also need the same path as relative to compose directory for
             # including in the metadata.
-            image_dir = compose.paths.compose.image_dir(variant) % {"arch": arch}
-            rel_image_dir = compose.paths.compose.image_dir(variant, relative=True) % {
-                "arch": arch
-            }
+            if archive["type_name"] == "iso":
+                # If the produced image is actually an ISO, it should go to
+                # iso/ subdirectory.
+                image_dir = compose.paths.compose.iso_dir(arch, variant)
+                rel_image_dir = compose.paths.compose.iso_dir(
+                    arch, variant, relative=True
+                )
+            else:
+                image_dir = compose.paths.compose.image_dir(variant) % {"arch": arch}
+                rel_image_dir = compose.paths.compose.image_dir(
+                    variant, relative=True
+                ) % {"arch": arch}
             util.makedirs(image_dir)
 
             image_dest = os.path.join(image_dir, archive["filename"])
@@ -238,7 +246,7 @@ class RunOSBuildThread(WorkerThread):
 
             # Update image manifest
             img = Image(compose.im)
-            img.type = archive["type_name"]
+            img.type = archive["type_name"] if archive["type_name"] != "iso" else "dvd"
             img.format = suffix
             img.path = os.path.join(rel_image_dir, archive["filename"])
             img.mtime = util.get_mtime(image_dest)

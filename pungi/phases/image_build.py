@@ -25,6 +25,7 @@ from productmd.rpms import Rpms
 # results will be pulled into the compose.
 EXTENSIONS = {
     "docker": ["tar.gz", "tar.xz"],
+    "iso": ["iso"],
     "liveimg-squashfs": ["liveimg.squashfs"],
     "qcow": ["qcow"],
     "qcow2": ["qcow2"],
