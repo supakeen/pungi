@@ -260,20 +260,23 @@ def get_isohybrid_cmd(iso_path, arch):
     return cmd
 
 
-def get_manifest_cmd(iso_name, xorriso=False):
+def get_manifest_cmd(iso_name, xorriso=False, output_file=None):
+    if not output_file:
+        output_file = "%s.manifest" % iso_name
+
     if xorriso:
         return """xorriso -dev %s --find |
             tail -n+2 |
             tr -d "'" |
             cut -c2- |
-            sort >> %s.manifest""" % (
+            sort >> %s""" % (
             shlex_quote(iso_name),
-            shlex_quote(iso_name),
+            shlex_quote(output_file),
         )
     else:
-        return "isoinfo -R -f -i %s | grep -v '/TRANS.TBL$' | sort >> %s.manifest" % (
+        return "isoinfo -R -f -i %s | grep -v '/TRANS.TBL$' | sort >> %s" % (
             shlex_quote(iso_name),
-            shlex_quote(iso_name),
+            shlex_quote(output_file),
         )
 
 

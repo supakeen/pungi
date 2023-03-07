@@ -5,6 +5,7 @@ from __future__ import print_function
 import os
 import six
 from collections import namedtuple
+from kobo.shortcuts import run
 from six.moves import shlex_quote
 
 from .wrappers import iso
@@ -119,6 +120,17 @@ def make_jigdo(f, opts):
 
 
 def write_xorriso_commands(opts):
+    boot_iso_manifest = "%s.manifest" % os.path.join(
+        opts.script_dir, os.path.basename(opts.boot_iso)
+    )
+    run(
+        iso.get_manifest_cmd(
+            opts.boot_iso, opts.use_xorrisofs, output_file=boot_iso_manifest
+        )
+    )
+    with open(boot_iso_manifest) as f:
+        exclude = set(line.lstrip("/").rstrip("\n") for line in f)
+
     script = os.path.join(opts.script_dir, "xorriso-%s.txt" % id(opts))
     with open(script, "w") as f:
         emit(f, "-indev %s" % opts.boot_iso)
@@ -131,6 +143,8 @@ def write_xorriso_commands(opts):
         with open(opts.graft_points) as gp:
             for line in gp:
                 iso_path, fs_path = line.strip().split("=", 1)
+                if iso_path in exclude:
+                    continue
                 emit(f, "-map %s %s" % (fs_path, iso_path))
 
         if opts.arch == "ppc64le":
