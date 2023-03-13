@@ -681,6 +681,15 @@ class KojiPackageSet(PackageSetBase):
         :param include_packages: an iterable of tuples (package name, arch) that should
                                  be included.
         """
+        if len(self.sigkey_ordering) > 1 and (
+            None in self.sigkey_ordering or "" in self.sigkey_ordering
+        ):
+            self.log_warning(
+                "Stop writing reuse file as unsigned packages are allowed "
+                "in the compose."
+            )
+            return
+
         reuse_file = compose.paths.work.pkgset_reuse_file(self.name)
         self.log_info("Writing pkgset reuse file: %s" % reuse_file)
         try:
