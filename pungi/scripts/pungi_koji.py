@@ -300,7 +300,12 @@ def main():
 
     if opts.target_dir:
         compose_dir = Compose.get_compose_dir(
-            opts.target_dir, conf, compose_type=compose_type, compose_label=opts.label
+            opts.target_dir,
+            conf,
+            compose_type=compose_type,
+            compose_label=opts.label,
+            parent_compose_ids=opts.parent_compose_id,
+            respin_of=opts.respin_of,
         )
     else:
         compose_dir = opts.compose_dir

@@ -199,11 +199,19 @@ def get_compose_dir(
     compose_respin=None,
     compose_label=None,
     already_exists_callbacks=None,
+    parent_compose_ids=None,
+    respin_of=None,
 ):
     already_exists_callbacks = already_exists_callbacks or []
 
     ci = get_compose_info(
-        conf, compose_type, compose_date, compose_respin, compose_label
+        conf,
+        compose_type,
+        compose_date,
+        compose_respin,
+        compose_label,
+        parent_compose_ids,
+        respin_of,
     )
 
     cts_url = conf.get("cts_url", None)
