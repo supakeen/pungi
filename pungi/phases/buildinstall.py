@@ -367,6 +367,11 @@ BOOT_CONFIGS = [
 
 
 def tweak_configs(path, volid, ks_file, configs=BOOT_CONFIGS, logger=None):
+    """
+    Put escaped volume ID and possibly kickstart file into the boot
+    configuration files.
+    :returns: list of paths to modified config files
+    """
     volid_escaped = volid.replace(" ", r"\x20").replace("\\", "\\\\")
     volid_escaped_2 = volid_escaped.replace("\\", "\\\\")
     found_configs = []
@@ -374,7 +379,6 @@ def tweak_configs(path, volid, ks_file, configs=BOOT_CONFIGS, logger=None):
         config_path = os.path.join(path, config)
         if not os.path.exists(config_path):
             continue
-        found_configs.append(config)
 
         with open(config_path, "r") as f:
             data = original_data = f.read()
@@ -394,8 +398,13 @@ def tweak_configs(path, volid, ks_file, configs=BOOT_CONFIGS, logger=None):
         with open(config_path, "w") as f:
             f.write(data)
 
-        if logger and data != original_data:
-            logger.info("Boot config %s changed" % config_path)
+        if data != original_data:
+            found_configs.append(config)
+            if logger:
+                # Generally lorax should create file with correct volume id
+                # already. If we don't have a kickstart, this function should
+                # be a no-op.
+                logger.info("Boot config %s changed" % config_path)
 
     return found_configs
 
@@ -437,28 +446,31 @@ def tweak_buildinstall(
     images = [
         os.path.join(tmp_dir, "images", "efiboot.img"),
     ]
-    for image in images:
-        if not os.path.isfile(image):
-            continue
+    if found_configs:
+        for image in images:
+            if not os.path.isfile(image):
+                continue
 
-        with iso.mount(
-            image,
-            logger=compose._logger,
-            use_guestmount=compose.conf.get("buildinstall_use_guestmount"),
-        ) as mount_tmp_dir:
-            for config in BOOT_CONFIGS:
-                config_path = os.path.join(tmp_dir, config)
-                config_in_image = os.path.join(mount_tmp_dir, config)
+            with iso.mount(
+                image,
+                logger=compose._logger,
+                use_guestmount=compose.conf.get("buildinstall_use_guestmount"),
+            ) as mount_tmp_dir:
+                for config in found_configs:
+                    # Put each modified config file into the image (overwriting the
+                    # original).
+                    config_path = os.path.join(tmp_dir, config)
+                    config_in_image = os.path.join(mount_tmp_dir, config)
 
-                if os.path.isfile(config_in_image):
-                    cmd = [
-                        "cp",
-                        "-v",
-                        "--remove-destination",
-                        config_path,
-                        config_in_image,
-                    ]
-                    run(cmd)
+                    if os.path.isfile(config_in_image):
+                        cmd = [
+                            "cp",
+                            "-v",
+                            "--remove-destination",
+                            config_path,
+                            config_in_image,
+                        ]
+                        run(cmd)
 
     # HACK: make buildinstall files world readable
     run("chmod -R a+rX %s" % shlex_quote(tmp_dir))
