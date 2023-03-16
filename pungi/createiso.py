@@ -11,6 +11,8 @@ from six.moves import shlex_quote
 from .wrappers import iso
 from .wrappers.jigdo import JigdoWrapper
 
+from .phases.buildinstall import BOOT_CONFIGS, BOOT_IMAGES
+
 
 CreateIsoOpts = namedtuple(
     "CreateIsoOpts",
@@ -120,6 +122,7 @@ def make_jigdo(f, opts):
 
 
 def write_xorriso_commands(opts):
+    # Create manifest for the boot.iso listing all contents
     boot_iso_manifest = "%s.manifest" % os.path.join(
         opts.script_dir, os.path.basename(opts.boot_iso)
     )
@@ -128,8 +131,20 @@ def write_xorriso_commands(opts):
             opts.boot_iso, opts.use_xorrisofs, output_file=boot_iso_manifest
         )
     )
+    # Find which files may have been updated by pungi. This only includes a few
+    # files from tweaking buildinstall and .discinfo metadata. There's no good
+    # way to detect whether the boot config files actually changed, so we may
+    # be updating files in the ISO with the same data.
+    UPDATEABLE_FILES = set(BOOT_IMAGES + BOOT_CONFIGS + [".discinfo"])
+    updated_files = set()
+    excluded_files = set()
     with open(boot_iso_manifest) as f:
-        exclude = set(line.lstrip("/").rstrip("\n") for line in f)
+        for line in f:
+            path = line.lstrip("/").rstrip("\n")
+            if path in UPDATEABLE_FILES:
+                updated_files.add(path)
+            else:
+                excluded_files.add(path)
 
     script = os.path.join(opts.script_dir, "xorriso-%s.txt" % id(opts))
     with open(script, "w") as f:
@@ -143,9 +158,10 @@ def write_xorriso_commands(opts):
         with open(opts.graft_points) as gp:
             for line in gp:
                 iso_path, fs_path = line.strip().split("=", 1)
-                if iso_path in exclude:
+                if iso_path in excluded_files:
                     continue
-                emit(f, "-map %s %s" % (fs_path, iso_path))
+                cmd = "-update" if iso_path in updated_files else "-map"
+                emit(f, "%s %s %s" % (cmd, fs_path, iso_path))
 
         if opts.arch == "ppc64le":
             # This is needed for the image to be bootable.

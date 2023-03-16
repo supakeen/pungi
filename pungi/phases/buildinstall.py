@@ -364,6 +364,9 @@ BOOT_CONFIGS = [
     "EFI/BOOT/BOOTX64.conf",
     "EFI/BOOT/grub.cfg",
 ]
+BOOT_IMAGES = [
+    "images/efiboot.img",
+]
 
 
 def tweak_configs(path, volid, ks_file, configs=BOOT_CONFIGS, logger=None):
@@ -443,9 +446,7 @@ def tweak_buildinstall(
     if kickstart_file and found_configs:
         shutil.copy2(kickstart_file, os.path.join(dst, "ks.cfg"))
 
-    images = [
-        os.path.join(tmp_dir, "images", "efiboot.img"),
-    ]
+    images = [os.path.join(tmp_dir, img) for img in BOOT_IMAGES]
     if found_configs:
         for image in images:
             if not os.path.isfile(image):
