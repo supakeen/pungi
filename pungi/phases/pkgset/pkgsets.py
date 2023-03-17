@@ -318,6 +318,11 @@ class FilelistPackageSet(PackageSetBase):
         return result
 
 
+# This is a marker to indicate package set with only extra builds/tasks and no
+# tasks.
+MISSING_KOJI_TAG = object()
+
+
 class KojiPackageSet(PackageSetBase):
     def __init__(
         self,
@@ -371,7 +376,7 @@ class KojiPackageSet(PackageSetBase):
         :param int signed_packages_wait: How long to wait between search attemts.
         """
         super(KojiPackageSet, self).__init__(
-            name,
+            name if name != MISSING_KOJI_TAG else "no-tag",
             sigkey_ordering=sigkey_ordering,
             arches=arches,
             logger=logger,
@@ -576,7 +581,9 @@ class KojiPackageSet(PackageSetBase):
             inherit,
         )
         self.log_info("[BEGIN] %s" % msg)
-        rpms, builds = self.get_latest_rpms(tag, event, inherit=inherit)
+        rpms, builds = [], []
+        if tag != MISSING_KOJI_TAG:
+            rpms, builds = self.get_latest_rpms(tag, event, inherit=inherit)
         extra_rpms, extra_builds = self.get_extra_rpms()
         rpms += extra_rpms
         builds += extra_builds

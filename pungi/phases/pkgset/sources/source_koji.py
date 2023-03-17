@@ -791,17 +791,23 @@ def populate_global_pkgset(compose, koji_wrapper, path_prefix, event):
 
     pkgsets = []
 
+    extra_builds = force_list(compose.conf.get("pkgset_koji_builds", []))
+    extra_tasks = force_list(compose.conf.get("pkgset_koji_scratch_tasks", []))
+
+    if not pkgset_koji_tags and (extra_builds or extra_tasks):
+        # We have extra packages to pull in, but no tag to merge them with.
+        compose_tags.append(pungi.phases.pkgset.pkgsets.MISSING_KOJI_TAG)
+        pkgset_koji_tags.append(pungi.phases.pkgset.pkgsets.MISSING_KOJI_TAG)
+
     # Get package set for each compose tag and merge it to global package
     # list. Also prepare per-variant pkgset, because we do not have list
     # of binary RPMs in module definition - there is just list of SRPMs.
     for compose_tag in compose_tags:
         compose.log_info("Loading package set for tag %s", compose_tag)
+        kwargs = {}
         if compose_tag in pkgset_koji_tags:
-            extra_builds = force_list(compose.conf.get("pkgset_koji_builds", []))
-            extra_tasks = force_list(compose.conf.get("pkgset_koji_scratch_tasks", []))
-        else:
-            extra_builds = []
-            extra_tasks = []
+            kwargs["extra_builds"] = extra_builds
+            kwargs["extra_tasks"] = extra_tasks
 
         pkgset = pungi.phases.pkgset.pkgsets.KojiPackageSet(
             compose_tag,
@@ -813,10 +819,9 @@ def populate_global_pkgset(compose, koji_wrapper, path_prefix, event):
             allow_invalid_sigkeys=allow_invalid_sigkeys,
             populate_only_packages=populate_only_packages_to_gather,
             cache_region=compose.cache_region,
-            extra_builds=extra_builds,
-            extra_tasks=extra_tasks,
             signed_packages_retries=compose.conf["signed_packages_retries"],
             signed_packages_wait=compose.conf["signed_packages_wait"],
+            **kwargs
         )
 
         # Check if we have cache for this tag from previous compose. If so, use
