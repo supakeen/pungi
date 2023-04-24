@@ -183,15 +183,16 @@ class CompsFilter(object):
         """
         all_groups = self.tree.xpath("/comps/group/id/text()") + lookaside_groups
         for environment in self.tree.xpath("/comps/environment"):
-            for group in environment.xpath("grouplist/groupid"):
-                if group.text not in all_groups:
-                    group.getparent().remove(group)
+            for parent_tag in ("grouplist", "optionlist"):
+                for group in environment.xpath("%s/groupid" % parent_tag):
+                    if group.text not in all_groups:
+                        group.getparent().remove(group)
 
-            for group in environment.xpath("grouplist/groupid[@arch]"):
-                value = group.attrib.get("arch")
-                values = [v for v in re.split(r"[, ]+", value) if v]
-                if arch not in values:
-                    group.getparent().remove(group)
+                for group in environment.xpath("%s/groupid[@arch]" % parent_tag):
+                    value = group.attrib.get("arch")
+                    values = [v for v in re.split(r"[, ]+", value) if v]
+                    if arch not in values:
+                        group.getparent().remove(group)
 
     def remove_empty_environments(self):
         """

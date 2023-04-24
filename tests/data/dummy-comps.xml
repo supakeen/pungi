@@ -108,6 +108,7 @@
       <groupid>core</groupid>
     </grouplist>
     <optionlist>
+      <groupid arch="x86_64">standard</groupid>
     </optionlist>
   </environment>
 
