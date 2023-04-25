@@ -47,9 +47,15 @@ class FakePackage(object):
 
     @property
     def files(self):
-        return [
-            os.path.join(dirname, basename) for (_, dirname, basename) in self.pkg.files
-        ]
+        paths = []
+        # createrepo_c.Package.files is a tuple, but its length differs across
+        # versions. The constants define index at which the related value is
+        # located.
+        for entry in self.pkg.files:
+            paths.append(
+                os.path.join(entry[cr.FILE_ENTRY_PATH], entry[cr.FILE_ENTRY_NAME])
+            )
+        return paths
 
     @property
     def provides(self):
