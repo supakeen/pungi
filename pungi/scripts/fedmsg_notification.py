@@ -14,6 +14,9 @@ def send(cmd, data):
     topic = "compose.%s" % cmd.replace("-", ".").lower()
     try:
         msg = fedora_messaging.api.Message(topic="pungi.{}".format(topic), body=data)
+        if cmd == "ostree":
+            # https://pagure.io/fedora-infrastructure/issue/10899
+            msg.priority = 3
         fedora_messaging.api.publish(msg)
     except fedora_messaging.exceptions.PublishReturned as e:
         print("Fedora Messaging broker rejected message %s: %s" % (msg.id, e))
