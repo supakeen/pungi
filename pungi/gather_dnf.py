@@ -15,12 +15,14 @@
 
 
 from enum import Enum
-from itertools import count
+from functools import cmp_to_key
+from itertools import count, groupby
 import logging
 import os
 import re
 
 from kobo.rpmlib import parse_nvra
+import rpm
 
 import pungi.common
 import pungi.dnf_wrapper
@@ -246,9 +248,36 @@ class Gather(GatherBase):
         # from lookaside. This can be achieved by removing any package that is
         # also in lookaside from the list.
         lookaside_pkgs = set()
-        for pkg in package_list:
-            if pkg.repoid in self.opts.lookaside_repos:
-                lookaside_pkgs.add("{0.name}-{0.evr}".format(pkg))
+
+        if self.opts.lookaside_repos:
+            # We called `latest()` to get the highest version packages only.
+            # However, that is per name and architecture. If a package switches
+            # from arched to noarch or the other way, it is possible that the
+            # package_list contains different versions in main repos and in
+            # lookaside repos.
+            # We need to manually filter the latest version.
+            def vercmp(x, y):
+                return rpm.labelCompare(x[1], y[1])
+
+            # Annotate the packages with their version.
+            versioned_packages = [
+                (pkg, (str(pkg.epoch) or "0", pkg.version, pkg.release))
+                for pkg in package_list
+            ]
+            # Sort the packages newest first.
+            sorted_packages = sorted(
+                versioned_packages, key=cmp_to_key(vercmp), reverse=True
+            )
+            # Group packages by version, take the first group and discard the
+            # version info from the tuple.
+            package_list = list(
+                x[0] for x in next(groupby(sorted_packages, key=lambda x: x[1]))[1]
+            )
+
+            # Now we can decide what is used from lookaside.
+            for pkg in package_list:
+                if pkg.repoid in self.opts.lookaside_repos:
+                    lookaside_pkgs.add("{0.name}-{0.evr}".format(pkg))
 
         if self.opts.greedy_method == "all":
             return list(package_list)
