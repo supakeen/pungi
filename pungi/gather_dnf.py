@@ -26,6 +26,7 @@ import pungi.common
 import pungi.dnf_wrapper
 import pungi.multilib_dnf
 import pungi.util
+from pungi import arch_utils
 from pungi.linker import Linker
 from pungi.profiler import Profiler
 from pungi.util import DEBUG_PATTERNS
@@ -500,9 +501,16 @@ class Gather(GatherBase):
                                 name__glob=pattern[:-2]
                             ).apply()
                         else:
-                            pkgs = self.q_binary_packages.filter(
-                                name__glob=pattern
-                            ).apply()
+                            kwargs = {"name__glob": pattern}
+                            if "." in pattern:
+                                # The pattern could be name.arch. Check if the
+                                # arch is valid, and if yes, make a more
+                                # specific query.
+                                name, arch = pattern.split(".", 1)
+                                if arch in arch_utils.arches:
+                                    kwargs["name__glob"] = name
+                                    kwargs["arch__eq"] = arch
+                            pkgs = self.q_binary_packages.filter(**kwargs).apply()
 
                 if not pkgs:
                     self.logger.error("No package matches pattern %s" % pattern)
