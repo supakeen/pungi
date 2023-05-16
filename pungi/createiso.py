@@ -121,6 +121,21 @@ def make_jigdo(f, opts):
     emit(f, cmd)
 
 
+def _get_perms(fs_path):
+    """Compute proper permissions for a file.
+
+    This mimicks what -rational-rock option of genisoimage does. All read bits
+    are set, so that files and directories are globally readable. If any
+    execute bit is set for a file, set them all. No writes are allowed and
+    special bits are erased too.
+    """
+    statinfo = os.stat(fs_path)
+    perms = 0o444
+    if statinfo.st_mode & 0o111:
+        perms |= 0o111
+    return perms
+
+
 def write_xorriso_commands(opts):
     # Create manifest for the boot.iso listing all contents
     boot_iso_manifest = "%s.manifest" % os.path.join(
@@ -162,11 +177,14 @@ def write_xorriso_commands(opts):
                     continue
                 cmd = "-update" if iso_path in updated_files else "-map"
                 emit(f, "%s %s %s" % (cmd, fs_path, iso_path))
+                emit(f, "-chmod 0%o %s" % (_get_perms(fs_path), iso_path))
 
         if opts.arch == "ppc64le":
             # This is needed for the image to be bootable.
             emit(f, "-as mkisofs -U --")
 
+        emit(f, "-chown_r 0 /")
+        emit(f, "-chgrp_r 0 /")
         emit(f, "-end")
     return script
 

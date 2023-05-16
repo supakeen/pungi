@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import mock
+from parameterized import parameterized
 
 import os
 from six.moves import StringIO
@@ -391,3 +392,27 @@ class CreateIsoScriptTest(helpers.PungiTestCase):
                 ),
             ]
         )
+
+    @parameterized.expand(
+        [("644", 0o644), ("664", 0o664), ("666", 0o666), ("2644", 0o2644)]
+    )
+    def test_get_perms_non_executable(self, test_name, mode):
+        path = helpers.touch(os.path.join(self.topdir, "f"), mode=mode)
+        self.assertEqual(createiso._get_perms(path), 0o444)
+
+    @parameterized.expand(
+        [
+            ("544", 0o544),
+            ("554", 0o554),
+            ("555", 0o555),
+            ("744", 0o744),
+            ("755", 0o755),
+            ("774", 0o774),
+            ("775", 0o775),
+            ("777", 0o777),
+            ("2775", 0o2775),
+        ]
+    )
+    def test_get_perms_executable(self, test_name, mode):
+        path = helpers.touch(os.path.join(self.topdir, "f"), mode=mode)
+        self.assertEqual(createiso._get_perms(path), 0o555)

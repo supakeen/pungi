@@ -272,7 +272,7 @@ class DummyCompose(object):
         return tempfile.mkdtemp(suffix=suffix, prefix=prefix, dir=self.topdir)
 
 
-def touch(path, content=None):
+def touch(path, content=None, mode=None):
     """Helper utility that creates an dummy file in given location. Directories
     will be created."""
     content = content or (path + "\n")
@@ -284,6 +284,8 @@ def touch(path, content=None):
         content = content.encode()
     with open(path, "wb") as f:
         f.write(content)
+    if mode:
+        os.chmod(path, mode)
     return path
 
 
