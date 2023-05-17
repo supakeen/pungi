@@ -1,7 +1,6 @@
 # Some packages must be installed via dnf/yum first, see doc/contributing.rst
 dict.sorted
 dogpile.cache
-fedmsg
 funcsigs
 jsonschema
 kobo
