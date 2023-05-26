@@ -227,9 +227,19 @@ def validate(config, offline=False, schema=None):
     DefaultValidator = _extend_with_default_and_alias(
         jsonschema.Draft4Validator, offline=offline
     )
-    validator = DefaultValidator(
-        schema,
-    )
+
+    if hasattr(jsonschema.Draft4Validator, "TYPE_CHECKER"):
+        # jsonschema >= 3.0 has new interface for checking types
+        validator = DefaultValidator(schema)
+    else:
+        validator = DefaultValidator(
+            schema,
+            {
+                "array": (tuple, list),
+                "regex": six.string_types,
+                "url": six.string_types,
+            },
+        )
     errors = []
     warnings = []
     for error in validator.iter_errors(config):
@@ -444,15 +454,18 @@ def _extend_with_default_and_alias(validator_class, offline=False):
                 context=all_errors,
             )
 
-    def is_array(checker, instance):
-        return isinstance(instance, (tuple, list))
+    kwargs = {}
+    if hasattr(validator_class, "TYPE_CHECKER"):
+        # jsonschema >= 3
+        def is_array(checker, instance):
+            return isinstance(instance, (tuple, list))
 
-    def is_string_type(checker, instance):
-        return isinstance(instance, six.string_types)
+        def is_string_type(checker, instance):
+            return isinstance(instance, six.string_types)
 
-    type_checker = validator_class.TYPE_CHECKER.redefine_many(
-        {"array": is_array, "regex": is_string_type, "url": is_string_type}
-    )
+        kwargs["type_checker"] = validator_class.TYPE_CHECKER.redefine_many(
+            {"array": is_array, "regex": is_string_type, "url": is_string_type}
+        )
 
     return jsonschema.validators.extend(
         validator_class,
@@ -464,7 +477,7 @@ def _extend_with_default_and_alias(validator_class, offline=False):
             "additionalProperties": _validate_additional_properties,
             "anyOf": _validate_any_of,
         },
-        type_checker=type_checker,
+        **kwargs
     )
 
 
