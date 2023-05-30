@@ -306,11 +306,6 @@ def write_tree_info(compose, arch, variant, timestamp=None, bi=None):
     if variant.type in ("addon",) or variant.is_empty:
         return
 
-    compose.log_debug(
-        "on arch '%s' looking at variant '%s' of type '%s'"
-        % (arch, variant, variant.type)
-    )
-
     if not timestamp:
         timestamp = int(time.time())
     else:
