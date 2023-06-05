@@ -169,6 +169,9 @@ def write_xorriso_commands(opts):
         emit(f, "-volid %s" % opts.volid)
         # isoinfo -J uses the Joliet tree, and it's used by virt-install
         emit(f, "-joliet on")
+        # Support long filenames in the Joliet trees. Repodata is particularly
+        # likely to run into this limit.
+        emit(f, "-compliance joliet_long_names")
 
         with open(opts.graft_points) as gp:
             for line in gp:
