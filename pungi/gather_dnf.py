@@ -250,7 +250,7 @@ class Gather(GatherBase):
         lookaside_pkgs = set()
 
         if self.opts.lookaside_repos:
-            # We called `latest()` to get the highest version packages only.
+            # We will call `latest()` to get the highest version packages only.
             # However, that is per name and architecture. If a package switches
             # from arched to noarch or the other way, it is possible that the
             # package_list contains different versions in main repos and in
@@ -279,9 +279,6 @@ class Gather(GatherBase):
                 if pkg.repoid in self.opts.lookaside_repos:
                     lookaside_pkgs.add("{0.name}-{0.evr}".format(pkg))
 
-        if self.opts.greedy_method == "all":
-            return list(package_list)
-
         all_pkgs = []
         for pkg in package_list:
             # Remove packages that are also in lookaside
@@ -293,16 +290,21 @@ class Gather(GatherBase):
 
         if not debuginfo:
             native_pkgs = set(
-                self.q_native_binary_packages.filter(pkg=all_pkgs).apply()
+                self.q_native_binary_packages.filter(pkg=all_pkgs).latest().apply()
             )
             multilib_pkgs = set(
-                self.q_multilib_binary_packages.filter(pkg=all_pkgs).apply()
+                self.q_multilib_binary_packages.filter(pkg=all_pkgs).latest().apply()
             )
         else:
-            native_pkgs = set(self.q_native_debug_packages.filter(pkg=all_pkgs).apply())
-            multilib_pkgs = set(
-                self.q_multilib_debug_packages.filter(pkg=all_pkgs).apply()
+            native_pkgs = set(
+                self.q_native_debug_packages.filter(pkg=all_pkgs).latest().apply()
             )
+            multilib_pkgs = set(
+                self.q_multilib_debug_packages.filter(pkg=all_pkgs).latest().apply()
+            )
+
+        if self.opts.greedy_method == "all":
+            return list(native_pkgs | multilib_pkgs)
 
         result = set()
 
@@ -422,9 +424,7 @@ class Gather(GatherBase):
         """Given an name of a queue (stored as attribute in `self`), exclude
         all given packages and keep only the latest per package name and arch.
         """
-        setattr(
-            self, queue, getattr(self, queue).filter(pkg__neq=exclude).latest().apply()
-        )
+        setattr(self, queue, getattr(self, queue).filter(pkg__neq=exclude).apply())
 
     @Profiler("Gather._apply_excludes()")
     def _apply_excludes(self, excludes):
