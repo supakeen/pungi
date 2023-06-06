@@ -1,5 +1,5 @@
 Name:           pungi
-Version:        4.3.8
+Version:        4.4.0
 Release:        1%{?dist}
 Summary:        Distribution compose tool
 
@@ -110,6 +110,21 @@ pytest
 cd tests && ./test_compose.sh
 
 %changelog
+* Tue Jun 06 2023 Lubomír Sedlář <lsedlar@redhat.com> - 4.4.0-1
+- gather-dnf: Run latest() later (lsedlar)
+- iso: Support joliet long names (lsedlar)
+- Drop pungi-orchestrator code (lsedlar)
+- isos: Ensure proper file ownership and permissions (lsedlar)
+- gather: Always get latest packages (lsedlar)
+- Add back compatibility with jsonschema <3.0.0 (lsedlar)
+- Remove useless debug message (lsedlar)
+- Remove fedmsg from requirements (lsedlar)
+- gather: Support dotarch in DNF backend (lsedlar)
+- Set the priority in the fedora-messaging notifier (aurelien)
+- Fix compatibility with createrepo_c 0.21.1 (lsedlar)
+- comps: Apply arch filtering to environment/optionlist (lsedlar)
+- Add config file for cleaning up cache files (hlin)
+
 * Tue Mar 28 2023 Haibo Lin <hlin@redhat.com> - 4.3.8-1
 - createiso: Update possibly changed file on DVD (lsedlar)
 - pkgset: Stop reuse if configuration changed (lsedlar)
