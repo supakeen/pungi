@@ -440,7 +440,7 @@ class LiveMediaConfigTestCase(ConfigTestCase):
             live_media_version="Rawhide",
         )
 
-        resolve_git_url.side_effect = lambda x: x.replace("HEAD", "CAFE")
+        resolve_git_url.side_effect = lambda x, _helper: x.replace("HEAD", "CAFE")
 
         self.assertValidation(cfg)
         self.assertEqual(cfg["live_media_ksurl"], "git://example.com/repo.git#CAFE")

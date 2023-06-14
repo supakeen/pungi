@@ -13,8 +13,10 @@ import random
 import os
 import six
 
+from parameterized import parameterized
+
 from pungi.wrappers import scm
-from tests.helpers import touch
+from tests.helpers import touch, GIT_WITH_CREDS
 from kobo.shortcuts import run
 
 
@@ -109,37 +111,45 @@ class FileSCMTestCase(SCMBaseTest):
         self.assertIn("No directories matched", str(ctx.exception))
 
 
+CREDENTIALS_CONFIG = {"credential_helper": "!ch"}
+
+
 class GitSCMTestCase(SCMBaseTest):
-    def assertCalls(self, mock_run, url, branch, command=None):
+    def assertCalls(self, mock_run, url, branch, command=None, with_creds=False):
+        git = GIT_WITH_CREDS if with_creds else ["git"]
         command = [command] if command else []
         self.assertEqual(
             [call[0][0] for call in mock_run.call_args_list],
             [
                 ["git", "init"],
-                ["git", "fetch", "--depth=1", url, branch],
+                git + ["fetch", "--depth=1", url, branch],
                 ["git", "checkout", "FETCH_HEAD"],
             ]
             + command,
         )
 
-    @mock.patch("pungi.wrappers.scm.run")
-    def test_get_file(self, run):
+    @parameterized.expand([("without_creds", {}), ("with_creds", CREDENTIALS_CONFIG)])
+    def test_get_file(self, _name, config):
         def process(cmd, workdir=None, **kwargs):
             touch(os.path.join(workdir, "some_file.txt"))
             touch(os.path.join(workdir, "other_file.txt"))
 
-        run.side_effect = process
+        with mock.patch("pungi.wrappers.scm.run") as run:
+            run.side_effect = process
+            retval = scm.get_file_from_scm(
+                {
+                    "scm": "git",
+                    "repo": "git://example.com/git/repo.git",
+                    "file": "some_file.txt",
+                    "options": config,
+                },
+                self.destdir,
+            )
 
-        retval = scm.get_file_from_scm(
-            {
-                "scm": "git",
-                "repo": "git://example.com/git/repo.git",
-                "file": "some_file.txt",
-            },
-            self.destdir,
-        )
         self.assertStructure(retval, ["some_file.txt"])
-        self.assertCalls(run, "git://example.com/git/repo.git", "master")
+        self.assertCalls(
+            run, "git://example.com/git/repo.git", "master", with_creds=bool(config)
+        )
 
     @mock.patch("pungi.wrappers.scm.run")
     def test_get_file_function(self, run):
@@ -163,9 +173,10 @@ class GitSCMTestCase(SCMBaseTest):
         self.assertEqual(retval, destination)
         self.assertCalls(run, "git://example.com/git/repo.git", "master")
 
-    @mock.patch("pungi.wrappers.scm.run")
-    def test_get_file_fetch_fails(self, run):
+    @parameterized.expand([("without_creds", {}), ("with_creds", CREDENTIALS_CONFIG)])
+    def test_get_file_fetch_fails(self, _name, config):
         url = "git://example.com/git/repo.git"
+        git = GIT_WITH_CREDS if config else ["git"]
 
         def process(cmd, workdir=None, **kwargs):
             if "fetch" in cmd:
@@ -175,18 +186,20 @@ class GitSCMTestCase(SCMBaseTest):
             touch(os.path.join(workdir, "some_file.txt"))
             touch(os.path.join(workdir, "other_file.txt"))
 
-        run.side_effect = process
+        with mock.patch("pungi.wrappers.scm.run") as run:
+            run.side_effect = process
+            retval = scm.get_file_from_scm(
+                {"scm": "git", "repo": url, "file": "some_file.txt", "options": config},
+                self.destdir,
+            )
 
-        retval = scm.get_file_from_scm(
-            {"scm": "git", "repo": url, "file": "some_file.txt"}, self.destdir
-        )
         self.assertStructure(retval, ["some_file.txt"])
         self.assertEqual(
             [call[0][0] for call in run.call_args_list],
             [
                 ["git", "init"],
-                [
-                    "git",
+                git
+                + [
                     "fetch",
                     "--depth=1",
                     "git://example.com/git/repo.git",
@@ -194,7 +207,7 @@ class GitSCMTestCase(SCMBaseTest):
                 ],
                 ["git", "init"],
                 ["git", "remote", "add", "origin", url],
-                ["git", "remote", "update", "origin"],
+                git + ["remote", "update", "origin"],
                 ["git", "checkout", "master"],
             ],
         )
@@ -243,20 +256,28 @@ class GitSCMTestCase(SCMBaseTest):
 
         self.assertEqual(str(ctx.exception), "'make' failed with exit code 1")
 
-    @mock.patch("pungi.wrappers.scm.run")
-    def test_get_dir(self, run):
+    @parameterized.expand([("without_creds", {}), ("with_creds", CREDENTIALS_CONFIG)])
+    def test_get_dir(self, _name, config):
         def process(cmd, workdir=None, **kwargs):
             touch(os.path.join(workdir, "subdir", "first"))
             touch(os.path.join(workdir, "subdir", "second"))
 
-        run.side_effect = process
+        with mock.patch("pungi.wrappers.scm.run") as run:
+            run.side_effect = process
+            retval = scm.get_dir_from_scm(
+                {
+                    "scm": "git",
+                    "repo": "git://example.com/git/repo.git",
+                    "dir": "subdir",
+                    "options": config,
+                },
+                self.destdir,
+            )
 
-        retval = scm.get_dir_from_scm(
-            {"scm": "git", "repo": "git://example.com/git/repo.git", "dir": "subdir"},
-            self.destdir,
-        )
         self.assertStructure(retval, ["first", "second"])
-        self.assertCalls(run, "git://example.com/git/repo.git", "master")
+        self.assertCalls(
+            run, "git://example.com/git/repo.git", "master", with_creds=bool(config)
+        )
 
     @mock.patch("pungi.wrappers.scm.run")
     def test_get_dir_and_generate(self, run):

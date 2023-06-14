@@ -279,7 +279,7 @@ class GitUrlResolveError(RuntimeError):
     pass
 
 
-def resolve_git_ref(repourl, ref):
+def resolve_git_ref(repourl, ref, credential_helper=None):
     """Resolve a reference in a Git repo to a commit.
 
     Raises RuntimeError if there was an error. Most likely cause is failure to
@@ -289,7 +289,7 @@ def resolve_git_ref(repourl, ref):
         # This looks like a commit ID already.
         return ref
     try:
-        _, output = git_ls_remote(repourl, ref)
+        _, output = git_ls_remote(repourl, ref, credential_helper)
     except RuntimeError as e:
         raise GitUrlResolveError(
             "ref does not exist in remote repo %s with the error %s %s"
@@ -316,7 +316,7 @@ def resolve_git_ref(repourl, ref):
     return lines[0].split()[0]
 
 
-def resolve_git_url(url):
+def resolve_git_url(url, credential_helper=None):
     """Given a url to a Git repo specifying HEAD or origin/<branch> as a ref,
     replace that specifier with actual SHA1 of the commit.
 
@@ -335,7 +335,7 @@ def resolve_git_url(url):
     scheme = r.scheme.replace("git+", "")
 
     baseurl = urllib.parse.urlunsplit((scheme, r.netloc, r.path, "", ""))
-    fragment = resolve_git_ref(baseurl, ref)
+    fragment = resolve_git_ref(baseurl, ref, credential_helper)
 
     result = urllib.parse.urlunsplit((r.scheme, r.netloc, r.path, r.query, fragment))
     if "?#" in url:
@@ -354,13 +354,18 @@ class GitUrlResolver(object):
         self.offline = offline
         self.cache = {}
 
-    def __call__(self, url, branch=None):
+    def __call__(self, url, branch=None, options=None):
+        credential_helper = options.get("credential_helper") if options else None
         if self.offline:
             return branch or url
         key = (url, branch)
         if key not in self.cache:
             try:
-                res = resolve_git_ref(url, branch) if branch else resolve_git_url(url)
+                res = (
+                    resolve_git_ref(url, branch, credential_helper)
+                    if branch
+                    else resolve_git_url(url, credential_helper)
+                )
                 self.cache[key] = res
             except GitUrlResolveError as exc:
                 self.cache[key] = exc
@@ -991,8 +996,12 @@ def retry(timeout=120, interval=30, wait_on=Exception):
 
 
 @retry(wait_on=RuntimeError)
-def git_ls_remote(baseurl, ref):
-    return run(["git", "ls-remote", baseurl, ref], universal_newlines=True)
+def git_ls_remote(baseurl, ref, credential_helper=None):
+    cmd = ["git"]
+    if credential_helper:
+        cmd.extend(["-c", "credential.useHttpPath=true"])
+        cmd.extend(["-c", "credential.helper=%s" % credential_helper])
+    return run(cmd + ["ls-remote", baseurl, ref], universal_newlines=True)
 
 
 def get_tz_offset():

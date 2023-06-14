@@ -21,6 +21,15 @@ from pungi import paths, checks
 from pungi.module_util import Modulemd
 
 
+GIT_WITH_CREDS = [
+    "git",
+    "-c",
+    "credential.useHttpPath=true",
+    "-c",
+    "credential.helper=!ch",
+]
+
+
 class BaseTestCase(unittest.TestCase):
     def assertFilesEqual(self, fn1, fn2):
         with open(fn1, "rb") as f1:

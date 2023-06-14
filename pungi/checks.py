@@ -387,6 +387,7 @@ def _extend_with_default_and_alias(validator_class, offline=False):
                 instance[property]["branch"] = resolver(
                     instance[property]["repo"],
                     instance[property].get("branch") or "HEAD",
+                    instance[property].get("options"),
                 )
 
         for error in _hook_errors(properties, instance, schema):
@@ -520,6 +521,13 @@ def make_schema():
                     "file": {"type": "string"},
                     "dir": {"type": "string"},
                     "command": {"type": "string"},
+                    "options": {
+                        "type": "object",
+                        "properties": {
+                            "credential_helper": {"type": "string"},
+                        },
+                        "additionalProperties": False,
+                    },
                 },
                 "additionalProperties": False,
             },

@@ -41,6 +41,14 @@ which can contain following keys.
 * ``command`` -- defines a shell command to run after Git clone to generate the
   needed file (for example to run ``make``). Only supported in Git backend.
 
+* ``options`` -- a dictionary of additional configuration options. These are
+  specific to different backends.
+
+  Currently supported values for Git:
+
+  * ``credential_helper`` -- path to a credential helper used to supply
+    username/password for remotes that require authentication.
+
 
 Koji examples
 -------------

@@ -31,10 +31,11 @@ from .kojiwrapper import KojiWrapper
 
 
 class ScmBase(kobo.log.LoggingBase):
-    def __init__(self, logger=None, command=None, compose=None):
+    def __init__(self, logger=None, command=None, compose=None, options=None):
         kobo.log.LoggingBase.__init__(self, logger=logger)
         self.command = command
         self.compose = compose
+        self.options = options or {}
 
     @retry(interval=60, timeout=300, wait_on=RuntimeError)
     def retry_run(self, cmd, **kwargs):
@@ -156,22 +157,31 @@ class GitWrapper(ScmBase):
         if "://" not in repo:
             repo = "file://%s" % repo
 
+        git_cmd = ["git"]
+        if "credential_helper" in self.options:
+            git_cmd.extend(["-c", "credential.useHttpPath=true"])
+            git_cmd.extend(
+                ["-c", "credential.helper=%s" % self.options["credential_helper"]]
+            )
+
         run(["git", "init"], workdir=destdir)
         try:
-            run(["git", "fetch", "--depth=1", repo, branch], workdir=destdir)
+            run(git_cmd + ["fetch", "--depth=1", repo, branch], workdir=destdir)
             run(["git", "checkout", "FETCH_HEAD"], workdir=destdir)
         except RuntimeError as e:
             # Fetch failed, to do a full clone we add a remote to our empty
             # repo, get its content and check out the reference we want.
             self.log_debug(
                 "Trying to do a full clone because shallow clone failed: %s %s"
-                % (e, e.output)
+                % (e, getattr(e, "output", ""))
             )
             try:
                 # Re-run git init in case of previous failure breaking .git dir
                 run(["git", "init"], workdir=destdir)
                 run(["git", "remote", "add", "origin", repo], workdir=destdir)
-                self.retry_run(["git", "remote", "update", "origin"], workdir=destdir)
+                self.retry_run(
+                    git_cmd + ["remote", "update", "origin"], workdir=destdir
+                )
                 run(["git", "checkout", branch], workdir=destdir)
             except RuntimeError:
                 if self.compose:
@@ -361,15 +371,19 @@ def get_file_from_scm(scm_dict, target_path, compose=None):
         scm_file = os.path.abspath(scm_dict)
         scm_branch = None
         command = None
+        options = {}
     else:
         scm_type = scm_dict["scm"]
         scm_repo = scm_dict["repo"]
         scm_file = scm_dict["file"]
         scm_branch = scm_dict.get("branch", None)
         command = scm_dict.get("command")
+        options = scm_dict.get("options", {})
 
     logger = compose._logger if compose else None
-    scm = _get_wrapper(scm_type, logger=logger, command=command, compose=compose)
+    scm = _get_wrapper(
+        scm_type, logger=logger, command=command, compose=compose, options=options
+    )
 
     files_copied = []
     for i in force_list(scm_file):
@@ -450,15 +464,19 @@ def get_dir_from_scm(scm_dict, target_path, compose=None):
         scm_dir = os.path.abspath(scm_dict)
         scm_branch = None
         command = None
+        options = {}
     else:
         scm_type = scm_dict["scm"]
         scm_repo = scm_dict.get("repo", None)
         scm_dir = scm_dict["dir"]
         scm_branch = scm_dict.get("branch", None)
         command = scm_dict.get("command")
+        options = scm_dict.get("options", {})
 
     logger = compose._logger if compose else None
-    scm = _get_wrapper(scm_type, logger=logger, command=command, compose=compose)
+    scm = _get_wrapper(
+        scm_type, logger=logger, command=command, compose=compose, options=options
+    )
 
     with temp_dir(prefix="scm_checkout_") as tmp_dir:
         scm.export_dir(scm_repo, scm_dir, scm_branch=scm_branch, target_dir=tmp_dir)

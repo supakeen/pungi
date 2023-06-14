@@ -16,7 +16,7 @@ import six
 from pungi import compose
 from pungi import util
 
-from tests.helpers import touch, PungiTestCase, mk_boom
+from tests.helpers import touch, PungiTestCase, mk_boom, GIT_WITH_CREDS
 
 
 class TestGitRefResolver(unittest.TestCase):
@@ -29,6 +29,20 @@ class TestGitRefResolver(unittest.TestCase):
         self.assertEqual(url, "https://git.example.com/repo.git?somedir#CAFEBABE")
         run.assert_called_once_with(
             ["git", "ls-remote", "https://git.example.com/repo.git", "HEAD"],
+            universal_newlines=True,
+        )
+
+    @mock.patch("pungi.util.run")
+    def test_successful_resolve_with_credentials(self, run):
+        run.return_value = (0, "CAFEBABE\tHEAD\n")
+
+        url = util.resolve_git_url(
+            "https://git.example.com/repo.git?somedir#HEAD", "!ch"
+        )
+
+        self.assertEqual(url, "https://git.example.com/repo.git?somedir#CAFEBABE")
+        run.assert_called_once_with(
+            GIT_WITH_CREDS + ["ls-remote", "https://git.example.com/repo.git", "HEAD"],
             universal_newlines=True,
         )
 
@@ -211,11 +225,12 @@ class TestGitRefResolver(unittest.TestCase):
         self.assertEqual(resolver(url2), "2")
         self.assertEqual(resolver(url3, ref2), "beef")
         self.assertEqual(
-            mock_resolve_url.call_args_list, [mock.call(url1), mock.call(url2)]
+            mock_resolve_url.call_args_list,
+            [mock.call(url1, None), mock.call(url2, None)],
         )
         self.assertEqual(
             mock_resolve_ref.call_args_list,
-            [mock.call(url3, ref1), mock.call(url3, ref2)],
+            [mock.call(url3, ref1, None), mock.call(url3, ref2, None)],
         )
 
     @mock.patch("pungi.util.resolve_git_url")
@@ -227,7 +242,7 @@ class TestGitRefResolver(unittest.TestCase):
             resolver(url)
         with self.assertRaises(util.GitUrlResolveError):
             resolver(url)
-        self.assertEqual(mock_resolve.call_args_list, [mock.call(url)])
+        self.assertEqual(mock_resolve.call_args_list, [mock.call(url, None)])
 
 
 class TestGetVariantData(unittest.TestCase):
