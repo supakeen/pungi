@@ -961,7 +961,14 @@ class KojiDownloadProxy:
                 shutil.copyfileobj(r.raw, f)
         return dest
 
-    def _atomic_download(self, url, dest):
+    def _delete(self, path):
+        """Try to delete file at given path and ignore errors."""
+        try:
+            os.remove(path)
+        except Exception:
+            self.logger.warning("Failed to delete %s", path)
+
+    def _atomic_download(self, url, dest, validator):
         """Atomically download a file
 
         :param str url: URL of the file to download
@@ -979,18 +986,25 @@ class KojiDownloadProxy:
         except Exception:
             # Download failed, let's make sure to clean up potentially partial
             # temporary file.
-            try:
-                os.remove(temp_file)
-            except Exception:
-                self.logger.warning("Failed to delete %s", temp_file)
-                pass
+            self._delete(temp_file)
+            raise
+
+        # Check if the temporary file is correct (assuming we were provided a
+        # validator function).
+        try:
+            if validator:
+                validator(temp_file)
+        except Exception:
+            # Validation failed. Let's delete the problematic file and re-raise
+            # the exception.
+            self._delete(temp_file)
             raise
 
         # Atomically move the temporary file into final location
         os.rename(temp_file, dest)
         return dest
 
-    def _download_file(self, path):
+    def _download_file(self, path, validator):
         """Ensure file on Koji volume in ``path`` is present in the local
         cache.
 
@@ -1025,12 +1039,17 @@ class KojiDownloadProxy:
                 os.utime(destination_file)
                 return destination_file
 
-            return self._atomic_download(url, destination_file)
+            return self._atomic_download(url, destination_file, validator)
 
-    def get_file(self, path):
+    def get_file(self, path, validator=None):
         """
         If path refers to an existing file in Koji, return a valid local path
         to it. If no such file exists, return None.
+
+        :param validator: A callable that will be called with the path to the
+            downloaded file if and only if the file was actually downloaded.
+            Any exception raised from there will be abort the download and be
+            propagated.
         """
         if self.has_local_access:
             # We have koji volume mounted locally. No transformation needed for
@@ -1040,4 +1059,4 @@ class KojiDownloadProxy:
             return None
         else:
             # We need to download the file.
-            return self._download_file(path)
+            return self._download_file(path, validator)

@@ -24,10 +24,12 @@ import json
 import os
 import time
 from six.moves import cPickle as pickle
+from functools import partial
 
 import kobo.log
 import kobo.pkgset
 import kobo.rpmlib
+from kobo.shortcuts import compute_file_checksums
 
 from kobo.threads import WorkerThread, ThreadPool
 
@@ -534,6 +536,23 @@ class KojiPackageSet(PackageSetBase):
         pathinfo = self.koji_wrapper.koji_module.pathinfo
         paths = []
 
+        if "getRPMChecksums" in self.koji_proxy.system.listMethods():
+
+            def checksum_validator(keyname, pkg_path):
+                checksums = self.koji_proxy.getRPMChecksums(
+                    rpm_info["id"], checksum_types=("sha256",)
+                )
+                if "sha256" in checksums.get(keyname, {}):
+                    computed = compute_file_checksums(pkg_path, ("sha256",))
+                    if computed["sha256"] != checksums[keyname]["sha256"]:
+                        raise RuntimeError("Checksum mismatch for %s" % pkg_path)
+
+        else:
+
+            def checksum_validator(keyname, pkg_path):
+                # Koji doesn't support checksums yet
+                pass
+
         attempts_left = self.signed_packages_retries + 1
         while attempts_left > 0:
             for sigkey in self.sigkey_ordering:
@@ -546,7 +565,9 @@ class KojiPackageSet(PackageSetBase):
                 )
                 if rpm_path not in paths:
                     paths.append(rpm_path)
-                path = self.downloader.get_file(rpm_path)
+                path = self.downloader.get_file(
+                    rpm_path, partial(checksum_validator, sigkey)
+                )
                 if path:
                     return path
 
@@ -561,7 +582,7 @@ class KojiPackageSet(PackageSetBase):
             # use an unsigned copy (if allowed)
             rpm_path = os.path.join(pathinfo.build(build_info), pathinfo.rpm(rpm_info))
             paths.append(rpm_path)
-            path = self.downloader.get_file(rpm_path)
+            path = self.downloader.get_file(rpm_path, partial(checksum_validator, ""))
             if path:
                 return path
 

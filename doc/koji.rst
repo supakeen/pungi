@@ -96,8 +96,10 @@ If the first compose already managed to hardlink the file before it gets
 replaced, there will be two copies of the file present locally.
 
 
-Caveats
--------
+Integrity checking
+------------------
 
-There is no integrity checking. Ideally Koji should provide checksums for the
-RPMs that would be verified after downloading. This is not yet available.
+There is minimal integrity checking. RPM packages belonging to real builds will
+be check to match the checksum provided by Koji hub.
+
+There is no checking for scratch builds or any images.
