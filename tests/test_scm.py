@@ -115,6 +115,10 @@ CREDENTIALS_CONFIG = {"credential_helper": "!ch"}
 
 
 class GitSCMTestCase(SCMBaseTest):
+    def tearDown(self):
+        shutil.rmtree("/tmp/pungi-temp-git-repos-%s" % os.getpid())
+        super(GitSCMTestCase, self).tearDown()
+
     def assertCalls(self, mock_run, url, branch, command=None, with_creds=False):
         git = GIT_WITH_CREDS if with_creds else ["git"]
         command = [command] if command else []

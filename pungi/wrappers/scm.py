@@ -20,6 +20,7 @@ import os
 import shutil
 import glob
 import six
+import threading
 from six.moves import shlex_quote
 from six.moves.urllib.request import urlretrieve
 from fnmatch import fnmatch
@@ -28,6 +29,8 @@ import kobo.log
 from kobo.shortcuts import run, force_list
 from pungi.util import explode_rpm_package, makedirs, copy_all, temp_dir, retry
 from .kojiwrapper import KojiWrapper
+
+lock = threading.Lock()
 
 
 class ScmBase(kobo.log.LoggingBase):
@@ -195,19 +198,38 @@ class GitWrapper(ScmBase):
                     copy_all(destdir, debugdir)
                 raise
 
-        self.run_process_command(destdir)
+    def get_temp_repo_path(self, scm_root, scm_branch):
+        scm_repo = scm_root.split("/")[-1]
+        process_id = os.getpid()
+        tmp_dir = (
+            "/tmp/pungi-temp-git-repos-"
+            + str(process_id)
+            + "/"
+            + scm_repo
+            + "-"
+            + scm_branch
+        )
+        return tmp_dir
+
+    def setup_repo(self, scm_root, scm_branch):
+        tmp_dir = self.get_temp_repo_path(scm_root, scm_branch)
+        if not os.path.isdir(tmp_dir):
+            makedirs(tmp_dir)
+            self._clone(scm_root, scm_branch, tmp_dir)
+        self.run_process_command(tmp_dir)
+        return tmp_dir
 
     def export_dir(self, scm_root, scm_dir, target_dir, scm_branch=None):
         scm_dir = scm_dir.lstrip("/")
         scm_branch = scm_branch or "master"
 
-        with temp_dir() as tmp_dir:
-            self.log_debug(
-                "Exporting directory %s from git %s (branch %s)..."
-                % (scm_dir, scm_root, scm_branch)
-            )
+        self.log_debug(
+            "Exporting directory %s from git %s (branch %s)..."
+            % (scm_dir, scm_root, scm_branch)
+        )
 
-            self._clone(scm_root, scm_branch, tmp_dir)
+        with lock:
+            tmp_dir = self.setup_repo(scm_root, scm_branch)
 
             copy_all(os.path.join(tmp_dir, scm_dir), target_dir)
 
@@ -215,15 +237,15 @@ class GitWrapper(ScmBase):
         scm_file = scm_file.lstrip("/")
         scm_branch = scm_branch or "master"
 
-        with temp_dir() as tmp_dir:
-            target_path = os.path.join(target_dir, os.path.basename(scm_file))
+        target_path = os.path.join(target_dir, os.path.basename(scm_file))
 
-            self.log_debug(
-                "Exporting file %s from git %s (branch %s)..."
-                % (scm_file, scm_root, scm_branch)
-            )
+        self.log_debug(
+            "Exporting file %s from git %s (branch %s)..."
+            % (scm_file, scm_root, scm_branch)
+        )
 
-            self._clone(scm_root, scm_branch, tmp_dir)
+        with lock:
+            tmp_dir = self.setup_repo(scm_root, scm_branch)
 
             makedirs(target_dir)
             shutil.copy2(os.path.join(tmp_dir, scm_file), target_path)

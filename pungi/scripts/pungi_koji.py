@@ -23,6 +23,7 @@ from pungi.phases import PHASES_NAMES
 from pungi import get_full_version, util
 from pungi.errors import UnsignedPackagesError
 from pungi.wrappers import kojiwrapper
+from pungi.util import rmtree
 
 
 # force C locales
@@ -693,3 +694,8 @@ def cli_main():
         sys.stdout.flush()
         sys.stderr.flush()
         sys.exit(1)
+    finally:
+        # Remove repositories cloned during ExtraFiles phase
+        process_id = os.getpid()
+        directoy_to_remove = "/tmp/pungi-temp-git-repos-" + str(process_id) + "/"
+        rmtree(directoy_to_remove)
