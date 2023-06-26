@@ -70,39 +70,82 @@ def is_status_fatal(status_code):
 
 
 @retry(wait_on=RequestException)
-def retry_request(method, url, data=None, auth=None):
+def retry_request(method, url, data=None, json_data=None, auth=None):
+    """
+    :param str method: Reqest method.
+    :param str url: Target URL.
+    :param dict data: form-urlencoded data to send in the body of the request.
+    :param dict json_data: json data to send in the body of the request.
+    """
     request_method = getattr(requests, method)
-    rv = request_method(url, json=data, auth=auth)
+    rv = request_method(url, data=data, json=json_data, auth=auth)
     if is_status_fatal(rv.status_code):
         try:
-            error = rv.json()["message"]
+            error = rv.json()
         except ValueError:
             error = rv.text
-        raise RuntimeError("CTS responded with %d: %s" % (rv.status_code, error))
+        raise RuntimeError("%s responded with %d: %s" % (url, rv.status_code, error))
     rv.raise_for_status()
     return rv
 
 
-@contextlib.contextmanager
-def cts_auth(cts_keytab):
-    auth = None
-    if cts_keytab:
-        # requests-kerberos cannot accept custom keytab, we need to use
-        # environment variable for this. But we need to change environment
-        # only temporarily just for this single requests.post.
-        # So at first backup the current environment and revert to it
-        # after the requests call.
-        from requests_kerberos import HTTPKerberosAuth
+class BearerAuth(requests.auth.AuthBase):
+    def __init__(self, token):
+        self.token = token
 
-        auth = HTTPKerberosAuth()
-        environ_copy = dict(os.environ)
-        if "$HOSTNAME" in cts_keytab:
-            cts_keytab = cts_keytab.replace("$HOSTNAME", socket.gethostname())
-        os.environ["KRB5_CLIENT_KTNAME"] = cts_keytab
-        os.environ["KRB5CCNAME"] = "DIR:%s" % tempfile.mkdtemp()
+    def __call__(self, r):
+        r.headers["authorization"] = "Bearer " + self.token
+        return r
+
+
+@contextlib.contextmanager
+def cts_auth(pungi_conf):
+    """
+    :param dict pungi_conf: dict obj of pungi.json config.
+    """
+    auth = None
+    token = None
+    cts_keytab = pungi_conf.get("cts_keytab")
+    cts_oidc_token_url = os.environ.get("CTS_OIDC_TOKEN_URL", "") or pungi_conf.get(
+        "cts_oidc_token_url"
+    )
 
     try:
+        if cts_keytab:
+            # requests-kerberos cannot accept custom keytab, we need to use
+            # environment variable for this. But we need to change environment
+            # only temporarily just for this single requests.post.
+            # So at first backup the current environment and revert to it
+            # after the requests call.
+            from requests_kerberos import HTTPKerberosAuth
+
+            auth = HTTPKerberosAuth()
+            environ_copy = dict(os.environ)
+            if "$HOSTNAME" in cts_keytab:
+                cts_keytab = cts_keytab.replace("$HOSTNAME", socket.gethostname())
+            os.environ["KRB5_CLIENT_KTNAME"] = cts_keytab
+            os.environ["KRB5CCNAME"] = "DIR:%s" % tempfile.mkdtemp()
+        elif cts_oidc_token_url:
+            cts_oidc_client_id = os.environ.get(
+                "CTS_OIDC_CLIENT_ID", ""
+            ) or pungi_conf.get("cts_oidc_client_id", "")
+            token = retry_request(
+                "post",
+                cts_oidc_token_url,
+                data={
+                    "grant_type": "client_credentials",
+                    "client_id": cts_oidc_client_id,
+                    "client_secret": os.environ.get("CTS_OIDC_CLIENT_SECRET", ""),
+                },
+            ).json()["access_token"]
+            auth = BearerAuth(token)
+            del token
+
         yield auth
+    except Exception as e:
+        # Avoid leaking client secret in trackback
+        e.show_locals = False
+        raise e
     finally:
         if cts_keytab:
             shutil.rmtree(os.environ["KRB5CCNAME"].split(":", 1)[1])
@@ -150,8 +193,8 @@ def get_compose_info(
             "parent_compose_ids": parent_compose_ids,
             "respin_of": respin_of,
         }
-        with cts_auth(conf.get("cts_keytab")) as authentication:
-            rv = retry_request("post", url, data=data, auth=authentication)
+        with cts_auth(conf) as authentication:
+            rv = retry_request("post", url, json_data=data, auth=authentication)
 
         # Update local ComposeInfo with received ComposeInfo.
         cts_ci = ComposeInfo()
@@ -187,8 +230,8 @@ def update_compose_url(compose_id, compose_dir, conf):
             "action": "set_url",
             "compose_url": compose_url,
         }
-        with cts_auth(conf.get("cts_keytab")) as authentication:
-            return retry_request("patch", url, data=data, auth=authentication)
+        with cts_auth(conf) as authentication:
+            return retry_request("patch", url, json_data=data, auth=authentication)
 
 
 def get_compose_dir(
@@ -661,7 +704,7 @@ class Compose(kobo.log.LoggingBase):
                 separators=(",", ": "),
             )
 
-    def traceback(self, detail=None):
+    def traceback(self, detail=None, show_locals=True):
         """Store an extended traceback. This method should only be called when
         handling an exception.
 
@@ -673,7 +716,7 @@ class Compose(kobo.log.LoggingBase):
         tb_path = self.paths.log.log_file("global", basename)
         self.log_error("Extended traceback in: %s", tb_path)
         with open(tb_path, "wb") as f:
-            f.write(kobo.tback.Traceback().get_traceback())
+            f.write(kobo.tback.Traceback(show_locals=show_locals).get_traceback())
 
     def load_old_compose_config(self):
         """

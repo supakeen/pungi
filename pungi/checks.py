@@ -824,6 +824,8 @@ def make_schema():
             "pdc_insecure": {"deprecated": "Koji is queried instead"},
             "cts_url": {"type": "string"},
             "cts_keytab": {"type": "string"},
+            "cts_oidc_token_url": {"type": "url"},
+            "cts_oidc_client_id": {"type": "string"},
             "koji_profile": {"type": "string"},
             "koji_event": {"type": "number"},
             "pkgset_koji_tag": {"$ref": "#/definitions/strings"},

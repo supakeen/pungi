@@ -194,6 +194,17 @@ Options
     Tracking Service Kerberos authentication. If not defined, the default
     Kerberos principal is used.
 
+**cts_oidc_token_url**
+    (*str*) -- URL to the OIDC token endpoint.
+    For example ``https://oidc.example.com/openid-connect/token``.
+    This option can be overridden by the environment variable ``CTS_OIDC_TOKEN_URL``.
+
+**cts_oidc_client_id*
+    (*str*) -- OIDC client ID.
+    This option can be overridden by the environment variable ``CTS_OIDC_CLIENT_ID``.
+    Note that environment variable ``CTS_OIDC_CLIENT_SECRET`` must be configured with
+    corresponding client secret to authenticate to CTS via OIDC.
+
 **compose_type**
     (*str*) -- Allows to set default compose type. Type set via a command-line
     option overwrites this.

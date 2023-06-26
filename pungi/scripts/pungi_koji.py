@@ -684,7 +684,7 @@ def cli_main():
     except (Exception, KeyboardInterrupt) as ex:
         if COMPOSE:
             COMPOSE.log_error("Compose run failed: %s" % ex)
-            COMPOSE.traceback()
+            COMPOSE.traceback(show_locals=getattr(ex, "show_locals", True))
             COMPOSE.log_critical("Compose failed: %s" % COMPOSE.topdir)
             COMPOSE.write_status("DOOMED")
         else:

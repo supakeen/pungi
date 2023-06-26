@@ -656,6 +656,7 @@ class ComposeTestCase(unittest.TestCase):
             mocked_requests.post.assert_called_once_with(
                 "https://cts.localhost.tld/api/1/composes/",
                 auth=mock.ANY,
+                data=None,
                 json=expected_json,
             )
 
@@ -794,12 +795,16 @@ class TracebackTest(unittest.TestCase):
         shutil.rmtree(self.tmp_dir)
         self.patcher.stop()
 
-    def assertTraceback(self, filename):
+    def assertTraceback(self, filename, show_locals=True):
         self.assertTrue(
             os.path.isfile("%s/logs/global/%s.global.log" % (self.tmp_dir, filename))
         )
         self.assertEqual(
-            self.Traceback.mock_calls, [mock.call(), mock.call().get_traceback()]
+            self.Traceback.mock_calls,
+            [
+                mock.call(show_locals=show_locals),
+                mock.call(show_locals=show_locals).get_traceback(),
+            ],
         )
 
     def test_traceback_default(self):
@@ -824,8 +829,8 @@ class RetryRequestTest(unittest.TestCase):
         self.assertEqual(
             mocked_requests.mock_calls,
             [
-                mock.call.post(url, json=None, auth=None),
-                mock.call.post(url, json=None, auth=None),
+                mock.call.post(url, data=None, json=None, auth=None),
+                mock.call.post(url, data=None, json=None, auth=None),
             ],
         )
         self.assertEqual(rv.status_code, 200)
@@ -841,5 +846,5 @@ class RetryRequestTest(unittest.TestCase):
 
         self.assertEqual(
             mocked_requests.mock_calls,
-            [mock.call.post(url, json=None, auth=None)],
+            [mock.call.post(url, data=None, json=None, auth=None)],
         )
