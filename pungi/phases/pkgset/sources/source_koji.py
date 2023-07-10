@@ -270,9 +270,14 @@ def _add_module_to_variant(
                 "Module %s does not have metadata for arch %s and is not filtered "
                 "out via filter_modules option." % (nsvc, arch)
             )
-        mod_stream = read_single_module_stream_from_file(
-            mmds[filename], compose, arch, build
-        )
+        try:
+            mod_stream = read_single_module_stream_from_file(
+                mmds[filename], compose, arch, build
+            )
+        except Exception as exc:
+            # libmodulemd raises various GLib exceptions with not very helpful
+            # messages. Let's replace it with something more useful.
+            raise RuntimeError("Failed to read %s: %s", mmds[filename], str(exc))
         if mod_stream:
             added = True
         variant.arch_mmds.setdefault(arch, {})[nsvc] = mod_stream
