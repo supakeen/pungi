@@ -168,7 +168,9 @@ class OSTreeThread(WorkerThread):
                 ("unified-core", config.get("unified_core", False)),
             ]
         )
-        packages = ["pungi", "ostree", "rpm-ostree"]
+        default_packages = ["pungi", "ostree", "rpm-ostree"]
+        additional_packages = config.get("runroot_packages", [])
+        packages = default_packages + additional_packages
         log_file = os.path.join(self.logdir, "runroot.log")
         mounts = [compose.topdir, config["ostree_repo"]]
         runroot = Runroot(compose, phase="ostree")

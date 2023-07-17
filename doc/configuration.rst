@@ -1800,6 +1800,8 @@ repository with a new commit.
     * ``tag_ref`` -- (*bool*, default ``True``) If set to ``False``, a git
       reference will not be created.
     * ``ostree_ref`` -- (*str*) To override value ``ref`` from ``treefile``.
+    * ``runroot_packages`` -- (*list*) A list of additional package names to be
+      installed in the runroot environment in Koji.
 
 Example config
 --------------

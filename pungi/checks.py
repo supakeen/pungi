@@ -1059,6 +1059,9 @@ def make_schema():
                                         "config_branch": {"type": "string"},
                                         "tag_ref": {"type": "boolean"},
                                         "ostree_ref": {"type": "string"},
+                                        "runroot_packages": {
+                                            "$ref": "#/definitions/list_of_strings",
+                                        },
                                     },
                                     "required": [
                                         "treefile",
