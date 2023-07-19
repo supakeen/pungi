@@ -73,7 +73,8 @@ class TestPopulateGlobalPkgset(helpers.PungiTestCase):
     def setUp(self):
         super(TestPopulateGlobalPkgset, self).setUp()
         self.compose = helpers.DummyCompose(
-            self.topdir, {"pkgset_koji_tag": "f25", "sigkeys": ["foo", "bar"]}
+            self.topdir,
+            {"pkgset_koji_tag": "f25", "sigkeys": ["foo", "bar"], "koji_cache": "/tmp"},
         )
         self.koji_wrapper = mock.Mock()
         self.pkgset_path = os.path.join(
@@ -92,7 +93,7 @@ class TestPopulateGlobalPkgset(helpers.PungiTestCase):
         orig_pkgset = KojiPackageSet.return_value
 
         pkgsets = source_koji.populate_global_pkgset(
-            self.compose, self.koji_wrapper, "/prefix", 123456
+            self.compose, self.koji_wrapper, 123456
         )
 
         self.assertEqual(len(pkgsets), 1)
@@ -111,7 +112,11 @@ class TestPopulateGlobalPkgset(helpers.PungiTestCase):
     def test_populate_with_multiple_koji_tags(self, KojiPackageSet, materialize):
         self.compose = helpers.DummyCompose(
             self.topdir,
-            {"pkgset_koji_tag": ["f25", "f25-extra"], "sigkeys": ["foo", "bar"]},
+            {
+                "pkgset_koji_tag": ["f25", "f25-extra"],
+                "sigkeys": ["foo", "bar"],
+                "koji_cache": "/tmp",
+            },
         )
 
         materialize.side_effect = self.mock_materialize
@@ -119,7 +124,7 @@ class TestPopulateGlobalPkgset(helpers.PungiTestCase):
         KojiPackageSet.return_value.reuse = None
 
         pkgsets = source_koji.populate_global_pkgset(
-            self.compose, self.koji_wrapper, "/prefix", 123456
+            self.compose, self.koji_wrapper, 123456
         )
 
         self.assertEqual(len(pkgsets), 2)
@@ -154,6 +159,7 @@ class TestPopulateGlobalPkgset(helpers.PungiTestCase):
             {
                 "gather_method": "nodeps",
                 "pkgset_koji_tag": "f25",
+                "koji_cache": "/tmp",
                 "sigkeys": ["foo", "bar"],
                 "additional_packages": [(".*", {"*": ["pkg", "foo.x86_64"]})],
             },
@@ -162,7 +168,7 @@ class TestPopulateGlobalPkgset(helpers.PungiTestCase):
         materialize.side_effect = self.mock_materialize
 
         pkgsets = source_koji.populate_global_pkgset(
-            self.compose, self.koji_wrapper, "/prefix", 123456
+            self.compose, self.koji_wrapper, 123456
         )
         self.assertEqual(len(pkgsets), 1)
         six.assertCountEqual(self, pkgsets[0].packages, ["pkg", "foo"])
@@ -171,7 +177,9 @@ class TestPopulateGlobalPkgset(helpers.PungiTestCase):
 class TestGetPackageSetFromKoji(helpers.PungiTestCase):
     def setUp(self):
         super(TestGetPackageSetFromKoji, self).setUp()
-        self.compose = helpers.DummyCompose(self.topdir, {"pkgset_koji_tag": "f25"})
+        self.compose = helpers.DummyCompose(
+            self.topdir, {"pkgset_koji_tag": "f25", "koji_cache": "/tmp"}
+        )
         self.compose.koji_event = None
         self.koji_wrapper = mock.Mock()
         self.koji_wrapper.koji_proxy.getLastEvent.return_value = EVENT_INFO
@@ -179,9 +187,7 @@ class TestGetPackageSetFromKoji(helpers.PungiTestCase):
 
     @mock.patch("pungi.phases.pkgset.sources.source_koji.populate_global_pkgset")
     def test_get_package_sets(self, pgp):
-        pkgsets = source_koji.get_pkgset_from_koji(
-            self.compose, self.koji_wrapper, "/prefix"
-        )
+        pkgsets = source_koji.get_pkgset_from_koji(self.compose, self.koji_wrapper)
 
         six.assertCountEqual(
             self, self.koji_wrapper.koji_proxy.mock_calls, [mock.call.getLastEvent()]
@@ -190,7 +196,7 @@ class TestGetPackageSetFromKoji(helpers.PungiTestCase):
 
         self.assertEqual(
             pgp.call_args_list,
-            [mock.call(self.compose, self.koji_wrapper, "/prefix", EVENT_INFO)],
+            [mock.call(self.compose, self.koji_wrapper, EVENT_INFO)],
         )
 
     def test_get_koji_modules(self):
@@ -440,14 +446,16 @@ class TestSourceKoji(helpers.PungiTestCase):
     @mock.patch("pungi.phases.pkgset.sources.source_koji.get_pkgset_from_koji")
     @mock.patch("pungi.wrappers.kojiwrapper.KojiWrapper")
     def test_run(self, KojiWrapper, gpfk):
-        compose = helpers.DummyCompose(self.topdir, {"koji_profile": "koji"})
+        compose = helpers.DummyCompose(
+            self.topdir, {"koji_profile": "koji", "koji_cache": "/prefix"}
+        )
         KojiWrapper.return_value.koji_module.config.topdir = "/prefix"
 
         phase = source_koji.PkgsetSourceKoji(compose)
         pkgsets, path_prefix = phase()
 
         self.assertEqual(pkgsets, gpfk.return_value)
-        self.assertEqual(path_prefix, "/prefix/")
+        self.assertEqual(path_prefix, "/prefix")
         self.assertEqual(KojiWrapper.mock_calls, [mock.call(compose)])
 
 
@@ -679,6 +687,7 @@ class TestAddModuleToVariant(helpers.PungiTestCase):
     def setUp(self):
         super(TestAddModuleToVariant, self).setUp()
         self.koji = mock.Mock()
+        self.compose = helpers.DummyCompose(self.topdir, {})
         self.koji.koji_module.pathinfo.typedir.return_value = MMDS_DIR
         files = ["modulemd.x86_64.txt", "modulemd.armv7hl.txt", "modulemd.txt"]
         self.koji.koji_proxy.listArchives.return_value = [
@@ -701,7 +710,9 @@ class TestAddModuleToVariant(helpers.PungiTestCase):
     def test_adding_module(self):
         variant = mock.Mock(arches=["armhfp", "x86_64"], arch_mmds={}, modules=[])
 
-        source_koji._add_module_to_variant(self.koji, variant, self.buildinfo)
+        source_koji._add_module_to_variant(
+            self.koji, variant, self.buildinfo, compose=self.compose
+        )
 
         mod1 = variant.arch_mmds["armhfp"]["module:master:20190318:abcdef"]
         self.assertEqual(mod1.get_NSVCA(), "module:master:20190318:abcdef:armhfp")
@@ -723,7 +734,9 @@ class TestAddModuleToVariant(helpers.PungiTestCase):
             modules=[{"name": "m1:latest-20190101:cafe", "glob": False}],
         )
 
-        source_koji._add_module_to_variant(self.koji, variant, self.buildinfo)
+        source_koji._add_module_to_variant(
+            self.koji, variant, self.buildinfo, compose=self.compose
+        )
 
         mod1 = variant.arch_mmds["armhfp"]["module:master:20190318:abcdef"]
         self.assertEqual(mod1.get_NSVCA(), "module:master:20190318:abcdef:armhfp")
@@ -740,7 +753,11 @@ class TestAddModuleToVariant(helpers.PungiTestCase):
         variant = mock.Mock(arches=["armhfp", "x86_64"], arch_mmds={}, modules=[])
 
         source_koji._add_module_to_variant(
-            self.koji, variant, self.buildinfo, add_to_variant_modules=True
+            self.koji,
+            variant,
+            self.buildinfo,
+            compose=self.compose,
+            add_to_variant_modules=True,
         )
 
         mod1 = variant.arch_mmds["armhfp"]["module:master:20190318:abcdef"]
@@ -766,7 +783,11 @@ class TestAddModuleToVariant(helpers.PungiTestCase):
         )
 
         source_koji._add_module_to_variant(
-            self.koji, variant, self.buildinfo, add_to_variant_modules=True
+            self.koji,
+            variant,
+            self.buildinfo,
+            compose=self.compose,
+            add_to_variant_modules=True,
         )
 
         mod1 = variant.arch_mmds["armhfp"]["module:master:20190318:abcdef"]

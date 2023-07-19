@@ -103,6 +103,7 @@ class OstreeThreadTest(helpers.PungiTestCase):
                 "release_name": "Fedora",
                 "release_version": "Rawhide",
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
                 "runroot_tag": "rrt",
                 "image_volid_formats": ["{release_short}-{variant}-{arch}"],
                 "translate_paths": [(self.topdir + "/work", "http://example.com/work")],

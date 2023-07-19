@@ -28,6 +28,7 @@ class TestLiveMediaPhase(PungiTestCase):
                     ]
                 },
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
             },
         )
 
@@ -85,6 +86,7 @@ class TestLiveMediaPhase(PungiTestCase):
                     ]
                 },
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
             },
         )
 
@@ -148,6 +150,7 @@ class TestLiveMediaPhase(PungiTestCase):
                     ]
                 },
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
             },
         )
 
@@ -259,6 +262,7 @@ class TestLiveMediaPhase(PungiTestCase):
                     ]
                 },
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
             },
         )
 
@@ -364,6 +368,7 @@ class TestLiveMediaPhase(PungiTestCase):
                     ]
                 },
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
             },
         )
 
@@ -394,6 +399,7 @@ class TestLiveMediaPhase(PungiTestCase):
                     ]
                 },
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
             },
         )
 
@@ -611,7 +617,9 @@ class TestLiveMediaThread(PungiTestCase):
     @mock.patch("pungi.phases.livemedia_phase.get_file_size")
     @mock.patch("pungi.phases.livemedia_phase.KojiWrapper")
     def test_handle_koji_fail(self, KojiWrapper, get_file_size, get_mtime):
-        compose = DummyCompose(self.topdir, {"koji_profile": "koji"})
+        compose = DummyCompose(
+            self.topdir, {"koji_profile": "koji", "koji_cache": "/tmp"}
+        )
         config = {
             "arches": ["amd64", "x86_64"],
             "ksfile": "file.ks",
@@ -688,6 +696,7 @@ class TestLiveMediaThread(PungiTestCase):
             self.topdir,
             {
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
                 "failable_deliverables": [("^.+$", {"*": ["live-media"]})],
             },
         )
@@ -757,6 +766,7 @@ class TestLiveMediaThread(PungiTestCase):
             self.topdir,
             {
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
                 "failable_deliverables": [("^.+$", {"*": ["live-media"]})],
             },
         )

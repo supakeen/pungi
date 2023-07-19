@@ -552,6 +552,7 @@ class CreateisoThreadTest(helpers.PungiTestCase):
                 "release_version": "1.0",
                 "runroot_tag": "f25-build",
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
             },
         )
         cmd = {
@@ -633,6 +634,7 @@ class CreateisoThreadTest(helpers.PungiTestCase):
                 "release_version": "1.0",
                 "runroot_tag": "f25-build",
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
                 "create_jigdo": False,
                 "runroot_weights": {"createiso": 123},
             },
@@ -717,6 +719,7 @@ class CreateisoThreadTest(helpers.PungiTestCase):
                 "buildinstall_method": "lorax",
                 "runroot_tag": "f25-build",
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
             },
         )
         cmd = {
@@ -807,6 +810,7 @@ class CreateisoThreadTest(helpers.PungiTestCase):
                 "release_version": "1.0",
                 "runroot_tag": "f25-build",
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
             },
         )
         cmd = {
@@ -839,6 +843,7 @@ class CreateisoThreadTest(helpers.PungiTestCase):
                 "release_version": "1.0",
                 "runroot_tag": "f25-build",
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
                 "failable_deliverables": [("^.*$", {"*": "iso"})],
             },
         )
@@ -881,6 +886,7 @@ class CreateisoThreadTest(helpers.PungiTestCase):
                 "release_version": "1.0",
                 "runroot_tag": "f25-build",
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
                 "failable_deliverables": [("^.*$", {"*": "iso"})],
             },
         )

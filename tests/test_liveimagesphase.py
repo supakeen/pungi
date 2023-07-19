@@ -958,7 +958,9 @@ class TestCreateLiveImageThread(PungiTestCase):
     @mock.patch("pungi.phases.live_images.run")
     @mock.patch("pungi.phases.live_images.KojiWrapper")
     def test_process_handles_fail(self, KojiWrapper, run, copy2):
-        compose = DummyCompose(self.topdir, {"koji_profile": "koji"})
+        compose = DummyCompose(
+            self.topdir, {"koji_profile": "koji", "koji_cache": "/tmp"}
+        )
         pool = mock.Mock()
         cmd = {
             "ks_file": "/path/to/ks_file",
@@ -1011,7 +1013,9 @@ class TestCreateLiveImageThread(PungiTestCase):
     @mock.patch("pungi.phases.live_images.run")
     @mock.patch("pungi.phases.live_images.KojiWrapper")
     def test_process_handles_exception(self, KojiWrapper, run, copy2):
-        compose = DummyCompose(self.topdir, {"koji_profile": "koji"})
+        compose = DummyCompose(
+            self.topdir, {"koji_profile": "koji", "koji_cache": "/tmp"}
+        )
         pool = mock.Mock()
         cmd = {
             "ks_file": "/path/to/ks_file",

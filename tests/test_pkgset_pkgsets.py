@@ -133,6 +133,14 @@ class PkgsetCompareMixin(object):
         self.assertEqual({}, actual)
 
 
+class DummySystem(object):
+    def __init__(self):
+        self.methods = ["_listapi", "Dummy", "getRPM", "getRPMChecksums"]
+
+    def listMethods(self):
+        return self.methods
+
+
 @mock.patch("pungi.phases.pkgset.pkgsets.ReaderPool", new=FakePool)
 @mock.patch("kobo.pkgset.FileCache", new=MockFileCache)
 class TestKojiPkgset(PkgsetCompareMixin, helpers.PungiTestCase):
@@ -142,9 +150,10 @@ class TestKojiPkgset(PkgsetCompareMixin, helpers.PungiTestCase):
             self.tagged_rpms = json.load(f)
 
         self.path_info = MockPathInfo(self.topdir)
-
+        self.koji_downloader = helpers.FSKojiDownloader()
         self.koji_wrapper = mock.Mock()
         self.koji_wrapper.koji_proxy.listTaggedRPMS.return_value = self.tagged_rpms
+        self.koji_wrapper.koji_proxy.system = DummySystem()
         self.koji_wrapper.koji_module.pathinfo = self.path_info
 
     def _touch_files(self, filenames):
@@ -171,7 +180,9 @@ class TestKojiPkgset(PkgsetCompareMixin, helpers.PungiTestCase):
             ]
         )
 
-        pkgset = pkgsets.KojiPackageSet("pkgset", self.koji_wrapper, [None])
+        pkgset = pkgsets.KojiPackageSet(
+            "pkgset", self.koji_wrapper, [None], downloader=self.koji_downloader
+        )
 
         result = pkgset.populate("f25")
 
@@ -205,7 +216,11 @@ class TestKojiPkgset(PkgsetCompareMixin, helpers.PungiTestCase):
         )
 
         pkgset = pkgsets.KojiPackageSet(
-            "pkgset", self.koji_wrapper, [None], arches=["x86_64"]
+            "pkgset",
+            self.koji_wrapper,
+            [None],
+            arches=["x86_64"],
+            downloader=self.koji_downloader,
         )
 
         result = pkgset.populate("f25")
@@ -235,7 +250,11 @@ class TestKojiPkgset(PkgsetCompareMixin, helpers.PungiTestCase):
         )
 
         pkgset = pkgsets.KojiPackageSet(
-            "pkgset", self.koji_wrapper, ["cafebabe", "deadbeef"], arches=["x86_64"]
+            "pkgset",
+            self.koji_wrapper,
+            ["cafebabe", "deadbeef"],
+            arches=["x86_64"],
+            downloader=self.koji_downloader,
         )
 
         result = pkgset.populate("f25")
@@ -264,7 +283,11 @@ class TestKojiPkgset(PkgsetCompareMixin, helpers.PungiTestCase):
         )
 
         pkgset = pkgsets.KojiPackageSet(
-            "pkgset", self.koji_wrapper, ["cafebabe", None], arches=["x86_64"]
+            "pkgset",
+            self.koji_wrapper,
+            ["cafebabe", None],
+            arches=["x86_64"],
+            downloader=self.koji_downloader,
         )
 
         result = pkgset.populate("f25")
@@ -286,7 +309,11 @@ class TestKojiPkgset(PkgsetCompareMixin, helpers.PungiTestCase):
 
     def test_can_not_find_signed_package(self):
         pkgset = pkgsets.KojiPackageSet(
-            "pkgset", self.koji_wrapper, ["cafebabe"], arches=["x86_64"]
+            "pkgset",
+            self.koji_wrapper,
+            ["cafebabe"],
+            arches=["x86_64"],
+            downloader=self.koji_downloader,
         )
 
         with self.assertRaises(RuntimeError) as ctx:
@@ -325,6 +352,7 @@ class TestKojiPkgset(PkgsetCompareMixin, helpers.PungiTestCase):
             arches=["x86_64"],
             signed_packages_retries=2,
             signed_packages_wait=5,
+            downloader=self.koji_downloader,
         )
 
         result = pkgset.populate("f25")
@@ -362,6 +390,7 @@ class TestKojiPkgset(PkgsetCompareMixin, helpers.PungiTestCase):
             ["cafebabe"],
             arches=["x86_64"],
             allow_invalid_sigkeys=True,
+            downloader=self.koji_downloader,
         )
 
         pkgset.populate("f25")
@@ -382,7 +411,11 @@ class TestKojiPkgset(PkgsetCompareMixin, helpers.PungiTestCase):
 
     def test_can_not_find_any_package(self):
         pkgset = pkgsets.KojiPackageSet(
-            "pkgset", self.koji_wrapper, ["cafebabe", None], arches=["x86_64"]
+            "pkgset",
+            self.koji_wrapper,
+            ["cafebabe", None],
+            arches=["x86_64"],
+            downloader=self.koji_downloader,
         )
 
         with self.assertRaises(RuntimeError) as ctx:
@@ -407,6 +440,7 @@ class TestKojiPkgset(PkgsetCompareMixin, helpers.PungiTestCase):
             arches=["x86_64"],
             signed_packages_retries=2,
             signed_packages_wait=5,
+            downloader=self.koji_downloader,
         )
 
         with self.assertRaises(RuntimeError) as ctx:
@@ -443,6 +477,7 @@ class TestKojiPkgset(PkgsetCompareMixin, helpers.PungiTestCase):
             [None],
             packages=["bash"],
             populate_only_packages=True,
+            downloader=self.koji_downloader,
         )
 
         result = pkgset.populate("f25")
@@ -543,6 +578,7 @@ class TestKojiPkgset(PkgsetCompareMixin, helpers.PungiTestCase):
             [None],
             arches=["x86_64"],
             cache_region=cache_region,
+            downloader=self.koji_downloader,
         )
 
         # Try calling the populate twice, but expect just single listTaggedRPMs
@@ -582,6 +618,7 @@ class TestKojiPkgset(PkgsetCompareMixin, helpers.PungiTestCase):
             [None],
             arches=["x86_64"],
             cache_region=cache_region,
+            downloader=self.koji_downloader,
         )
 
         # Try calling the populate twice with different event id. It must not
@@ -635,7 +672,11 @@ class TestKojiPkgset(PkgsetCompareMixin, helpers.PungiTestCase):
         ]
 
         pkgset = pkgsets.KojiPackageSet(
-            "pkgset", self.koji_wrapper, [None], extra_builds=["pungi-4.1.3-3.fc25"]
+            "pkgset",
+            self.koji_wrapper,
+            [None],
+            extra_builds=["pungi-4.1.3-3.fc25"],
+            downloader=self.koji_downloader,
         )
 
         result = pkgset.populate("f25")

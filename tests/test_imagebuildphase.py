@@ -35,6 +35,7 @@ class TestImageBuildPhase(PungiTestCase):
             {
                 "image_build": {"^Client|Server$": [original_image_conf]},
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
             },
         )
 
@@ -127,6 +128,7 @@ class TestImageBuildPhase(PungiTestCase):
                 "image_build_version": "Rawhide",
                 "image_build": {"^Server$": [original_image_conf]},
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
             },
         )
 
@@ -188,6 +190,7 @@ class TestImageBuildPhase(PungiTestCase):
                 "image_build_target": "f24",
                 "image_build": {"^Server$": [original_image_conf]},
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
             },
         )
 
@@ -251,6 +254,7 @@ class TestImageBuildPhase(PungiTestCase):
                     ]
                 },
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
             },
         )
 
@@ -286,6 +290,7 @@ class TestImageBuildPhase(PungiTestCase):
             {
                 "image_build": {"^Server$": [original_image_conf]},
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
             },
         )
         compose.setup_optional()
@@ -353,6 +358,7 @@ class TestImageBuildPhase(PungiTestCase):
             {
                 "image_build": {"^Server$": [original_image_conf]},
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
                 "translate_paths": [("/my", "http://example.com")],
             },
         )
@@ -419,6 +425,7 @@ class TestImageBuildPhase(PungiTestCase):
             {
                 "image_build": {"^Server$": [original_image_conf]},
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
             },
         )
         compose.setup_optional()
@@ -491,6 +498,7 @@ class TestImageBuildPhase(PungiTestCase):
             {
                 "image_build": {"^Server$": [original_image_conf]},
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
             },
         )
 
@@ -559,6 +567,7 @@ class TestImageBuildPhase(PungiTestCase):
                     ]
                 },
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
             },
         )
 
@@ -602,6 +611,7 @@ class TestImageBuildPhase(PungiTestCase):
                     ]
                 },
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
             },
         )
 
@@ -645,6 +655,7 @@ class TestImageBuildPhase(PungiTestCase):
                     ]
                 },
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
             },
         )
 
@@ -681,6 +692,7 @@ class TestImageBuildPhase(PungiTestCase):
             {
                 "image_build": {"^Server-optional$": [original_image_conf]},
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
             },
         )
         compose.setup_optional()
@@ -744,6 +756,7 @@ class TestImageBuildPhase(PungiTestCase):
             {
                 "image_build": {"^Server$": [original_image_conf]},
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
             },
         )
         compose.setup_optional()
@@ -943,7 +956,9 @@ class TestCreateImageBuildThread(PungiTestCase):
     @mock.patch("pungi.phases.image_build.KojiWrapper")
     @mock.patch("pungi.phases.image_build.Linker")
     def test_process_handle_fail(self, Linker, KojiWrapper):
-        compose = DummyCompose(self.topdir, {"koji_profile": "koji"})
+        compose = DummyCompose(
+            self.topdir, {"koji_profile": "koji", "koji_cache": "/tmp"}
+        )
         pool = mock.Mock()
         cmd = {
             "image_conf": {
@@ -1000,7 +1015,9 @@ class TestCreateImageBuildThread(PungiTestCase):
     @mock.patch("pungi.phases.image_build.KojiWrapper")
     @mock.patch("pungi.phases.image_build.Linker")
     def test_process_handle_exception(self, Linker, KojiWrapper):
-        compose = DummyCompose(self.topdir, {"koji_profile": "koji"})
+        compose = DummyCompose(
+            self.topdir, {"koji_profile": "koji", "koji_cache": "/tmp"}
+        )
         pool = mock.Mock()
         cmd = {
             "image_conf": {
@@ -1046,7 +1063,9 @@ class TestCreateImageBuildThread(PungiTestCase):
     @mock.patch("pungi.phases.image_build.KojiWrapper")
     @mock.patch("pungi.phases.image_build.Linker")
     def test_process_handle_fail_only_one_optional(self, Linker, KojiWrapper):
-        compose = DummyCompose(self.topdir, {"koji_profile": "koji"})
+        compose = DummyCompose(
+            self.topdir, {"koji_profile": "koji", "koji_cache": "/tmp"}
+        )
         pool = mock.Mock()
         cmd = {
             "image_conf": {

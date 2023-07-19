@@ -122,6 +122,7 @@ class ImageContainerThreadTest(helpers.PungiTestCase):
             self.topdir,
             {
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
                 "translate_paths": [(self.topdir, "http://root")],
             },
         )

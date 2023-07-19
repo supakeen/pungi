@@ -123,6 +123,7 @@ class OSTreeThreadTest(helpers.PungiTestCase):
             self.topdir,
             {
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
                 "runroot_tag": "rrt",
                 "translate_paths": [(self.topdir, "http://example.com")],
             },

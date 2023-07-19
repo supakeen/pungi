@@ -167,6 +167,20 @@ class IterableMock(mock.Mock):
         return iter([])
 
 
+class FSKojiDownloader(object):
+    """Mock for KojiDownloadProxy that checks provided path."""
+
+    def get_file(self, path, validator=None):
+        return path if os.path.isfile(path) else None
+
+
+class DummyKojiDownloader(object):
+    """Mock for KojiDownloadProxy that always finds the file in original location."""
+
+    def get_file(self, path, validator=None):
+        return path
+
+
 class DummyCompose(object):
     def __init__(self, topdir, config):
         self.supported = True
@@ -241,6 +255,8 @@ class DummyCompose(object):
         self.cache_region = None
         self.containers_metadata = {}
         self.load_old_compose_config = mock.Mock(return_value=None)
+        self.koji_downloader = DummyKojiDownloader()
+        self.koji_downloader.cache_dir = "/prefix"
 
     def setup_optional(self):
         self.all_variants["Server-optional"] = MockVariant(

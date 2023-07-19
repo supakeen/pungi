@@ -1209,6 +1209,7 @@ class BuildinstallThreadTestCase(PungiTestCase):
                 "buildinstall_method": "lorax",
                 "runroot_tag": "rrt",
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
                 "runroot_weights": {"buildinstall": 123},
             },
         )
@@ -1308,6 +1309,7 @@ class BuildinstallThreadTestCase(PungiTestCase):
                 "lorax_use_koji_plugin": True,
                 "runroot_tag": "rrt",
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
                 "runroot_weights": {"buildinstall": 123},
             },
         )
@@ -1412,6 +1414,7 @@ class BuildinstallThreadTestCase(PungiTestCase):
                 "buildinstall_method": "buildinstall",
                 "runroot_tag": "rrt",
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
             },
         )
 
@@ -1500,6 +1503,7 @@ class BuildinstallThreadTestCase(PungiTestCase):
                 "buildinstall_method": "buildinstall",
                 "runroot_tag": "rrt",
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
                 "failable_deliverables": [("^.+$", {"*": ["buildinstall"]})],
             },
         )
@@ -1542,6 +1546,7 @@ class BuildinstallThreadTestCase(PungiTestCase):
                 "buildinstall_method": "lorax",
                 "runroot_tag": "rrt",
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
                 "failable_deliverables": [("^.+$", {"*": ["buildinstall"]})],
             },
         )
@@ -1591,6 +1596,7 @@ class BuildinstallThreadTestCase(PungiTestCase):
                 "buildinstall_method": "lorax",
                 "runroot_tag": "rrt",
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
                 "failable_deliverables": [("^.+$", {"*": ["buildinstall"]})],
             },
         )
@@ -1663,6 +1669,7 @@ class BuildinstallThreadTestCase(PungiTestCase):
                 "buildinstall_method": "lorax",
                 "runroot_tag": "rrt",
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
                 "failable_deliverables": [("^.+$", {"*": ["buildinstall"]})],
             },
         )
@@ -1701,6 +1708,7 @@ class BuildinstallThreadTestCase(PungiTestCase):
                 "buildinstall_method": "lorax",
                 "runroot_tag": "rrt",
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
                 "runroot_weights": {"buildinstall": 123},
                 "buildinstall_topdir": "/buildinstall_topdir",
             },
@@ -1810,6 +1818,7 @@ class BuildinstallThreadTestCase(PungiTestCase):
                 "buildinstall_method": "lorax",
                 "runroot_tag": "rrt",
                 "koji_profile": "koji",
+                "koji_cache": "/tmp",
             },
         )
 
