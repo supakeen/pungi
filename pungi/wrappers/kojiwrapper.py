@@ -905,6 +905,12 @@ def get_buildroot_rpms(compose, task_id):
 class KojiDownloadProxy:
     def __init__(self, topdir, topurl, cache_dir, logger):
         if not topdir:
+            # This will only happen if there is either no koji_profile
+            # configured, or the profile doesn't have a topdir. In the first
+            # case there will be no koji interaction, and the second indicates
+            # broken koji configuration.
+            # We can pretend to have local access in both cases to avoid any
+            # external requests.
             self.has_local_access = True
             return
 
@@ -914,7 +920,9 @@ class KojiDownloadProxy:
         self.topdir = topdir
         self.topurl = topurl
 
-        self.has_local_access = os.path.isdir(self.topdir)
+        # If cache directory is configured, we want to use it (even if we
+        # actually have local access to the storage).
+        self.has_local_access = not bool(cache_dir)
         # This is used for temporary downloaded files. The suffix is unique
         # per-process. To prevent threads in the same process from colliding, a
         # thread id is added later.
@@ -923,20 +931,25 @@ class KojiDownloadProxy:
         if not self.has_local_access:
             self.session = requests.Session()
 
+    @property
+    def path_prefix(self):
+        dir = self.topdir if self.has_local_access else self.cache_dir
+        return dir.rstrip("/") + "/"
+
     @classmethod
     def from_config(klass, conf, logger):
         topdir = None
         topurl = None
-        path_prefix = None
+        cache_dir = None
         if "koji_profile" in conf:
             koji_module = koji.get_profile_module(conf["koji_profile"])
             topdir = koji_module.config.topdir
             topurl = koji_module.config.topurl
 
-            path_prefix = topdir.rstrip("/") + "/"
-            if not os.path.exists(path_prefix):
-                path_prefix = conf["koji_cache"].rstrip("/") + "/"
-        return klass(topdir, topurl, path_prefix, logger)
+            cache_dir = conf.get("koji_cache")
+            if cache_dir:
+                cache_dir = cache_dir.rstrip("/") + "/"
+        return klass(topdir, topurl, cache_dir, logger)
 
     @util.retry(wait_on=requests.exceptions.RequestException)
     def _download(self, url, dest):

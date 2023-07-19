@@ -194,7 +194,7 @@ class PkgsetSourceKoji(pungi.phases.pkgset.source.PkgsetSourceBase):
         compose = self.compose
         self.koji_wrapper = pungi.wrappers.kojiwrapper.KojiWrapper(compose)
         package_sets = get_pkgset_from_koji(self.compose, self.koji_wrapper)
-        return (package_sets, self.compose.koji_downloader.cache_dir)
+        return (package_sets, self.compose.koji_downloader.path_prefix)
 
 
 def get_pkgset_from_koji(compose, koji_wrapper):
@@ -920,7 +920,7 @@ def populate_global_pkgset(compose, koji_wrapper, event):
                 MaterializedPackageSet.create,
                 compose,
                 pkgset,
-                compose.koji_downloader.cache_dir,
+                compose.koji_downloader.path_prefix,
                 mmd=tag_to_mmd.get(pkgset.name),
             )
         )

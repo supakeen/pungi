@@ -256,7 +256,7 @@ class DummyCompose(object):
         self.containers_metadata = {}
         self.load_old_compose_config = mock.Mock(return_value=None)
         self.koji_downloader = DummyKojiDownloader()
-        self.koji_downloader.cache_dir = "/prefix"
+        self.koji_downloader.path_prefix = "/prefix"
 
     def setup_optional(self):
         self.all_variants["Server-optional"] = MockVariant(
