@@ -1,5 +1,5 @@
 Name:           pungi
-Version:        4.4.0
+Version:        4.4.1
 Release:        1%{?dist}
 Summary:        Distribution compose tool
 
@@ -110,6 +110,12 @@ pytest
 cd tests && ./test_compose.sh
 
 %changelog
+* Tue Jul 25 2023 Aditya Bisoi <abisoi@redhat.com> - 4.4.1-1
+- ostree: Add configuration for custom runroot packages (lsedlar)
+- pkgset: Emit better error for missing modulemd file (lsedlar)
+- Add support for git-credential-helper (lsedlar)
+- Support OIDC Client Credentials authentication to CTS (hlin)
+
 * Tue Jun 06 2023 Lubomír Sedlář <lsedlar@redhat.com> - 4.4.0-1
 - gather-dnf: Run latest() later (lsedlar)
 - iso: Support joliet long names (lsedlar)
