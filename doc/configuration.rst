@@ -941,6 +941,10 @@ Options
     comps file can not be found in the package set. When disabled (the
     default), such cases are still reported as warnings in the log.
 
+    With ``dnf`` gather backend, this option will abort the compose on any
+    missing package no matter if it's listed in comps, ``additional_packages``
+    or prepopulate file.
+
 **gather_source_mapping**
     (*str*) -- JSON mapping with initial packages for the compose. The value
     should be a path to JSON file with following mapping: ``{variant: {arch:

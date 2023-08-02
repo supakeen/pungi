@@ -542,7 +542,9 @@ class Gather(GatherBase):
                             pkgs = self.q_binary_packages.filter(**kwargs).apply()
 
                 if not pkgs:
-                    self.logger.error("No package matches pattern %s" % pattern)
+                    self.logger.error(
+                        "Could not find a match for %s in any configured repo", pattern
+                    )
 
                 # The pattern could have been a glob. In that case we want to
                 # group the packages by name and get best match in those
