@@ -785,11 +785,10 @@ class KojiWrapper(object):
         if list_of_args is None and list_of_kwargs is None:
             raise ValueError("One of list_of_args or list_of_kwargs must be set.")
 
-        if type(list_of_args) not in [type(None), list] or type(list_of_kwargs) not in [
-            type(None),
-            list,
-        ]:
-            raise ValueError("list_of_args and list_of_kwargs must be list or None.")
+        if list_of_args is not None and not isinstance(list_of_args, list):
+            raise ValueError("list_of_args must be list or None.")
+        if list_of_kwargs is not None and not isinstance(list_of_kwargs, list):
+            raise ValueError("list_of_kwargs must be list or None.")
 
         if list_of_kwargs is None:
             list_of_kwargs = [{}] * len(list_of_args)
@@ -803,9 +802,9 @@ class KojiWrapper(object):
 
         koji_session.multicall = True
         for args, kwargs in zip(list_of_args, list_of_kwargs):
-            if type(args) != list:
+            if not isinstance(args, list):
                 args = [args]
-            if type(kwargs) != dict:
+            if not isinstance(kwargs, dict):
                 raise ValueError("Every item in list_of_kwargs must be a dict")
             koji_session_fnc(*args, **kwargs)
 
@@ -813,7 +812,7 @@ class KojiWrapper(object):
 
         if not responses:
             return None
-        if type(responses) != list:
+        if not isinstance(responses, list):
             raise ValueError(
                 "Fault element was returned for multicall of method %r: %r"
                 % (koji_session_fnc, responses)
@@ -829,7 +828,7 @@ class KojiWrapper(object):
         # a one-item array containing the result value,
         # or a struct of the form found inside the standard <fault> element.
         for response, args, kwargs in zip(responses, list_of_args, list_of_kwargs):
-            if type(response) == list:
+            if isinstance(response, list):
                 if not response:
                     raise ValueError(
                         "Empty list returned for multicall of method %r with args %r, %r"  # noqa: E501
