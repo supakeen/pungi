@@ -1,5 +1,5 @@
 Name:           pungi
-Version:        4.4.1
+Version:        4.5.0
 Release:        1%{?dist}
 Summary:        Distribution compose tool
 
@@ -110,6 +110,17 @@ pytest
 cd tests && ./test_compose.sh
 
 %changelog
+* Tue Aug 29 2023 Aditya Bisoi <abisoi@redhat.com> - 4.5.0-1
+- kojiwrapper: Stop being smart about local access (lsedlar)
+- Fix unittest errors (ounsal)
+- Add integrity checking for builds (lsedlar)
+- Add script for cleaning up the cache (lsedlar)
+- Add ability to download images (lsedlar)
+- Add support for not having koji volume mounted locally (lsedlar)
+- Remove repository cloning multiple times (abisoi)
+- Support require_all_comps_packages on DNF backend (lsedlar)
+- Fix new warnings from flake8 (lsedlar)
+
 * Tue Jul 25 2023 Aditya Bisoi <abisoi@redhat.com> - 4.4.1-1
 - ostree: Add configuration for custom runroot packages (lsedlar)
 - pkgset: Emit better error for missing modulemd file (lsedlar)
