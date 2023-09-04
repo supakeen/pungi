@@ -27,7 +27,7 @@ import xml.dom.minidom
 import productmd.modules
 import productmd.rpms
 from kobo.shortcuts import relative_path, run
-from kobo.threads import ThreadPool, WorkerThread
+from kobo.threads import ThreadPool
 
 from ..module_util import Modulemd, collect_module_defaults, collect_module_obsoletes
 from ..util import (
@@ -38,6 +38,7 @@ from ..util import (
 from ..wrappers.createrepo import CreaterepoWrapper
 from ..wrappers.scm import get_dir_from_scm
 from .base import PhaseBase
+from ..threading import TelemetryWorkerThread as WorkerThread
 
 CACHE_TOPDIR = "/var/cache/pungi/createrepo_c/"
 createrepo_lock = threading.Lock()

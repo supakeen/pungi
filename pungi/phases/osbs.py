@@ -5,7 +5,7 @@ import copy
 import fnmatch
 import json
 import os
-from kobo.threads import ThreadPool, WorkerThread
+from kobo.threads import ThreadPool
 from kobo import shortcuts
 from productmd.rpms import Rpms
 
@@ -13,6 +13,7 @@ from .base import ConfigGuardedPhase, PhaseLoggerMixin
 from .. import util
 from ..wrappers import kojiwrapper
 from ..wrappers.scm import get_file_from_scm
+from ..threading import TelemetryWorkerThread as WorkerThread
 
 
 class OSBSPhase(PhaseLoggerMixin, ConfigGuardedPhase):

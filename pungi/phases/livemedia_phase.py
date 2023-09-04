@@ -9,8 +9,9 @@ from pungi.util import translate_path, get_repo_urls
 from pungi.phases.base import ConfigGuardedPhase, ImageConfigMixin, PhaseLoggerMixin
 from pungi.linker import Linker
 from pungi.wrappers.kojiwrapper import KojiWrapper
-from kobo.threads import ThreadPool, WorkerThread
+from kobo.threads import ThreadPool
 from productmd.images import Image
+from pungi.threading import TelemetryWorkerThread as WorkerThread
 
 
 class LiveMediaPhase(PhaseLoggerMixin, ImageConfigMixin, ConfigGuardedPhase):

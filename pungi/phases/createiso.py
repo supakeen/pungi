@@ -24,7 +24,7 @@ import json
 
 import productmd.treeinfo
 from productmd.images import Image
-from kobo.threads import ThreadPool, WorkerThread
+from kobo.threads import ThreadPool
 from kobo.shortcuts import run, relative_path, compute_file_checksums
 
 from pungi.wrappers import iso
@@ -43,6 +43,7 @@ from pungi.util import (
 from pungi.media_split import MediaSplitter, convert_media_size
 from pungi.compose_metadata.discinfo import read_discinfo, write_discinfo
 from pungi.runroot import Runroot
+from pungi.threading import TelemetryWorkerThread as WorkerThread
 
 from .. import createiso
 

@@ -23,6 +23,7 @@ from pungi import get_full_version, util
 from pungi.errors import UnsignedPackagesError
 from pungi.wrappers import kojiwrapper
 from pungi.util import rmtree
+from pungi.otel import tracing
 
 
 # force C locales
@@ -646,22 +647,25 @@ def cli_main():
     signal.signal(signal.SIGINT, sigterm_handler)
     signal.signal(signal.SIGTERM, sigterm_handler)
 
-    try:
-        main()
-    except (Exception, KeyboardInterrupt) as ex:
-        if COMPOSE:
-            COMPOSE.log_error("Compose run failed: %s" % ex)
-            COMPOSE.traceback(show_locals=getattr(ex, "show_locals", True))
-            COMPOSE.log_critical("Compose failed: %s" % COMPOSE.topdir)
-            COMPOSE.write_status("DOOMED")
-        else:
-            print("Exception: %s" % ex)
-            raise
-        sys.stdout.flush()
-        sys.stderr.flush()
-        sys.exit(1)
-    finally:
-        # Remove repositories cloned during ExtraFiles phase
-        process_id = os.getpid()
-        directoy_to_remove = "/tmp/pungi-temp-git-repos-" + str(process_id) + "/"
-        rmtree(directoy_to_remove)
+    with tracing.span("run-compose"):
+        try:
+            main()
+        except (Exception, KeyboardInterrupt) as ex:
+            if COMPOSE:
+                COMPOSE.log_error("Compose run failed: %s" % ex)
+                COMPOSE.traceback(show_locals=getattr(ex, "show_locals", True))
+                COMPOSE.log_critical("Compose failed: %s" % COMPOSE.topdir)
+                COMPOSE.write_status("DOOMED")
+            else:
+                print("Exception: %s" % ex)
+                raise
+            sys.stdout.flush()
+            sys.stderr.flush()
+            sys.exit(1)
+        finally:
+            # Remove repositories cloned during ExtraFiles phase
+            process_id = os.getpid()
+            directoy_to_remove = "/tmp/pungi-temp-git-repos-" + str(process_id) + "/"
+            rmtree(directoy_to_remove)
+    # Wait for all traces to be sent...
+    tracing.force_flush()

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-from kobo.threads import ThreadPool, WorkerThread
+from kobo.threads import ThreadPool
 import shlex
 import shutil
 from productmd import images
@@ -20,6 +20,7 @@ from ..util import (
 )
 from ..wrappers import iso, lorax, scm
 from ..runroot import Runroot
+from ..threading import TelemetryWorkerThread as WorkerThread
 
 
 class OstreeInstallerPhase(PhaseLoggerMixin, ConfigGuardedPhase):

@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from kobo import shortcuts
-from kobo.threads import ThreadPool, WorkerThread
+from kobo.threads import ThreadPool
+
+from pungi.threading import TelemetryWorkerThread as WorkerThread
 
 
 class WeaverPhase(object):

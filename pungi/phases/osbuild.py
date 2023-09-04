@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-from kobo.threads import ThreadPool, WorkerThread
+from kobo.threads import ThreadPool
 from kobo import shortcuts
 from productmd.images import Image
 
@@ -10,6 +10,7 @@ from .. import util
 from ..linker import Linker
 from ..wrappers import kojiwrapper
 from .image_build import EXTENSIONS
+from ..threading import TelemetryWorkerThread as WorkerThread
 
 # copy and modify EXTENSIONS with some that osbuild produces but which
 # do not exist as `koji image-build` formats

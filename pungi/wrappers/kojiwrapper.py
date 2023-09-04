@@ -33,6 +33,7 @@ from flufl.lock import Lock
 from datetime import timedelta
 
 from .. import util
+from ..otel import tracing
 from ..arch_utils import getBaseArch
 
 
@@ -67,9 +68,11 @@ class KojiWrapper(object):
                 value = getattr(self.koji_module.config, key, None)
                 if value is not None:
                     session_opts[key] = value
-            self.koji_proxy = koji.ClientSession(
-                self.koji_module.config.server, session_opts
+            self.koji_proxy = tracing.instrument_xmlrpc_proxy(
+                koji.ClientSession(self.koji_module.config.server, session_opts)
             )
+            with tracing.span("koji.system.listMethods"):
+                self.koji_methods = self.koji_proxy.system.listMethods()
 
     # This retry should be removed once https://pagure.io/koji/issue/3170 is
     # fixed and released.
@@ -971,7 +974,8 @@ class KojiDownloadProxy:
                 os.utime(destination_file)
                 return destination_file
 
-            return self._atomic_download(url, destination_file, validator)
+            with tracing.span("download-rpm", url=url):
+                return self._atomic_download(url, destination_file, validator)
 
     def get_file(self, path, validator=None):
         """

@@ -129,14 +129,6 @@ class PkgsetCompareMixin(object):
         self.assertEqual({}, actual)
 
 
-class DummySystem(object):
-    def __init__(self):
-        self.methods = ["_listapi", "Dummy", "getRPM", "getRPMChecksums"]
-
-    def listMethods(self):
-        return self.methods
-
-
 @mock.patch("pungi.phases.pkgset.pkgsets.ReaderPool", new=FakePool)
 @mock.patch("kobo.pkgset.FileCache", new=MockFileCache)
 class TestKojiPkgset(PkgsetCompareMixin, helpers.PungiTestCase):
@@ -149,7 +141,7 @@ class TestKojiPkgset(PkgsetCompareMixin, helpers.PungiTestCase):
         self.koji_downloader = helpers.FSKojiDownloader()
         self.koji_wrapper = mock.Mock()
         self.koji_wrapper.koji_proxy.listTaggedRPMS.return_value = self.tagged_rpms
-        self.koji_wrapper.koji_proxy.system = DummySystem()
+        self.koji_wrapper.koji_methods = ["getRPM", "getRPMChecksums"]
         self.koji_wrapper.koji_module.pathinfo = self.path_info
 
     def _touch_files(self, filenames):

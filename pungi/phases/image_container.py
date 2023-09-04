@@ -2,12 +2,13 @@
 
 import os
 import re
-from kobo.threads import ThreadPool, WorkerThread
+from kobo.threads import ThreadPool
 
 from .base import ConfigGuardedPhase, PhaseLoggerMixin
 from .. import util
 from ..wrappers import kojiwrapper
 from ..phases.osbs import add_metadata
+from ..threading import TelemetryWorkerThread as WorkerThread
 
 
 class ImageContainerPhase(PhaseLoggerMixin, ConfigGuardedPhase):

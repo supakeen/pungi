@@ -23,7 +23,7 @@ import shutil
 import re
 from copy import copy
 
-from kobo.threads import ThreadPool, WorkerThread
+from kobo.threads import ThreadPool
 from kobo.shortcuts import run, force_list
 import kobo.rpmlib
 from productmd.images import Image
@@ -39,6 +39,7 @@ from pungi.wrappers.scm import get_file_from_scm
 from pungi.wrappers import kojiwrapper
 from pungi.phases.base import PhaseBase
 from pungi.runroot import Runroot, download_and_extract_archive
+from pungi.threading import TelemetryWorkerThread as WorkerThread
 
 
 class BuildinstallPhase(PhaseBase):

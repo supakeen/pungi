@@ -4,7 +4,7 @@ import copy
 import json
 import os
 from kobo import shortcuts
-from kobo.threads import ThreadPool, WorkerThread
+from kobo.threads import ThreadPool
 from collections import OrderedDict
 
 from pungi.arch_utils import getBaseArch
@@ -14,6 +14,7 @@ from .. import util
 from ..ostree.utils import get_ref_from_treefile, get_commitid_from_commitid_file
 from ..util import get_repo_dicts, translate_path
 from ..wrappers import scm
+from ..threading import TelemetryWorkerThread as WorkerThread
 
 
 class OSTreePhase(ConfigGuardedPhase):

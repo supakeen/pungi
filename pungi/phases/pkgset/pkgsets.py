@@ -31,11 +31,12 @@ import kobo.pkgset
 import kobo.rpmlib
 from kobo.shortcuts import compute_file_checksums
 
-from kobo.threads import WorkerThread, ThreadPool
+from kobo.threads import ThreadPool
 
 from pungi.util import pkg_is_srpm, copy_all
 from pungi.arch import get_valid_arches, is_excluded
 from pungi.errors import UnsignedPackagesError
+from pungi.threading import TelemetryWorkerThread as WorkerThread
 
 
 class ExtendedRpmWrapper(kobo.pkgset.SimpleRpmWrapper):
@@ -536,7 +537,7 @@ class KojiPackageSet(PackageSetBase):
         pathinfo = self.koji_wrapper.koji_module.pathinfo
         paths = []
 
-        if "getRPMChecksums" in self.koji_proxy.system.listMethods():
+        if "getRPMChecksums" in self.koji_wrapper.koji_methods:
 
             def checksum_validator(keyname, pkg_path):
                 checksums = self.koji_proxy.getRPMChecksums(

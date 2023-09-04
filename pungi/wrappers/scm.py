@@ -28,6 +28,7 @@ import kobo.log
 from kobo.shortcuts import run, force_list
 from pungi.util import explode_rpm_package, makedirs, copy_all, temp_dir, retry
 from .kojiwrapper import KojiWrapper
+from ..otel import tracing
 
 lock = threading.Lock()
 
@@ -229,7 +230,8 @@ class GitWrapper(ScmBase):
         tmp_dir = self.get_temp_repo_path(scm_root, scm_branch)
         if not os.path.isdir(tmp_dir):
             makedirs(tmp_dir)
-            self._clone(scm_root, scm_branch, tmp_dir)
+            with tracing.span("git-clone", repo=scm_root, ref=scm_branch):
+                self._clone(scm_root, scm_branch, tmp_dir)
         self.run_process_command(tmp_dir)
         return tmp_dir
 
@@ -377,7 +379,8 @@ class ContainerImageScmWrapper(ScmBase):
             self.log_debug(
                 "Exporting container %s to %s: %s", scm_root, target_dir, cmd
             )
-            self.retry_run(cmd, can_fail=False)
+            with tracing.span("skopeo-copy", arch=arch, image=scm_root):
+                self.retry_run(cmd, can_fail=False)
         except RuntimeError as e:
             self.log_error(
                 "Failed to copy container image: %s %s", e, getattr(e, "output", "")

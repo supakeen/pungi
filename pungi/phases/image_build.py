@@ -13,7 +13,8 @@ from pungi.util import as_local_file, translate_path, get_repo_urls, version_gen
 from pungi.phases import base
 from pungi.linker import Linker
 from pungi.wrappers.kojiwrapper import KojiWrapper
-from kobo.threads import ThreadPool, WorkerThread
+from kobo.threads import ThreadPool
+from pungi.threading import TelemetryWorkerThread as WorkerThread
 from kobo.shortcuts import force_list
 from productmd.images import Image
 from productmd.rpms import Rpms

@@ -50,6 +50,7 @@ from pungi.util import (
     translate_path_raw,
 )
 from pungi.metadata import compose_to_composeinfo
+from pungi.otel import tracing
 
 try:
     # This is available since productmd >= 1.18
@@ -130,15 +131,16 @@ def cts_auth(pungi_conf):
             cts_oidc_client_id = os.environ.get(
                 "CTS_OIDC_CLIENT_ID", ""
             ) or pungi_conf.get("cts_oidc_client_id", "")
-            token = retry_request(
-                "post",
-                cts_oidc_token_url,
-                data={
-                    "grant_type": "client_credentials",
-                    "client_id": cts_oidc_client_id,
-                    "client_secret": os.environ.get("CTS_OIDC_CLIENT_SECRET", ""),
-                },
-            ).json()["access_token"]
+            with tracing.span("obtain-oidc-token"):
+                token = retry_request(
+                    "post",
+                    cts_oidc_token_url,
+                    data={
+                        "grant_type": "client_credentials",
+                        "client_id": cts_oidc_client_id,
+                        "client_secret": os.environ.get("CTS_OIDC_CLIENT_SECRET", ""),
+                    },
+                ).json()["access_token"]
             auth = BearerAuth(token)
             del token
 
@@ -194,8 +196,9 @@ def get_compose_info(
             "parent_compose_ids": parent_compose_ids,
             "respin_of": respin_of,
         }
-        with cts_auth(conf) as authentication:
-            rv = retry_request("post", url, json_data=data, auth=authentication)
+        with tracing.span("create-compose-in-cts"):
+            with cts_auth(conf) as authentication:
+                rv = retry_request("post", url, json_data=data, auth=authentication)
 
         # Update local ComposeInfo with received ComposeInfo.
         cts_ci = ComposeInfo()
@@ -231,8 +234,9 @@ def update_compose_url(compose_id, compose_dir, conf):
             "action": "set_url",
             "compose_url": compose_url,
         }
-        with cts_auth(conf) as authentication:
-            return retry_request("patch", url, json_data=data, auth=authentication)
+        with tracing.span("update-compose-url"):
+            with cts_auth(conf) as authentication:
+                return retry_request("patch", url, json_data=data, auth=authentication)
 
 
 def get_compose_dir(
@@ -373,6 +377,7 @@ class Compose(kobo.log.LoggingBase):
         self.ci_base.load(
             os.path.join(self.paths.work.topdir(arch="global"), "composeinfo-base.json")
         )
+        tracing.set_attribute("compose_id", self.compose_id)
 
         self.supported = supported
         if (
@@ -557,6 +562,7 @@ class Compose(kobo.log.LoggingBase):
         old_status = self.get_status()
         if stat_msg == old_status:
             return
+        tracing.set_attribute("compose_status", stat_msg)
         if old_status == "FINISHED":
             msg = "Could not modify a FINISHED compose: %s" % self.topdir
             self.log_error(msg)

@@ -18,7 +18,8 @@ import hashlib
 import json
 
 from kobo.shortcuts import force_list
-from kobo.threads import ThreadPool, WorkerThread
+from kobo.threads import ThreadPool
+from pungi.threading import TelemetryWorkerThread as WorkerThread
 import productmd.treeinfo
 from productmd.extra_files import ExtraFiles
 

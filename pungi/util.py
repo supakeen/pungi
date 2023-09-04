@@ -32,9 +32,11 @@ import functools
 
 import kobo.conf
 from kobo.shortcuts import run, force_list
-from kobo.threads import WorkerThread, ThreadPool
+from kobo.threads import ThreadPool
 from productmd.common import get_major_version
 from pungi.module_util import Modulemd
+from pungi.otel import tracing
+from pungi.threading import TelemetryWorkerThread as WorkerThread
 
 # Patterns that match all names of debuginfo packages
 DEBUG_PATTERNS = ["*-debuginfo", "*-debuginfo-*", "*-debugsource"]
@@ -880,11 +882,12 @@ def retry(timeout=120, interval=30, wait_on=Exception):
 
 @retry(wait_on=RuntimeError)
 def git_ls_remote(baseurl, ref, credential_helper=None):
-    cmd = ["git"]
-    if credential_helper:
-        cmd.extend(["-c", "credential.useHttpPath=true"])
-        cmd.extend(["-c", "credential.helper=%s" % credential_helper])
-    return run(cmd + ["ls-remote", baseurl, ref], text=True, errors="replace")
+    with tracing.span("git-ls-remote", baseurl=baseurl, ref=ref):
+        cmd = ["git"]
+        if credential_helper:
+            cmd.extend(["-c", "credential.useHttpPath=true"])
+            cmd.extend(["-c", "credential.helper=%s" % credential_helper])
+        return run(cmd + ["ls-remote", baseurl, ref], text=True, errors="replace")
 
 
 def get_tz_offset():
