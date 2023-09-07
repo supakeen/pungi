@@ -17,6 +17,7 @@
 from enum import Enum
 from functools import cmp_to_key
 from itertools import count, groupby
+import errno
 import logging
 import os
 import re
@@ -1067,9 +1068,12 @@ class Gather(GatherBase):
             # Link downloaded package in (or link package from file repo)
             try:
                 linker.link(pkg.localPkg(), target)
-            except Exception:
-                self.logger.error("Unable to link %s from the yum cache." % pkg.name)
-                raise
+            except Exception as ex:
+                if ex.errno == errno.EEXIST:
+                    self.logger.warning("Downloaded package exists in %s", target)
+                else:
+                    self.logger.error("Unable to link %s from the yum cache.", pkg.name)
+                    raise
 
     def log_count(self, msg, method, *args):
         """
