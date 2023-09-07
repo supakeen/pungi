@@ -1,5 +1,5 @@
 Name:           pungi
-Version:        4.5.0
+Version:        4.5.1
 Release:        1%{?dist}
 Summary:        Distribution compose tool
 
@@ -110,6 +110,10 @@ pytest
 cd tests && ./test_compose.sh
 
 %changelog
+* Thu Sep  7 2023 Lubomír Sedlář <lsedlar@redhat.com> - 4.5.1-1
+- gather_dnf.py: Do not raise error when the downloaded package exists.
+  (ounsal)
+
 * Tue Aug 29 2023 Aditya Bisoi <abisoi@redhat.com> - 4.5.0-1
 - kojiwrapper: Stop being smart about local access (lsedlar)
 - Fix unittest errors (ounsal)
