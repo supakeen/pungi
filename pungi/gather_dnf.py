@@ -40,6 +40,20 @@ def get_source_name(pkg):
     return pkg.sourcerpm.rsplit("-", 2)[0]
 
 
+def filter_dotarch(queue, pattern):
+    """Filter queue for packages matching the pattern. If pattern matches the
+    dotarch format of <name>.<arch>, it is processed as such. Otherwise it is
+    treated as just a name.
+    """
+    kwargs["name__glob"] = pattern
+    if "." in pattern:
+        name, arch = pattern.split(".", 1)
+        if arch in arch_utils.arches or arch == "noarch":
+            kwargs["name_glob"] = name
+            kwargs["arch_eq"] = arch
+    return queue.filter(**kwargs).apply()
+
+
 class GatherOptions(pungi.common.OptionsBase):
     def __init__(self, **kwargs):
         super(GatherOptions, self).__init__()
@@ -522,25 +536,14 @@ class Gather(GatherBase):
                                 name__glob=pattern[:-2]
                             ).apply()
                         else:
-                            pkgs = self.q_debug_packages.filter(
-                                name__glob=pattern
-                            ).apply()
+                            pkgs = filter_dotarch(self.q_debug_packages, pattern)
                     else:
                         if pattern.endswith(".+"):
                             pkgs = self.q_multilib_binary_packages.filter(
                                 name__glob=pattern[:-2]
                             ).apply()
                         else:
-                            kwargs = {"name__glob": pattern}
-                            if "." in pattern:
-                                # The pattern could be name.arch. Check if the
-                                # arch is valid, and if yes, make a more
-                                # specific query.
-                                name, arch = pattern.split(".", 1)
-                                if arch in arch_utils.arches:
-                                    kwargs["name__glob"] = name
-                                    kwargs["arch__eq"] = arch
-                            pkgs = self.q_binary_packages.filter(**kwargs).apply()
+                            pkgs = filter_dotarch(self.q_binary_packages, pattern)
 
                 if not pkgs:
                     self.logger.error(
