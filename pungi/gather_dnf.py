@@ -40,7 +40,7 @@ def get_source_name(pkg):
     return pkg.sourcerpm.rsplit("-", 2)[0]
 
 
-def filter_dotarch(queue, pattern):
+def filter_dotarch(queue, pattern, **kwargs):
     """Filter queue for packages matching the pattern. If pattern matches the
     dotarch format of <name>.<arch>, it is processed as such. Otherwise it is
     treated as just a name.
@@ -465,12 +465,16 @@ class Gather(GatherBase):
                         name__glob=pattern[:-4], reponame__neq=self.opts.lookaside_repos
                     )
                 elif pungi.util.pkg_is_debug(pattern):
-                    pkgs = self.q_debug_packages.filter(
-                        name__glob=pattern, reponame__neq=self.opts.lookaside_repos
+                    pkgs = filter_dotarch(
+                        self.q_debug_packages,
+                        pattern,
+                        reponame__neq=self.opts.lookaside_repos,
                     )
                 else:
-                    pkgs = self.q_binary_packages.filter(
-                        name__glob=pattern, reponame__neq=self.opts.lookaside_repos
+                    pkgs = filter_dotarch(
+                        self.q_binary_packages,
+                        pattern,
+                        reponame__neq=self.opts.lookaside_repos,
                     )
 
                 exclude.update(pkgs)
