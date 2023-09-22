@@ -832,6 +832,12 @@ class Gather(GatherBase):
                     continue
                 if self.is_from_lookaside(i):
                     self._set_flag(i, PkgFlag.lookaside)
+                srpm_name = i.sourcerpm.rsplit("-", 2)[0]
+                if srpm_name in self.opts.fulltree_excludes:
+                    self._set_flag(i, PkgFlag.fulltree_exclude)
+                if PkgFlag.input in self.result_package_flags.get(srpm_name, set()):
+                    # If src rpm is marked as input, mark debuginfo as input too
+                    self._set_flag(i, PkgFlag.input)
                 if i not in self.result_debug_packages:
                     added.add(i)
                     debug_pkgs.append(i)
