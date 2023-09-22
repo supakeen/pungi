@@ -1652,6 +1652,8 @@ OSBuild Composer for building images
     * ``arches`` -- list of architectures for which to build the image. By
       default, the variant arches are used. This option can only restrict it,
       not add a new one.
+    * ``manifest_type`` -- the image type that is put into the manifest by
+      pungi. If not supplied then it is autodetected from the Koji output.
     * ``ostree_url`` -- URL of the repository that's used to fetch the parent
       commit from.
     * ``ostree_ref`` -- name of the ostree branch

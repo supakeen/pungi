@@ -1244,6 +1244,7 @@ def make_schema():
                                 "ostree_url": {"type": "string"},
                                 "ostree_ref": {"type": "string"},
                                 "ostree_parent": {"type": "string"},
+                                "manifest_type": {"type": "string"},
                                 "upload_options": {
                                     # this should be really 'oneOf', but the minimal
                                     # required properties in AWSEC2 and GCP options

@@ -249,7 +249,14 @@ class RunOSBuildThread(WorkerThread):
 
             # Update image manifest
             img = Image(compose.im)
-            img.type = archive["type_name"] if archive["type_name"] != "iso" else "dvd"
+
+            # Get the manifest type from the config if supplied, otherwise we
+            # determine the manifest type based on the koji output
+            img.type = config.get(
+                "manifest_type",
+                archive["type_name"] if archive["type_name"] != "iso" else "dvd",
+            )
+
             img.format = suffix
             img.path = os.path.join(rel_image_dir, archive["filename"])
             img.mtime = util.get_mtime(image_dest)
