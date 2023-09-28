@@ -343,6 +343,27 @@ This is a shortened configuration for Fedora Radhide compose as of 2019-10-14.
         }
     }
 
+    ostree_container = {
+        "^Sagano$": {
+            "treefile": "fedora-tier-0-38.yaml",
+            "config_url": "https://gitlab.com/CentOS/cloud/sagano.git",
+            "config_branch": "main",
+            "repo": [
+                "Server",
+                "http://example.com/repo/x86_64/os",
+                {"baseurl": "Everything"},
+                {"baseurl": "http://example.com/linux/repo", "exclude": "systemd-container"},
+            ],
+            "ociarchive_path": "/mnt/koji/compose/ostree_container/",
+            # Base name to use for the ociarchive file. Final name will be {name}-{version}.ociarchive
+            "ociarchive_name": "sagano",
+            # Automatically generate a reasonable version
+            "version": "!OSTREE_VERSION_FROM_LABEL_DATE_TYPE_RESPIN",
+            # Only run this for x86_64 even if Sagano has more arches
+            "arches": ["x86_64"],
+        }
+    }
+
     ostree_installer = [
         ("^Silverblue$", {
             "x86_64": {

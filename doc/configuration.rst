@@ -1839,6 +1839,88 @@ Example config
     has the pungi_ostree plugin installed.
 
 
+OSTree Native Container Settings
+================================
+
+The ``ostree_container`` phase of *Pungi* can create an ostree native container
+image as an OCI archive. This is done by running ``rpm-ostree compose image``
+in a Koji runroot environment.
+
+While rpm-ostree can use information from previously built images to improve
+the split in container layers, we can not use that functionnality until
+https://github.com/containers/skopeo/pull/2114 is resolved. Each invocation
+will thus create a new OCI archive image *from scratch*.
+
+**ostree_container**
+    (*dict*) -- a mapping of configuration for each. The format should be
+    ``{variant_uid_regex: config_dict}``. It is possible to use a list of
+    configuration dicts as well.
+
+    The configuration dict for each variant arch pair must have these keys:
+
+    * ``treefile`` -- (*str*) Filename of configuration for ``rpm-ostree``.
+    * ``config_url`` -- (*str*) URL for Git repository with the ``treefile``.
+    * ``repo`` -- (*str|dict|[str|dict]*) repos specified by URL or variant UID
+      or a dict of repo options, ``baseurl`` is required in the dict.
+    * ``ociarchive_path`` -- (*str*) Where to put the OCI archive.
+    * ``ociarchive_name`` -- (*str*) Base name to use for the ociarchive file.
+      Final name will be ``{name}-{version}.ociarchive`` (ommitting the version
+      if it is not set).
+
+    These keys are optional:
+
+    * ``keep_original_sources`` -- (*bool*) Keep the existing source repos in
+      the tree config file. If not enabled, all the original source repos will
+      be removed from the tree config file.
+    * ``config_branch`` -- (*str*) Git branch of the repo to use. Defaults to
+      ``main``.
+    * ``arches`` -- (*[str]*) List of architectures for which to generate
+      ostree native container images. There will be one task per architecture.
+      By default all architectures in the variant are used.
+    * ``failable`` -- (*[str]*) List of architectures for which this
+      deliverable is not release blocking.
+    * ``version`` -- (*str*) Version string to be added to the OCI archive name.
+      If this option is set to ``!OSTREE_VERSION_FROM_LABEL_DATE_TYPE_RESPIN``,
+      a value will be generated automatically as ``$VERSION.$RELEASE``.
+      If this option is set to ``!VERSION_FROM_VERSION_DATE_RESPIN``,
+      a value will be generated automatically as ``$VERSION.$DATE.$RESPIN``.
+      :ref:`See how those values are created <auto-version>`.
+    * ``tag_ref`` -- (*bool*, default ``True``) If set to ``False``, a git
+      reference will not be created.
+    * ``runroot_packages`` -- (*list*) A list of additional package names to be
+      installed in the runroot environment in Koji.
+
+Example config
+--------------
+::
+
+    ostree_container = {
+        "^Sagano$": {
+            "treefile": "fedora-tier-0-38.yaml",
+            "config_url": "https://gitlab.com/CentOS/cloud/sagano.git",
+            "config_branch": "main",
+            "repo": [
+                "Server",
+                "http://example.com/repo/x86_64/os",
+                {"baseurl": "Everything"},
+                {"baseurl": "http://example.com/linux/repo", "exclude": "systemd-container"},
+            ],
+            "ociarchive_path": "/mnt/koji/compose/ostree_container/",
+            # Base name to use for the ociarchive file. Final name will be {name}-{version}.ociarchive
+            "ociarchive_name": "sagano",
+            # Automatically generate a reasonable version
+            "version": "!OSTREE_VERSION_FROM_LABEL_DATE_TYPE_RESPIN",
+            # Only run this for x86_64 even if Sagano has more arches
+            "arches": ["x86_64"],
+        }
+    }
+
+**ostree_container_use_koji_plugin** = False
+    (*bool*) -- When set to ``True``, the Koji pungi_ostree task will be
+    used to execute rpm-ostree instead of runroot. Use only if the Koji instance
+    has the pungi_ostree plugin installed.
+
+
 Ostree Installer Settings
 =========================
 

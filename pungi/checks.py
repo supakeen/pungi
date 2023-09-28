@@ -1104,6 +1104,44 @@ def make_schema():
                     ),
                 ]
             },
+            "ostree_container": {
+                "type": "object",
+                "patternProperties": {
+                    # Warning: this pattern is a variant uid regex, but the
+                    # format does not let us validate it as there is no regular
+                    # expression to describe all regular expressions.
+                    ".+": _one_or_list(
+                        {
+                            "type": "object",
+                            "properties": {
+                                "treefile": {"type": "string"},
+                                "config_url": {"type": "string"},
+                                "ociarchive_path": {"type": "string"},
+                                "ociarchive_name": {"type": "string"},
+                                "repo": {"$ref": "#/definitions/repos"},
+                                "keep_original_sources": {"type": "boolean"},
+                                "config_branch": {"type": "string"},
+                                "arches": {"$ref": "#/definitions/list_of_strings"},
+                                "failable": {"$ref": "#/definitions/list_of_strings"},
+                                "version": {"type": "string"},
+                                "tag_ref": {"type": "boolean"},
+                                "runroot_packages": {
+                                    "$ref": "#/definitions/list_of_strings",
+                                },
+                            },
+                            "required": [
+                                "treefile",
+                                "config_url",
+                                "repo",
+                                "ociarchive_path",
+                                "ociarchive_name",
+                            ],
+                            "additionalProperties": False,
+                        }
+                    ),
+                },
+                "additionalProperties": False,
+            },
             "ostree_installer": _variant_arch_mapping(
                 {
                     "type": "object",
@@ -1128,6 +1166,7 @@ def make_schema():
                 }
             ),
             "ostree_use_koji_plugin": {"type": "boolean", "default": False},
+            "ostree_container_use_koji_plugin": {"type": "boolean", "default": False},
             "ostree_installer_use_koji_plugin": {"type": "boolean", "default": False},
             "ostree_installer_overwrite": {"type": "boolean", "default": False},
             "live_images": _variant_arch_mapping(

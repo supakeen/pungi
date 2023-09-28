@@ -19,6 +19,7 @@ import logging
 
 from .tree import Tree
 from .installer import Installer
+from .container import Container
 
 
 def main(args=None):
@@ -69,6 +70,42 @@ def main(args=None):
         "--unified-core",
         action="store_true",
         help="use unified core mode in rpm-ostree",
+    )
+
+    container = subparser.add_parser(
+        "container", help="Compose OSTree native container"
+    )
+    container.set_defaults(_class=Container, func="run")
+    container.add_argument(
+        "--ociarchive-path",
+        metavar="DIR",
+        required=True,
+        help="where to output the OCI archive (required)",
+    )
+    container.add_argument(
+        "--ociarchive-name",
+        required=True,
+        help="the name of the the OCI archive (required)",
+    )
+    container.add_argument(
+        "--treefile",
+        metavar="FILE",
+        required=True,
+        help="treefile for rpm-ostree (required)",
+    )
+    container.add_argument(
+        "--log-dir",
+        metavar="DIR",
+        required=True,
+        help="where to log output (required).",
+    )
+    container.add_argument(
+        "--extra-config", metavar="FILE", help="JSON file contains extra configurations"
+    )
+    container.add_argument(
+        "--version",
+        metavar="VERSION",
+        help="version string to be used for OCI archive name",
     )
 
     installerp = subparser.add_parser(
