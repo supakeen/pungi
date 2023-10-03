@@ -614,7 +614,7 @@ class KojiPackageSet(PackageSetBase):
         result_srpms = []
         include_packages = set(include_packages or [])
 
-        if type(event) is dict:
+        if isinstance(event, dict):
             event = event["id"]
 
         msg = "Getting latest RPMs (tag: %s, event: %s, inherit: %s)" % (

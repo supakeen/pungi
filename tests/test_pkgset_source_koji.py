@@ -238,10 +238,10 @@ class TestGetPackageSetFromKoji(helpers.PungiTestCase):
             self.compose, self.koji_wrapper, event, module_info_str
         )
 
-        assert type(result) is list
+        assert isinstance(result, list)
         assert len(result) == 1
         module = result[0]
-        assert type(module) is dict
+        assert isinstance(module, dict)
         self.assertIn("module_stream", module)
         self.assertIn("module_version", module)
         self.assertIn("module_context", module)
@@ -367,11 +367,11 @@ class TestGetPackageSetFromKoji(helpers.PungiTestCase):
             self.compose, self.koji_wrapper, event, module_info_str
         )
 
-        assert type(result) is list
+        assert isinstance(result, list)
         assert len(result) == 2
         module = result[0]
         for module in result:
-            assert type(module) is dict
+            assert isinstance(module, dict)
             self.assertIn("module_stream", module)
             self.assertIn("module_version", module)
             self.assertIn("module_context", module)

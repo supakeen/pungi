@@ -572,7 +572,6 @@ def make_schema():
                 },
                 "required": ["kickstart"],
                 "additionalProperties": False,
-                "type": "object",
             },
             "osbs_config": {
                 "type": "object",
