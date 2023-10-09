@@ -67,10 +67,6 @@ def make_image(f, opts):
                 os.path.join("$TEMPLATE", "config_files/ppc"),
                 hfs_compat=opts.hfs_compat,
             )
-        elif opts.buildinstall_method == "buildinstall":
-            mkisofs_kwargs["boot_args"] = iso.get_boot_options(
-                opts.arch, "/usr/lib/anaconda-runtime/boot"
-            )
 
     # ppc(64) doesn't seem to support utf-8
     if opts.arch in ("ppc", "ppc64", "ppc64le"):

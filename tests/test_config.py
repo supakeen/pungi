@@ -223,22 +223,6 @@ class BuildinstallConfigTestCase(ConfigTestCase):
 
         self.assertValidation(cfg, [])
 
-    def test_buildinstall_with_lorax_options(self):
-        cfg = load_config(
-            PKGSET_REPOS,
-            buildinstall_method="buildinstall",
-            lorax_options=[("^Server$", {})],
-        )
-
-        self.assertValidation(
-            cfg,
-            [
-                checks.CONFLICTS.format(
-                    "buildinstall_method", "buildinstall", "lorax_options"
-                )
-            ],
-        )
-
     def test_lorax_with_lorax_options(self):
         cfg = load_config(PKGSET_REPOS, buildinstall_method="lorax", lorax_options=[])
 

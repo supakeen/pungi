@@ -47,7 +47,6 @@ Split Pungi into smaller well-defined tools
 
 * create install images
   * lorax
-  * buildinstall
 
 * create isos
   * isos

@@ -219,10 +219,6 @@ class BuildinstallPhase(PhaseBase):
         return repos
 
     def run(self):
-        lorax = LoraxWrapper()
-        product = self.compose.conf["release_name"]
-        version = self.compose.conf["release_version"]
-        release = self.compose.conf["release_version"]
         disc_type = self.compose.conf["disc_types"].get("dvd", "dvd")
 
         # Prepare kickstart file for final images.
@@ -275,23 +271,6 @@ class BuildinstallPhase(PhaseBase):
                             ),
                         )
                     )
-            elif self.buildinstall_method == "buildinstall":
-                volid = get_volid(self.compose, arch, disc_type=disc_type)
-                commands.append(
-                    (
-                        None,
-                        lorax.get_buildinstall_cmd(
-                            product,
-                            version,
-                            release,
-                            repo_baseurls,
-                            output_dir,
-                            is_final=self.compose.supported,
-                            buildarch=arch,
-                            volid=volid,
-                        ),
-                    )
-                )
             else:
                 raise ValueError(
                     "Unsupported buildinstall method: %s" % self.buildinstall_method
@@ -827,8 +806,6 @@ class BuildinstallThread(WorkerThread):
         if buildinstall_method == "lorax":
             packages += ["lorax"]
             chown_paths.append(_get_log_dir(compose, variant, arch))
-        elif buildinstall_method == "buildinstall":
-            packages += ["anaconda"]
         packages += get_arch_variant_data(
             compose.conf, "buildinstall_packages", arch, variant
         )

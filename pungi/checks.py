@@ -812,7 +812,7 @@ def make_schema():
             "buildinstall_allow_reuse": {"type": "boolean", "default": False},
             "buildinstall_method": {
                 "type": "string",
-                "enum": ["lorax", "buildinstall"],
+                "enum": ["lorax"],
             },
             "buildinstall_topdir": {"type": "string"},
             "buildinstall_kickstart": {"$ref": "#/definitions/str_or_scm_dict"},
@@ -1497,7 +1497,6 @@ def get_num_cpus():
 CONFIG_DEPS = {
     "buildinstall_method": {
         "conflicts": (
-            (lambda val: val == "buildinstall", ["lorax_options"]),
             (lambda val: not val, ["lorax_options", "buildinstall_kickstart"]),
         ),
     },

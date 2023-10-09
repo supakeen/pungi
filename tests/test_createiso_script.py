@@ -267,58 +267,6 @@ class CreateIsoScriptTest(helpers.PungiTestCase):
             ]
         )
 
-    def test_bootable_run_buildinstall(self):
-        createiso.write_script(
-            createiso.CreateIsoOpts(
-                output_dir=self.outdir,
-                iso_name="DP-1.0-20160405.t.3-ppc64.iso",
-                volid="DP-1.0-20160405.t.3",
-                graft_points="graft-list",
-                arch="ppc64",
-                buildinstall_method="buildinstall",
-            ),
-            self.out,
-        )
-
-        self.assertScript(
-            [
-                " ".join(
-                    [
-                        "/usr/bin/genisoimage",
-                        "-untranslated-filenames",
-                        "-volid",
-                        "DP-1.0-20160405.t.3",
-                        "-J",
-                        "-joliet-long",
-                        "-rational-rock",
-                        "-translation-table",
-                        "-x",
-                        "./lost+found",
-                        "-part",
-                        "-hfs",
-                        "-r",
-                        "-l",
-                        "-sysid",
-                        "PPC",
-                        "-no-desktop",
-                        "-allow-multidot",
-                        "-chrp-boot",
-                        "-map",
-                        "/usr/lib/anaconda-runtime/boot/mapping",
-                        "-hfs-bless",
-                        "/ppc/mac",
-                        "-o",
-                        "DP-1.0-20160405.t.3-ppc64.iso",
-                        "-graft-points",
-                        "-path-list",
-                        "graft-list",
-                    ]
-                ),
-                " ".join(["/usr/bin/implantisomd5", "DP-1.0-20160405.t.3-ppc64.iso"]),
-                "isoinfo -R -f -i DP-1.0-20160405.t.3-ppc64.iso | grep -v '/TRANS.TBL$' | sort >> DP-1.0-20160405.t.3-ppc64.iso.manifest",  # noqa: E501
-            ]
-        )
-
     @mock.patch("sys.stderr")
     @mock.patch("kobo.shortcuts.run")
     def test_run_with_jigdo_bad_args(self, run, stderr):

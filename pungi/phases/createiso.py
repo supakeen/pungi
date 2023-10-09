@@ -546,7 +546,6 @@ def run_createiso_command(num, compose, bootable, arch, cmd, mounts, log_file):
     if bootable:
         extra_packages = {
             "lorax": ["lorax", "which"],
-            "buildinstall": ["anaconda"],
         }
         packages.extend(extra_packages[compose.conf["buildinstall_method"]])
 

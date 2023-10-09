@@ -642,7 +642,7 @@ Options
 -------
 
 **buildinstall_method**
-    (*str*) -- "lorax" (f16+, rhel7+) or "buildinstall" (older releases)
+    (*str*) -- "lorax" (f16+, rhel7+)
 **lorax_options**
     (*list*) -- special options passed on to *lorax*.
 

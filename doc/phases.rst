@@ -30,17 +30,14 @@ packages to architectures.
 Buildinstall
 ------------
 
-Spawns a bunch of threads, each of which runs either ``lorax`` or
-``buildinstall`` command (the latter coming from ``anaconda`` package). The
+Spawns a bunch of threads, each of which runs the ``lorax`` command. The
 commands create ``boot.iso`` and other boot configuration files. The image is
 finally linked into the ``compose/`` directory as netinstall media.
 
 The created images are also needed for creating live media or other images in
 later phases.
 
-With ``lorax`` this phase runs one task per variant.arch combination. For
-``buildinstall`` command there is only one task per architecture and
-``product.img`` should be used to customize the results.
+With ``lorax`` this phase runs one task per variant.arch combination.
 
 Gather
 ------
