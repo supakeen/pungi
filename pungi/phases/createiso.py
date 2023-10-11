@@ -154,6 +154,13 @@ class CreateisoPhase(PhaseLoggerMixin, PhaseBase):
             disc_num=cmd["disc_num"],
             disc_count=cmd["disc_count"],
         )
+        if self.compose.notifier:
+            self.compose.notifier.send(
+                "createiso-imagedone",
+                file=cmd["iso_path"],
+                arch=arch,
+                variant=str(variant),
+            )
 
     def try_reuse(self, cmd, variant, arch, opts):
         """Try to reuse image from previous compose.
