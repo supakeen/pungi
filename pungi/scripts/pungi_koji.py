@@ -417,6 +417,7 @@ def run_compose(
         compose, buildinstall_phase, pkgset_phase
     )
     ostree_phase = pungi.phases.OSTreePhase(compose, pkgset_phase)
+    ostree_container_phase = pungi.phases.OSTreeContainerPhase(compose, pkgset_phase)
     createiso_phase = pungi.phases.CreateisoPhase(compose, buildinstall_phase)
     extra_isos_phase = pungi.phases.ExtraIsosPhase(compose, buildinstall_phase)
     liveimages_phase = pungi.phases.LiveImagesPhase(compose)
@@ -445,6 +446,7 @@ def run_compose(
         test_phase,
         ostree_phase,
         ostree_installer_phase,
+        ostree_container_phase,
         extra_isos_phase,
         osbs_phase,
         osbuild_phase,
@@ -519,6 +521,7 @@ def run_compose(
         (gather_phase, createrepo_phase),
         extrafiles_phase,
         (ostree_phase, ostree_installer_phase),
+        ostree_container_phase,
     )
     essentials_phase = pungi.phases.WeaverPhase(compose, essentials_schema)
     essentials_phase.start()

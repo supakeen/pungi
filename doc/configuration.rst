@@ -1766,16 +1766,16 @@ another directory. Any new packages in the compose will be added to the
 repository with a new commit.
 
 **ostree**
-    (*dict*) -- a mapping of configuration for each. The format should be
-    ``{variant_uid_regex: config_dict}``. It is possible to use a list of
+    (*dict*) -- a mapping of configuration for each variant. The format should
+    be ``{variant_uid_regex: config_dict}``. It is possible to use a list of
     configuration dicts as well.
 
     The configuration dict for each variant arch pair must have these keys:
 
     * ``treefile`` -- (*str*) Filename of configuration for ``rpm-ostree``.
     * ``config_url`` -- (*str*) URL for Git repository with the ``treefile``.
-    * ``repo`` -- (*str|dict|[str|dict]*) repos specified by URL or variant UID
-      or a dict of repo options, ``baseurl`` is required in the dict.
+    * ``repo`` -- (*str|dict|[str|dict]*) repos specified by URL or a dict of
+      repo options, ``baseurl`` is required in the dict.
     * ``ostree_repo`` -- (*str*) Where to put the ostree repository
 
     These keys are optional:
@@ -1817,13 +1817,11 @@ Example config
         "^Atomic$": {
             "treefile": "fedora-atomic-docker-host.json",
             "config_url": "https://git.fedorahosted.org/git/fedora-atomic.git",
+            "keep_original_sources": True,
             "repo": [
-                "Server",
                 "http://example.com/repo/x86_64/os",
-                {"baseurl": "Everything"},
                 {"baseurl": "http://example.com/linux/repo", "exclude": "systemd-container"},
             ],
-            "keep_original_sources": True,
             "ostree_repo": "/mnt/koji/compose/atomic/Rawhide/",
             "update_summary": True,
             # Automatically generate a reasonable version
@@ -1852,23 +1850,19 @@ https://github.com/containers/skopeo/pull/2114 is resolved. Each invocation
 will thus create a new OCI archive image *from scratch*.
 
 **ostree_container**
-    (*dict*) -- a mapping of configuration for each. The format should be
-    ``{variant_uid_regex: config_dict}``. It is possible to use a list of
+    (*dict*) -- a mapping of configuration for each variant. The format should
+    be ``{variant_uid_regex: config_dict}``. It is possible to use a list of
     configuration dicts as well.
 
     The configuration dict for each variant arch pair must have these keys:
 
     * ``treefile`` -- (*str*) Filename of configuration for ``rpm-ostree``.
     * ``config_url`` -- (*str*) URL for Git repository with the ``treefile``.
-    * ``repo`` -- (*str|dict|[str|dict]*) repos specified by URL or variant UID
-      or a dict of repo options, ``baseurl`` is required in the dict.
-    * ``ociarchive_path`` -- (*str*) Where to put the OCI archive.
-    * ``ociarchive_name`` -- (*str*) Base name to use for the ociarchive file.
-      Final name will be ``{name}-{version}.ociarchive`` (ommitting the version
-      if it is not set).
 
     These keys are optional:
 
+    * ``repo`` -- (*str|dict|[str|dict]*) repos specified by URL or a dict of
+      repo options, ``baseurl`` is required in the dict.
     * ``keep_original_sources`` -- (*bool*) Keep the existing source repos in
       the tree config file. If not enabled, all the original source repos will
       be removed from the tree config file.
@@ -1900,14 +1894,9 @@ Example config
             "config_url": "https://gitlab.com/CentOS/cloud/sagano.git",
             "config_branch": "main",
             "repo": [
-                "Server",
                 "http://example.com/repo/x86_64/os",
-                {"baseurl": "Everything"},
                 {"baseurl": "http://example.com/linux/repo", "exclude": "systemd-container"},
             ],
-            "ociarchive_path": "/mnt/koji/compose/ostree_container/",
-            # Base name to use for the ociarchive file. Final name will be {name}-{version}.ociarchive
-            "ociarchive_name": "sagano",
             # Automatically generate a reasonable version
             "version": "!OSTREE_VERSION_FROM_LABEL_DATE_TYPE_RESPIN",
             # Only run this for x86_64 even if Sagano has more arches

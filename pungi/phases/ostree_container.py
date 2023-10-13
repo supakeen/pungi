@@ -5,7 +5,6 @@ import json
 import os
 from kobo import shortcuts
 from kobo.threads import ThreadPool, WorkerThread
-from collections import OrderedDict
 
 from pungi.runroot import Runroot
 from .base import ConfigGuardedPhase
@@ -26,7 +25,9 @@ class OSTreeContainerPhase(ConfigGuardedPhase):
         return [
             translate_path(
                 self.compose,
-                self.compose.paths.work.pkgset_repo(pkgset.name, "$basearch"),
+                self.compose.paths.work.pkgset_repo(
+                    pkgset.name, "$basearch", create_dir=False
+                ),
             )
             for pkgset in self.pkgset_phase.package_sets
         ]
@@ -84,7 +85,7 @@ class OSTreeContainerThread(WorkerThread):
             config.get("config_branch", "main"),
         )
 
-        repos = shortcuts.force_list(config["repo"]) + self.repos
+        repos = shortcuts.force_list(config.get("repo", [])) + self.repos
         repos = get_repo_dicts(repos, logger=self.pool)
 
         # copy the original config and update before save to a json file
@@ -116,78 +117,50 @@ class OSTreeContainerThread(WorkerThread):
             compose, variant, arch, config, repodir, extra_config_file=extra_config_file
         )
 
-        if compose.notifier:
-            # 'pungi-make-ostree container' writes to {ociarchive_name}.stamp in
-            # logdir if the compose succeeded. If the compose failed, an exception
-            # will be raised.
-            os.path.exists(
-                os.path.join(self.logdir, "%s.stamp" % config["ociarchive_name"])
-            )
-            if config["version"] is None:
-                filename = "%s.ociarchive" % config["ociarchive_name"]
-            else:
-                filename = (
-                    "%s-%s.ociarchive" % (config["ociarchive_name"], config["version"]),
-                )
-            compose.notifier.send(
-                "ostree_container",
-                variant=variant.uid,
-                arch=arch,
-                filename=filename,
-                version=config["version"],
-                path=translate_path(compose, config["ociarchive_path"]),
-                local_path=config["ociarchive_path"],
-            )
-
         self.pool.log_info("[DONE ] %s" % (msg))
 
     def _run_ostree_container_cmd(
         self, compose, variant, arch, config, config_repo, extra_config_file=None
     ):
-        args = OrderedDict(
-            [
-                ("log-dir", self.logdir),
-                ("treefile", os.path.join(config_repo, config["treefile"])),
-                ("version", util.version_generator(compose, config.get("version"))),
-                ("extra-config", extra_config_file),
-                ("ociarchive-path", config.get("ociarchive_path")),
-                ("ociarchive-name", config.get("ociarchive_name")),
-            ]
+        target_dir = compose.paths.compose.image_dir(variant) % {"arch": arch}
+        util.makedirs(target_dir)
+        archive_name = "%s-%s-%s" % (
+            compose.conf["release_short"],
+            variant.uid,
+            util.version_generator(compose, config.get("version")),
         )
-        default_packages = ["pungi", "ostree", "rpm-ostree", "selinux-policy-targeted"]
+
+        # Run the pungi-make-ostree command locally to create a script to
+        # execute in runroot environment.
+        cmd = [
+            "pungi-make-ostree",
+            "container",
+            "--log-dir=%s" % self.logdir,
+            "--name=%s" % archive_name,
+            "--path=%s" % target_dir,
+            "--treefile=%s" % os.path.join(config_repo, config["treefile"]),
+            "--extra-config=%s" % extra_config_file,
+        ]
+
+        _, runroot_script = shortcuts.run(cmd, universal_newlines=True)
+
+        default_packages = ["ostree", "rpm-ostree", "selinux-policy-targeted"]
         additional_packages = config.get("runroot_packages", [])
         packages = default_packages + additional_packages
         log_file = os.path.join(self.logdir, "runroot.log")
         # TODO: Use to get previous build
-        mounts = [compose.topdir, config["ostree_repo"]]
+        mounts = [compose.topdir]
+
         runroot = Runroot(compose, phase="ostree_container")
-
-        if compose.conf["ostree_container_use_koji_plugin"]:
-            runroot.run_pungi_ostree(
-                dict(args),
-                log_file=log_file,
-                arch=arch,
-                packages=packages,
-                mounts=mounts,
-                weight=compose.conf["runroot_weights"].get("ostree"),
-            )
-        else:
-            cmd = ["pungi-make-ostree", "container"]
-            for key, value in args.items():
-                if value is True:
-                    cmd.append("--%s" % key)
-                elif value:
-                    cmd.append("--%s=%s" % (key, value))
-
-            runroot.run(
-                cmd,
-                log_file=log_file,
-                arch=arch,
-                packages=packages,
-                mounts=mounts,
-                new_chroot=True,
-                weight=compose.conf["runroot_weights"].get("ostree"),
-            )
+        runroot.run(
+            " && ".join(runroot_script.splitlines()),
+            log_file=log_file,
+            arch=arch,
+            packages=packages,
+            mounts=mounts,
+            new_chroot=True,
+            weight=compose.conf["runroot_weights"].get("ostree"),
+        )
 
     def _clone_repo(self, compose, repodir, url, branch):
         scm.get_dir_from_scm(

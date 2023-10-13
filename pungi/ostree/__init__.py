@@ -77,15 +77,14 @@ def main(args=None):
     )
     container.set_defaults(_class=Container, func="run")
     container.add_argument(
-        "--ociarchive-path",
-        metavar="DIR",
-        required=True,
-        help="where to output the OCI archive (required)",
-    )
-    container.add_argument(
-        "--ociarchive-name",
+        "--name",
         required=True,
         help="the name of the the OCI archive (required)",
+    )
+    container.add_argument(
+        "--path",
+        required=True,
+        help="where to output the OCI archive (required)",
     )
     container.add_argument(
         "--treefile",
@@ -101,11 +100,6 @@ def main(args=None):
     )
     container.add_argument(
         "--extra-config", metavar="FILE", help="JSON file contains extra configurations"
-    )
-    container.add_argument(
-        "--version",
-        metavar="VERSION",
-        help="version string to be used for OCI archive name",
     )
 
     installerp = subparser.add_parser(

@@ -35,6 +35,7 @@ from .image_checksum import ImageChecksumPhase  # noqa
 from .livemedia_phase import LiveMediaPhase  # noqa
 from .ostree import OSTreePhase  # noqa
 from .ostree_installer import OstreeInstallerPhase  # noqa
+from .ostree_container import OSTreeContainerPhase  # noqa
 from .osbs import OSBSPhase  # noqa
 from .phases_metadata import gather_phases_metadata  # noqa
 

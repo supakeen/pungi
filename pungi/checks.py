@@ -1116,8 +1116,6 @@ def make_schema():
                             "properties": {
                                 "treefile": {"type": "string"},
                                 "config_url": {"type": "string"},
-                                "ociarchive_path": {"type": "string"},
-                                "ociarchive_name": {"type": "string"},
                                 "repo": {"$ref": "#/definitions/repos"},
                                 "keep_original_sources": {"type": "boolean"},
                                 "config_branch": {"type": "string"},
@@ -1132,9 +1130,6 @@ def make_schema():
                             "required": [
                                 "treefile",
                                 "config_url",
-                                "repo",
-                                "ociarchive_path",
-                                "ociarchive_name",
                             ],
                             "additionalProperties": False,
                         }
