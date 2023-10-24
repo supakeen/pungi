@@ -901,7 +901,13 @@ def populate_global_pkgset(compose, koji_wrapper, event):
         if pkgset.reuse is None:
             pkgset.populate(
                 compose_tag,
-                event,
+                # We care about packages as they existed on the specified
+                # event. However, modular content tags are not expected to
+                # change, so the event doesn't matter there. If an exact NSVC
+                # of a module is specified, the code above would happily find
+                # its content tag, but fail here if the content tag doesn't
+                # exist at the given event.
+                event=event if is_traditional else None,
                 inherit=should_inherit,
                 include_packages=modular_packages,
             )

@@ -110,7 +110,14 @@ class TestPopulateGlobalPkgset(helpers.PungiTestCase):
         self.assertEqual(len(pkgsets), 1)
         self.assertIs(pkgsets[0], orig_pkgset)
         pkgsets[0].assert_has_calls(
-            [mock.call.populate("f25", 123456, inherit=True, include_packages=set())],
+            [
+                mock.call.populate(
+                    "f25",
+                    event=123456,
+                    inherit=True,
+                    include_packages=set(),
+                ),
+            ],
         )
 
     def mock_materialize(self, compose, pkgset, prefix, mmd):
@@ -151,12 +158,16 @@ class TestPopulateGlobalPkgset(helpers.PungiTestCase):
         )
 
         pkgsets[0].assert_has_calls(
-            [mock.call.populate("f25", 123456, inherit=True, include_packages=set())]
+            [
+                mock.call.populate(
+                    "f25", event=123456, inherit=True, include_packages=set()
+                ),
+            ]
         )
         pkgsets[1].assert_has_calls(
             [
                 mock.call.populate(
-                    "f25-extra", 123456, inherit=True, include_packages=set()
+                    "f25-extra", event=123456, inherit=True, include_packages=set()
                 ),
             ]
         )
