@@ -31,6 +31,17 @@ TAG_INFO = {
 }
 
 
+def _mk_module_build(r, t):
+    """Create a dict as returned Koji buildinfo."""
+    return {
+        "name": "foo",
+        "version": "1",
+        "release": r,
+        "nvr": "foo-1-%s" % r,
+        "tag_name": t,
+    }
+
+
 class TestGetKojiEvent(helpers.PungiTestCase):
     def setUp(self):
         super(TestGetKojiEvent, self).setUp()
@@ -547,19 +558,15 @@ class TestFilterInherited(unittest.TestCase):
             {"name": "middle-tag"},
             {"name": "bottom-tag"},
         ]
-        module_builds = [
-            {"name": "foo", "version": "1", "release": "1", "tag_name": "top-tag"},
-            {"name": "foo", "version": "1", "release": "2", "tag_name": "bottom-tag"},
-            {"name": "foo", "version": "1", "release": "3", "tag_name": "middle-tag"},
-        ]
+
+        m1 = _mk_module_build("1", "top-tag")
+        m2 = _mk_module_build("2", "middle-tag")
+        m3 = _mk_module_build("3", "bottom-tag")
+        module_builds = [m1, m2, m3]
 
         result = source_koji.filter_inherited(koji_proxy, event, module_builds, top_tag)
 
-        six.assertCountEqual(
-            self,
-            result,
-            [{"name": "foo", "version": "1", "release": "1", "tag_name": "top-tag"}],
-        )
+        six.assertCountEqual(self, result, [m1])
         self.assertEqual(
             koji_proxy.mock_calls,
             [mock.call.getFullInheritance("top-tag", event=123456)],
@@ -574,18 +581,33 @@ class TestFilterInherited(unittest.TestCase):
             {"name": "middle-tag"},
             {"name": "bottom-tag"},
         ]
-        module_builds = [
-            {"name": "foo", "version": "1", "release": "2", "tag_name": "bottom-tag"},
-            {"name": "foo", "version": "1", "release": "3", "tag_name": "middle-tag"},
-        ]
+        m2 = _mk_module_build("2", "bottom-tag")
+        m3 = _mk_module_build("3", "middle-tag")
+        module_builds = [m2, m3]
 
         result = source_koji.filter_inherited(koji_proxy, event, module_builds, top_tag)
 
-        six.assertCountEqual(
-            self,
-            result,
-            [{"name": "foo", "version": "1", "release": "3", "tag_name": "middle-tag"}],
+        six.assertCountEqual(self, result, [m3])
+        self.assertEqual(
+            koji_proxy.mock_calls,
+            [mock.call.getFullInheritance("top-tag", event=123456)],
         )
+
+    def test_build_in_multiple_tags(self):
+        event = {"id": 123456}
+        koji_proxy = mock.Mock()
+        top_tag = "top-tag"
+
+        koji_proxy.getFullInheritance.return_value = [
+            {"name": "middle-tag"},
+            {"name": "bottom-tag"},
+        ]
+        m = _mk_module_build("1", "middle-tag")
+        module_builds = [m, m]
+
+        result = source_koji.filter_inherited(koji_proxy, event, module_builds, top_tag)
+
+        six.assertCountEqual(self, result, [m])
         self.assertEqual(
             koji_proxy.mock_calls,
             [mock.call.getFullInheritance("top-tag", event=123456)],

@@ -487,7 +487,16 @@ def filter_inherited(koji_proxy, event, module_builds, top_tag):
         # And keep only builds from that topmost tag
         result.extend(build for build in builds if build["tag_name"] == tag)
 
-    return result
+    # If the same module was inherited multiple times, it will be in result
+    # multiple times. We need to deduplicate.
+    deduplicated_result = []
+    included_nvrs = set()
+    for build in result:
+        if build["nvr"] not in included_nvrs:
+            deduplicated_result.append(build)
+            included_nvrs.add(build["nvr"])
+
+    return deduplicated_result
 
 
 def filter_by_whitelist(compose, module_builds, input_modules, expected_modules):
