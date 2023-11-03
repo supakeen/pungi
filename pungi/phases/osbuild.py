@@ -252,10 +252,20 @@ class RunOSBuildThread(WorkerThread):
 
             # Get the manifest type from the config if supplied, otherwise we
             # determine the manifest type based on the koji output
-            img.type = config.get(
-                "manifest_type",
-                archive["type_name"] if archive["type_name"] != "iso" else "dvd",
-            )
+            img.type = config.get("manifest_type")
+            if not img.type:
+                if archive["type_name"] != "iso":
+                    img.type = archive["type_name"]
+                else:
+                    fn = archive["filename"].lower()
+                    if "ostree" in fn:
+                        img.type = "dvd-ostree-osbuild"
+                    elif "live" in fn:
+                        img.type = "live-osbuild"
+                    elif "netinst" in fn or "boot" in fn:
+                        img.type = "boot"
+                    else:
+                        img.type = "dvd"
 
             img.format = suffix
             img.path = os.path.join(rel_image_dir, archive["filename"])
