@@ -575,6 +575,7 @@ def run_compose(
         and livemedia_phase.skip()
         and image_build_phase.skip()
         and osbuild_phase.skip()
+        and ostree_container_phase.skip()
     ):
         compose.im.dump(compose.paths.compose.metadata("images.json"))
     compose.dump_containers_metadata()

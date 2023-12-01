@@ -6,6 +6,8 @@ import os
 from kobo import shortcuts
 from kobo.threads import ThreadPool, WorkerThread
 
+from productmd.images import Image
+
 from pungi.runroot import Runroot
 from .base import ConfigGuardedPhase
 from .. import util
@@ -61,13 +63,8 @@ class OSTreeContainerThread(WorkerThread):
         compose, variant, arch, config = item
         self.num = num
         failable_arches = config.get("failable", [])
-        with util.failable(
-            compose,
-            util.can_arch_fail(failable_arches, arch),
-            variant,
-            arch,
-            "ostree-container",
-        ):
+        self.can_fail = util.can_arch_fail(failable_arches, arch)
+        with util.failable(compose, self.can_fail, variant, arch, "ostree-container"):
             self.worker(compose, variant, arch, config)
 
     def worker(self, compose, variant, arch, config):
@@ -161,6 +158,27 @@ class OSTreeContainerThread(WorkerThread):
             new_chroot=True,
             weight=compose.conf["runroot_weights"].get("ostree"),
         )
+
+        fullpath = os.path.join(target_dir, "%s.ociarchive" % archive_name)
+
+        # Update image manifest
+        img = Image(compose.im)
+
+        # Get the manifest type from the config if supplied, otherwise we
+        # determine the manifest type based on the koji output
+        img.type = "ociarchive"
+        img.format = "ociarchive"
+        img.path = os.path.relpath(fullpath, compose.paths.compose.topdir())
+        img.mtime = util.get_mtime(fullpath)
+        img.size = util.get_file_size(fullpath)
+        img.arch = arch
+        img.disc_number = 1
+        img.disc_count = 1
+        img.bootable = False
+        img.subvariant = config.get("subvariant", variant.uid)
+        setattr(img, "can_fail", self.can_fail)
+        setattr(img, "deliverable", "ostree-container")
+        compose.im.add(variant=variant.uid, arch=arch, image=img)
 
     def _clone_repo(self, compose, repodir, url, branch):
         scm.get_dir_from_scm(
