@@ -1,5 +1,5 @@
 Name:           pungi
-Version:        4.5.1
+Version:        4.6.0
 Release:        1%{?dist}
 Summary:        Distribution compose tool
 
@@ -110,6 +110,18 @@ pytest
 cd tests && ./test_compose.sh
 
 %changelog
+* Mon Dec 11 2023 Lubomír Sedlář <lsedlar@redhat.com> - 4.6.0-1
+- Add ostree container to image metadata (lsedlar)
+- Updates for ostree-container phase (lsedlar)
+- Add ostree native container support (tim)
+- Improve autodetection of productmd image type for osbuild images (awilliam)
+- pkgset: ignore events for modular content tags (lsedlar)
+- pkgset: Ignore duplicated module builds (lsedlar)
+- Drop buildinstall method (abisoi)
+- Add step to send UMB message (lzhuang)
+- Fix minor Ruff/flake8 warnings (tim)
+- osbuild: manifest type in config (cmdr)
+
 * Thu Sep  7 2023 Lubomír Sedlář <lsedlar@redhat.com> - 4.5.1-1
 - gather_dnf.py: Do not raise error when the downloaded package exists.
   (ounsal)
