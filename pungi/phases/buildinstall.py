@@ -31,14 +31,14 @@ from six.moves import shlex_quote
 from pungi.arch import get_valid_arches
 from pungi.util import get_volid, get_arch_variant_data
 from pungi.util import get_file_size, get_mtime, failable, makedirs
-from pungi.util import copy_all, translate_path, move_all
+from pungi.util import copy_all, translate_path
 from pungi.wrappers.lorax import LoraxWrapper
 from pungi.wrappers import iso
 from pungi.wrappers.scm import get_file
 from pungi.wrappers.scm import get_file_from_scm
 from pungi.wrappers import kojiwrapper
 from pungi.phases.base import PhaseBase
-from pungi.runroot import Runroot
+from pungi.runroot import Runroot, download_and_extract_archive
 
 
 class BuildinstallPhase(PhaseBase):
@@ -144,7 +144,7 @@ class BuildinstallPhase(PhaseBase):
         )
         if self.compose.has_comps:
             comps_repo = self.compose.paths.work.comps_repo(arch, variant)
-            if final_output_dir != output_dir:
+            if final_output_dir != output_dir or self.lorax_use_koji_plugin:
                 comps_repo = translate_path(self.compose, comps_repo)
             repos.append(comps_repo)
 
@@ -169,7 +169,6 @@ class BuildinstallPhase(PhaseBase):
                 "rootfs-size": rootfs_size,
                 "dracut-args": dracut_args,
                 "skip_branding": skip_branding,
-                "outputdir": output_dir,
                 "squashfs_only": squashfs_only,
                 "configuration_file": configuration_file,
             }
@@ -235,7 +234,7 @@ class BuildinstallPhase(PhaseBase):
             )
             makedirs(final_output_dir)
             repo_baseurls = self.get_repos(arch)
-            if final_output_dir != output_dir:
+            if final_output_dir != output_dir or self.lorax_use_koji_plugin:
                 repo_baseurls = [translate_path(self.compose, r) for r in repo_baseurls]
 
             if self.buildinstall_method == "lorax":
@@ -826,13 +825,13 @@ class BuildinstallThread(WorkerThread):
 
         # Start the runroot task.
         runroot = Runroot(compose, phase="buildinstall")
+        task_id = None
         if buildinstall_method == "lorax" and lorax_use_koji_plugin:
-            runroot.run_pungi_buildinstall(
+            task_id = runroot.run_pungi_buildinstall(
                 cmd,
                 log_file=log_file,
                 arch=arch,
                 packages=packages,
-                mounts=[compose.topdir],
                 weight=compose.conf["runroot_weights"].get("buildinstall"),
             )
         else:
@@ -865,19 +864,17 @@ class BuildinstallThread(WorkerThread):
             log_dir = os.path.join(output_dir, "logs")
             copy_all(log_dir, final_log_dir)
         elif lorax_use_koji_plugin:
-            # If Koji pungi-buildinstall is used, then the buildinstall results are
-            # not stored directly in `output_dir` dir, but in "results" and "logs"
-            # subdirectories. We need to move them to final_output_dir.
-            results_dir = os.path.join(output_dir, "results")
-            move_all(results_dir, final_output_dir, rm_src_dir=True)
+            # If Koji pungi-buildinstall is used, then the buildinstall results
+            # are attached as outputs to the Koji task. Download and unpack
+            # them to the correct location.
+            download_and_extract_archive(
+                compose, task_id, "results.tar.gz", final_output_dir
+            )
 
-            # Get the log_dir into which we should copy the resulting log files.
+            # Download the logs into proper location too.
             log_fname = "buildinstall-%s-logs/dummy" % variant.uid
             final_log_dir = os.path.dirname(compose.paths.log.log_file(arch, log_fname))
-            if not os.path.exists(final_log_dir):
-                makedirs(final_log_dir)
-            log_dir = os.path.join(output_dir, "logs")
-            move_all(log_dir, final_log_dir, rm_src_dir=True)
+            download_and_extract_archive(compose, task_id, "logs.tar.gz", final_log_dir)
 
         rpms = runroot.get_buildroot_rpms()
         self._write_buildinstall_metadata(

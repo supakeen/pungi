@@ -254,6 +254,7 @@ class TestBuildinstallPhase(PungiTestCase):
     def test_starts_threads_for_each_cmd_with_lorax_koji_plugin(
         self, get_volid, poolCls
     ):
+        topurl = "https://example.com/composes/"
         compose = BuildInstallCompose(
             self.topdir,
             {
@@ -264,6 +265,7 @@ class TestBuildinstallPhase(PungiTestCase):
                 "buildinstall_method": "lorax",
                 "lorax_use_koji_plugin": True,
                 "disc_types": {"dvd": "DVD"},
+                "translate_paths": [(self.topdir, topurl)],
             },
         )
 
@@ -280,9 +282,9 @@ class TestBuildinstallPhase(PungiTestCase):
                 "version": "1",
                 "release": "1",
                 "sources": [
-                    self.topdir + "/work/amd64/repo/p1",
-                    self.topdir + "/work/amd64/repo/p2",
-                    self.topdir + "/work/amd64/comps_repo_Server",
+                    topurl + "work/amd64/repo/p1",
+                    topurl + "work/amd64/repo/p2",
+                    topurl + "work/amd64/comps_repo_Server",
                 ],
                 "variant": "Server",
                 "installpkgs": ["bash", "vim"],
@@ -299,7 +301,6 @@ class TestBuildinstallPhase(PungiTestCase):
                 "rootfs-size": None,
                 "dracut-args": [],
                 "skip_branding": False,
-                "outputdir": self.topdir + "/work/amd64/buildinstall/Server",
                 "squashfs_only": False,
                 "configuration_file": None,
             },
@@ -308,9 +309,9 @@ class TestBuildinstallPhase(PungiTestCase):
                 "version": "1",
                 "release": "1",
                 "sources": [
-                    self.topdir + "/work/amd64/repo/p1",
-                    self.topdir + "/work/amd64/repo/p2",
-                    self.topdir + "/work/amd64/comps_repo_Client",
+                    topurl + "work/amd64/repo/p1",
+                    topurl + "work/amd64/repo/p2",
+                    topurl + "work/amd64/comps_repo_Client",
                 ],
                 "variant": "Client",
                 "installpkgs": [],
@@ -327,7 +328,6 @@ class TestBuildinstallPhase(PungiTestCase):
                 "rootfs-size": None,
                 "dracut-args": [],
                 "skip_branding": False,
-                "outputdir": self.topdir + "/work/amd64/buildinstall/Client",
                 "squashfs_only": False,
                 "configuration_file": None,
             },
@@ -336,9 +336,9 @@ class TestBuildinstallPhase(PungiTestCase):
                 "version": "1",
                 "release": "1",
                 "sources": [
-                    self.topdir + "/work/x86_64/repo/p1",
-                    self.topdir + "/work/x86_64/repo/p2",
-                    self.topdir + "/work/x86_64/comps_repo_Server",
+                    topurl + "work/x86_64/repo/p1",
+                    topurl + "work/x86_64/repo/p2",
+                    topurl + "work/x86_64/comps_repo_Server",
                 ],
                 "variant": "Server",
                 "installpkgs": ["bash", "vim"],
@@ -355,7 +355,6 @@ class TestBuildinstallPhase(PungiTestCase):
                 "rootfs-size": None,
                 "dracut-args": [],
                 "skip_branding": False,
-                "outputdir": self.topdir + "/work/x86_64/buildinstall/Server",
                 "squashfs_only": False,
                 "configuration_file": None,
             },
@@ -1234,9 +1233,9 @@ class BuildinstallThreadTestCase(PungiTestCase):
     @mock.patch("pungi.wrappers.kojiwrapper.KojiWrapper")
     @mock.patch("pungi.wrappers.kojiwrapper.get_buildroot_rpms")
     @mock.patch("pungi.phases.buildinstall.run")
-    @mock.patch("pungi.phases.buildinstall.move_all")
+    @mock.patch("pungi.phases.buildinstall.download_and_extract_archive")
     def test_buildinstall_thread_with_lorax_using_koji_plugin(
-        self, move_all, run, get_buildroot_rpms, KojiWrapperMock, mock_tweak, mock_link
+        self, download, run, get_buildroot_rpms, KojiWrapperMock, mock_tweak, mock_link
     ):
         compose = BuildInstallCompose(
             self.topdir,
@@ -1282,9 +1281,8 @@ class BuildinstallThreadTestCase(PungiTestCase):
                     self.cmd,
                     channel=None,
                     packages=["lorax"],
-                    mounts=[self.topdir],
                     weight=123,
-                    chown_uid=os.getuid(),
+                    chown_uid=None,
                 )
             ],
         )
@@ -1325,13 +1323,14 @@ class BuildinstallThreadTestCase(PungiTestCase):
             [mock.call(compose, "x86_64", compose.variants["Server"], False)],
         )
         self.assertEqual(
-            move_all.call_args_list,
+            download.call_args_list,
             [
-                mock.call(os.path.join(destdir, "results"), destdir, rm_src_dir=True),
+                mock.call(compose, 1234, "results.tar.gz", destdir),
                 mock.call(
-                    os.path.join(destdir, "logs"),
+                    compose,
+                    1234,
+                    "logs.tar.gz",
                     os.path.join(self.topdir, "logs/x86_64/buildinstall-Server-logs"),
-                    rm_src_dir=True,
                 ),
             ],
         )

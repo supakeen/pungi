@@ -13,13 +13,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <https://gnu.org/licenses/>.
 
+import contextlib
 import os
 import re
+import shutil
+import tarfile
+
+import requests
 import six
 from six.moves import shlex_quote
 import kobo.log
 from kobo.shortcuts import run
 
+from pungi import util
 from pungi.wrappers import kojiwrapper
 
 
@@ -314,7 +320,8 @@ class Runroot(kobo.log.LoggingBase):
             arch,
             args,
             channel=runroot_channel,
-            chown_uid=os.getuid(),
+            # We want to change owner only if shared NFS directory is used.
+            chown_uid=os.getuid() if kwargs.get("mounts") else None,
             **kwargs
         )
 
@@ -325,6 +332,7 @@ class Runroot(kobo.log.LoggingBase):
                 % (output["task_id"], log_file)
             )
         self._result = output
+        return output["task_id"]
 
     def run_pungi_ostree(self, args, log_file=None, arch=None, **kwargs):
         """
@@ -381,3 +389,72 @@ class Runroot(kobo.log.LoggingBase):
             return self._result
         else:
             raise ValueError("Unknown runroot_method %r." % self.runroot_method)
+
+
+@util.retry(wait_on=requests.exceptions.RequestException)
+def _download_file(url, dest):
+    # contextlib.closing is only needed in requests<2.18
+    with contextlib.closing(requests.get(url, stream=True, timeout=5)) as r:
+        if r.status_code == 404:
+            raise RuntimeError("Archive %s not found" % url)
+        r.raise_for_status()
+        with open(dest, "wb") as f:
+            shutil.copyfileobj(r.raw, f)
+
+
+def _download_archive(task_id, fname, archive_url, dest_dir):
+    """Download file from URL to a destination, with retries."""
+    temp_file = os.path.join(dest_dir, fname)
+    _download_file(archive_url, temp_file)
+    return temp_file
+
+
+def _extract_archive(task_id, fname, archive_file, dest_path):
+    """Extract the archive into given destination.
+
+    All items of the archive must match the name of the archive, i.e. all
+    paths in foo.tar.gz must start with foo/.
+    """
+    basename = os.path.basename(fname).split(".")[0]
+    strip_prefix = basename + "/"
+    with tarfile.open(archive_file, "r") as archive:
+        for member in archive.getmembers():
+            # Check if each item is either the root directory or is within it.
+            if member.name != basename and not member.name.startswith(strip_prefix):
+                raise RuntimeError(
+                    "Archive %s from task %s contains file without expected prefix: %s"
+                    % (fname, task_id, member)
+                )
+            dest = os.path.join(dest_path, member.name[len(strip_prefix) :])
+            if member.isdir():
+                # Create directories where needed...
+                util.makedirs(dest)
+            elif member.isfile():
+                # ... and extract files into them.
+                with open(dest, "wb") as dest_obj:
+                    shutil.copyfileobj(archive.extractfile(member), dest_obj)
+            elif member.islnk():
+                # We have a hardlink. Let's also link it.
+                linked_file = os.path.join(
+                    dest_path, member.linkname[len(strip_prefix) :]
+                )
+                os.link(linked_file, dest)
+            else:
+                # Any other file type is an error.
+                raise RuntimeError(
+                    "Unexpected file type in %s from task %s: %s"
+                    % (fname, task_id, member)
+                )
+
+
+def download_and_extract_archive(compose, task_id, fname, destination):
+    """Download a tar archive from task outputs and extract it to the destination."""
+    koji = kojiwrapper.KojiWrapper(compose).koji_module
+    # Koji API provides downloadTaskOutput method, but it's not usable as it
+    # will attempt to load the entire file into memory.
+    # So instead let's generate a patch and attempt to convert it to a URL.
+    server_path = os.path.join(koji.pathinfo.task(task_id), fname)
+    archive_url = server_path.replace(koji.config.topdir, koji.config.topurl)
+    with util.temp_dir(prefix="buildinstall-download") as tmp_dir:
+        local_path = _download_archive(task_id, fname, archive_url, tmp_dir)
+        _extract_archive(task_id, fname, local_path, destination)
