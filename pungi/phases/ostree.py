@@ -85,7 +85,7 @@ class OSTreeThread(WorkerThread):
         comps_repo = compose.paths.work.comps_repo(
             "$basearch", variant=variant, create_dir=False
         )
-        repos = shortcuts.force_list(config["repo"]) + self.repos
+        repos = shortcuts.force_list(config.get("repo", [])) + self.repos
         if compose.has_comps:
             repos.append(translate_path(compose, comps_repo))
         repos = get_repo_dicts(repos, logger=self.pool)

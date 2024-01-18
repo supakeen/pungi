@@ -1066,7 +1066,6 @@ def make_schema():
                                     "required": [
                                         "treefile",
                                         "config_url",
-                                        "repo",
                                         "ostree_repo",
                                     ],
                                     "additionalProperties": False,
