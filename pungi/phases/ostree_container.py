@@ -70,7 +70,7 @@ class OSTreeContainerThread(WorkerThread):
     def worker(self, compose, variant, arch, config):
         msg = "OSTree phase for variant %s, arch %s" % (variant.uid, arch)
         self.pool.log_info("[BEGIN] %s" % msg)
-        workdir = compose.paths.work.topdir("ostree-%d" % self.num)
+        workdir = compose.paths.work.topdir("ostree-container-%d" % self.num)
         self.logdir = compose.paths.log.topdir(
             "%s/%s/ostree-container-%d" % (arch, variant.uid, self.num)
         )
