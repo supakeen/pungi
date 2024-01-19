@@ -317,6 +317,8 @@ class GitSCMTestCaseReal(SCMBaseTest):
                 "git",
                 "--git-dir=%s" % git_dir,
                 "--work-tree=%s" % self.gitRepositoryLocation,
+                "-c",
+                "init.defaultBranch=master",
                 "init",
             ],
             workdir=self.gitRepositoryLocation,
