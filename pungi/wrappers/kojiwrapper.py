@@ -959,7 +959,8 @@ class KojiDownloadProxy:
         :param str dest: file path to store the result in
         :returns: path to the downloaded file (same as dest) or None if the URL
         """
-        with self.session.get(url, stream=True) as r:
+        # contextlib.closing is only needed in requests<2.18
+        with contextlib.closing(self.session.get(url, stream=True)) as r:
             if r.status_code == 404:
                 self.logger.warning("GET %s NOT FOUND", url)
                 return None
