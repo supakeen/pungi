@@ -5,7 +5,10 @@ try:
 except ImportError:
     import unittest
 
-import mock
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 import six
 
 from pungi.phases.gather.sources.source_module import GatherSourceModule

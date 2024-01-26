@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import mock
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 from pungi.phases.gather.methods import method_deps as deps
 from tests import helpers

@@ -7,7 +7,11 @@ except ImportError:
     import unittest
 
 import six
-import mock
+
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 from pungi import checks
 from tests.helpers import load_config, PKGSET_REPOS

@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import json
-import mock
+
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 import os
 import re
 import six

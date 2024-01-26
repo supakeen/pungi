@@ -4,7 +4,10 @@ try:
     import unittest2 as unittest
 except ImportError:
     import unittest
-import mock
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 from pungi import media_split
 

@@ -2,7 +2,11 @@
 
 
 import json
-import mock
+
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 import os
 

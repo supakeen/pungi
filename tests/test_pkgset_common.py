@@ -2,7 +2,10 @@
 
 import os
 
-import mock
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 import six
 
 from pungi.module_util import Modulemd

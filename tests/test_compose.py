@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import mock
+
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 try:
     import unittest2 as unittest

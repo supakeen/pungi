@@ -62,5 +62,5 @@ setup(
         "dogpile.cache",
     ],
     extras_require={':python_version=="2.7"': ["enum34", "lockfile"]},
-    tests_require=["mock", "pytest", "pytest-cov"],
+    tests_require=["pytest", "pytest-cov"],
 )

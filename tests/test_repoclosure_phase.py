@@ -6,7 +6,10 @@ try:
 except ImportError:
     import unittest
 
-import mock
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 import six
 
 import pungi.phases.repoclosure as repoclosure_phase

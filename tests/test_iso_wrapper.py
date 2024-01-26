@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import itertools
-import mock
+
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 import os
 import six
 

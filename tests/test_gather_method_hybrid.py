@@ -2,7 +2,11 @@
 
 from collections import namedtuple
 import copy
-import mock
+
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 import os
 
 import six

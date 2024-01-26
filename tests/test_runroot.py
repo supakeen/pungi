@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import mock
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 import os
 
 from pungi.runroot import Runroot
