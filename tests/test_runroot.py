@@ -82,12 +82,12 @@ class TestRunrootOpenSSH(helpers.PungiTestCase):
 
     @mock.patch("pungi.runroot.run")
     def test_run_templates(self, run):
-        self.compose.conf[
-            "runroot_ssh_init_template"
-        ] = "/usr/sbin/init_runroot {runroot_tag}"
-        self.compose.conf[
-            "runroot_ssh_install_packages_template"
-        ] = "install {runroot_key} {packages}"
+        self.compose.conf["runroot_ssh_init_template"] = (
+            "/usr/sbin/init_runroot {runroot_tag}"
+        )
+        self.compose.conf["runroot_ssh_install_packages_template"] = (
+            "install {runroot_key} {packages}"
+        )
         self.compose.conf["runroot_ssh_run_template"] = "run {runroot_key} {command}"
 
         run.return_value = (0, "key\n")
@@ -111,9 +111,9 @@ class TestRunrootOpenSSH(helpers.PungiTestCase):
 
     @mock.patch("pungi.runroot.run")
     def test_run_templates_no_init(self, run):
-        self.compose.conf[
-            "runroot_ssh_install_packages_template"
-        ] = "install {packages}"
+        self.compose.conf["runroot_ssh_install_packages_template"] = (
+            "install {packages}"
+        )
         self.compose.conf["runroot_ssh_run_template"] = "run {command}"
 
         run.return_value = (0, "key\n")
@@ -136,9 +136,9 @@ class TestRunrootOpenSSH(helpers.PungiTestCase):
 
     @mock.patch("pungi.runroot.run")
     def test_run_templates_no_packages(self, run):
-        self.compose.conf[
-            "runroot_ssh_install_packages_template"
-        ] = "install {packages}"
+        self.compose.conf["runroot_ssh_install_packages_template"] = (
+            "install {packages}"
+        )
         self.compose.conf["runroot_ssh_run_template"] = "run {command}"
 
         run.return_value = (0, "key\n")

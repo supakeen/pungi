@@ -478,8 +478,7 @@ def main():
                 print("RPM size:       %s MiB" % (mypungi.size_packages() / 1024**2))
                 if not opts.nodebuginfo:
                     print(
-                        "DEBUGINFO size: %s MiB"
-                        % (mypungi.size_debuginfo() / 1024**2)
+                        "DEBUGINFO size: %s MiB" % (mypungi.size_debuginfo() / 1024**2)
                     )
                 if not opts.nosource:
                     print("SRPM size:      %s MiB" % (mypungi.size_srpms() / 1024**2))

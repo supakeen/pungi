@@ -863,10 +863,8 @@ class GetIsoContentsTest(helpers.PungiTestCase):
             "images/efiboot.img": os.path.join(iso_dir, "images/efiboot.img"),
         }
 
-        ggp.side_effect = (
-            lambda compose, x: gp[x[0][len(self.topdir) + 1 :]]
-            if len(x) == 1
-            else bi_gp
+        ggp.side_effect = lambda compose, x: (
+            gp[x[0][len(self.topdir) + 1 :]] if len(x) == 1 else bi_gp
         )
         gp_file = os.path.join(self.topdir, "work/x86_64/iso/my.iso-graft-points")
 

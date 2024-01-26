@@ -1057,10 +1057,8 @@ class TestGatherPackages(helpers.PungiTestCase):
     @mock.patch("pungi.phases.gather.get_gather_method")
     def test_hybrid_method(self, get_gather_method, get_variant_packages):
         packages, groups, filters = mock.Mock(), mock.Mock(), mock.Mock()
-        get_variant_packages.side_effect = (
-            lambda c, v, a, s, p: (packages, groups, filters)
-            if s == "comps"
-            else (None, None, None)
+        get_variant_packages.side_effect = lambda c, v, a, s, p: (
+            (packages, groups, filters) if s == "comps" else (None, None, None)
         )
         get_gather_method.return_value.return_value.return_value = {
             "rpm": [],

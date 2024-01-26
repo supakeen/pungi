@@ -236,9 +236,9 @@ class Runroot(kobo.log.LoggingBase):
                 fmt_dict["runroot_key"] = runroot_key
             self._ssh_run(hostname, user, run_template, fmt_dict, log_file=log_file)
 
-            fmt_dict[
-                "command"
-            ] = "rpm -qa --qf='%{name}-%{version}-%{release}.%{arch}\n'"
+            fmt_dict["command"] = (
+                "rpm -qa --qf='%{name}-%{version}-%{release}.%{arch}\n'"
+            )
             buildroot_rpms = self._ssh_run(
                 hostname,
                 user,
