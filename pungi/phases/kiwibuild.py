@@ -1,0 +1,255 @@
+# -*- coding: utf-8 -*-
+
+import os
+from kobo.threads import ThreadPool, WorkerThread
+from kobo import shortcuts
+from productmd.images import Image
+
+from . import base
+from .. import util
+from ..linker import Linker
+from ..wrappers import kojiwrapper
+from .image_build import EXTENSIONS
+
+
+class KiwiBuildPhase(
+    base.PhaseLoggerMixin, base.ImageConfigMixin, base.ConfigGuardedPhase
+):
+    name = "kiwibuild"
+
+    def __init__(self, compose):
+        super(KiwiBuildPhase, self).__init__(compose)
+        self.pool = ThreadPool(logger=self.logger)
+
+    def _get_arches(self, image_conf, arches):
+        """Get an intersection of arches in the config dict and the given ones."""
+        if "arches" in image_conf:
+            arches = set(image_conf["arches"]) & arches
+        return sorted(arches)
+
+    @staticmethod
+    def _get_repo_urls(compose, repos, arch="$basearch"):
+        """
+        Get list of repos with resolved repo URLs. Preserve repos defined
+        as dicts.
+        """
+        resolved_repos = []
+
+        for repo in repos:
+            if isinstance(repo, dict):
+                try:
+                    url = repo["baseurl"]
+                except KeyError:
+                    raise RuntimeError(
+                        "`baseurl` is required in repo dict %s" % str(repo)
+                    )
+                url = util.get_repo_url(compose, url, arch=arch)
+                if url is None:
+                    raise RuntimeError("Failed to resolve repo URL for %s" % str(repo))
+                repo["baseurl"] = url
+                resolved_repos.append(repo)
+            else:
+                repo = util.get_repo_url(compose, repo, arch=arch)
+                if repo is None:
+                    raise RuntimeError("Failed to resolve repo URL for %s" % repo)
+                resolved_repos.append(repo)
+
+        return resolved_repos
+
+    def _get_repo(self, image_conf, variant):
+        """
+        Get a list of repos. First included are those explicitly listed in
+        config, followed by by repo for current variant if it's not included in
+        the list already.
+        """
+        repos = shortcuts.force_list(image_conf.get("repos", []))
+
+        if not variant.is_empty and variant.uid not in repos:
+            repos.append(variant.uid)
+
+        return KiwiBuildPhase._get_repo_urls(self.compose, repos, arch="$arch")
+
+    def run(self):
+        for variant in self.compose.get_variants():
+            arches = set([x for x in variant.arches if x != "src"])
+
+            for image_conf in self.get_config_block(variant):
+                build_arches = self._get_arches(image_conf, arches)
+                if not build_arches:
+                    self.log_debug("skip: no arches")
+                    continue
+
+                release = self.get_release(image_conf)
+                target = self.get_config(image_conf, "target")
+
+                repo = self._get_repo(image_conf, variant)
+
+                can_fail = image_conf.pop("failable", [])
+                if can_fail == ["*"]:
+                    can_fail = image_conf["arches"]
+                if can_fail:
+                    can_fail = sorted(can_fail)
+
+                self.pool.add(RunKiwiBuildThread(self.pool))
+                self.pool.queue_put(
+                    (
+                        self.compose,
+                        variant,
+                        image_conf,
+                        build_arches,
+                        release,
+                        target,
+                        repo,
+                        can_fail,
+                    )
+                )
+
+        self.pool.start()
+
+
+class RunKiwiBuildThread(WorkerThread):
+    def process(self, item, num):
+        (
+            compose,
+            variant,
+            config,
+            arches,
+            release,
+            target,
+            repo,
+            can_fail,
+        ) = item
+        self.can_fail = can_fail
+        self.num = num
+        with util.failable(
+            compose,
+            can_fail,
+            variant,
+            "*",
+            "kiwibuild",
+            logger=self.pool._logger,
+        ):
+            self.worker(compose, variant, config, arches, release, target, repo)
+
+    def worker(self, compose, variant, config, arches, release, target, repo):
+        msg = "kiwibuild task for variant %s" % variant.uid
+        self.pool.log_info("[BEGIN] %s" % msg)
+        koji = kojiwrapper.KojiWrapper(compose)
+        koji.login()
+
+        task_id = koji.koji_proxy.kiwiBuild(
+            target,
+            arches,
+            config["description_scm"],
+            config["description_path"],
+            profile=config["kiwi_profile"],
+            release=release,
+            repos=repo,
+        )
+
+        koji.save_task_id(task_id)
+
+        # Wait for it to finish and capture the output into log file.
+        log_dir = os.path.join(compose.paths.log.topdir(), "kiwibuild")
+        util.makedirs(log_dir)
+        log_file = os.path.join(
+            log_dir, "%s-%s-watch-task.log" % (variant.uid, self.num)
+        )
+        if koji.watch_task(task_id, log_file) != 0:
+            raise RuntimeError(
+                "kiwiBuild: task %s failed: see %s for details" % (task_id, log_file)
+            )
+
+        # Refresh koji session which may have timed out while the task was
+        # running. Watching is done via a subprocess, so the session is
+        # inactive.
+        koji = kojiwrapper.KojiWrapper(compose)
+
+        linker = Linker(logger=self.pool._logger)
+
+        # Process all images in the build. There should be one for each
+        # architecture, but we don't verify that.
+        build_info = koji.koji_proxy.listBuilds(taskID=task_id)[0]
+        for archive in koji.koji_proxy.listArchives(buildID=build_info["build_id"]):
+            if archive["type_name"] not in EXTENSIONS:
+                # Ignore values that are not of required types.
+                continue
+
+            # Get architecture of the image from extra data.
+            try:
+                arch = archive["extra"]["image"]["arch"]
+            except KeyError:
+                raise RuntimeError("Image doesn't have any architecture!")
+
+            # image_dir is absolute path to which the image should be copied.
+            # We also need the same path as relative to compose directory for
+            # including in the metadata.
+            if archive["type_name"] == "iso":
+                # If the produced image is actually an ISO, it should go to
+                # iso/ subdirectory.
+                image_dir = compose.paths.compose.iso_dir(arch, variant)
+                rel_image_dir = compose.paths.compose.iso_dir(
+                    arch, variant, relative=True
+                )
+            else:
+                image_dir = compose.paths.compose.image_dir(variant) % {"arch": arch}
+                rel_image_dir = compose.paths.compose.image_dir(
+                    variant, relative=True
+                ) % {"arch": arch}
+            util.makedirs(image_dir)
+
+            image_dest = os.path.join(image_dir, archive["filename"])
+
+            src_file = compose.koji_downloader.get_file(
+                os.path.join(
+                    koji.koji_module.pathinfo.imagebuild(build_info),
+                    archive["filename"],
+                ),
+            )
+
+            linker.link(src_file, image_dest, link_type=compose.conf["link_type"])
+
+            for suffix in EXTENSIONS[archive["type_name"]]:
+                if archive["filename"].endswith(suffix):
+                    break
+            else:
+                # No suffix matched.
+                raise RuntimeError(
+                    "Failed to generate metadata. Format %s doesn't match type %s"
+                    % (suffix, archive["type_name"])
+                )
+
+            # Update image manifest
+            img = Image(compose.im)
+
+            # Get the manifest type from the config if supplied, otherwise we
+            # determine the manifest type based on the koji output
+            img.type = config.get("manifest_type")
+            if not img.type:
+                if archive["type_name"] != "iso":
+                    img.type = archive["type_name"]
+                else:
+                    fn = archive["filename"].lower()
+                    if "ostree" in fn:
+                        img.type = "dvd-ostree-osbuild"
+                    elif "live" in fn:
+                        img.type = "live-osbuild"
+                    elif "netinst" in fn or "boot" in fn:
+                        img.type = "boot"
+                    else:
+                        img.type = "dvd"
+
+            img.format = suffix
+            img.path = os.path.join(rel_image_dir, archive["filename"])
+            img.mtime = util.get_mtime(image_dest)
+            img.size = util.get_file_size(image_dest)
+            img.arch = arch
+            img.disc_number = 1  # We don't expect multiple disks
+            img.disc_count = 1
+            img.bootable = False
+            img.subvariant = config.get("subvariant", variant.uid)
+            setattr(img, "can_fail", self.can_fail)
+            setattr(img, "deliverable", "image-build")
+            compose.im.add(variant=variant.uid, arch=arch, image=img)
+
+        self.pool.log_info("[DONE ] %s (task id: %s)" % (msg, task_id))

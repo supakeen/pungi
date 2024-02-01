@@ -28,6 +28,7 @@ from .extra_isos import ExtraIsosPhase  # noqa
 from .live_images import LiveImagesPhase  # noqa
 from .image_build import ImageBuildPhase  # noqa
 from .image_container import ImageContainerPhase  # noqa
+from .kiwibuild import KiwiBuildPhase  # noqa
 from .osbuild import OSBuildPhase  # noqa
 from .repoclosure import RepoclosurePhase  # noqa
 from .test import TestPhase  # noqa

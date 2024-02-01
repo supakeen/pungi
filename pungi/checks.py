@@ -1216,6 +1216,39 @@ def make_schema():
                 },
                 "additionalProperties": False,
             },
+            "kiwibuild": {
+                "type": "object",
+                "patternProperties": {
+                    # Warning: this pattern is a variant uid regex, but the
+                    # format does not let us validate it as there is no regular
+                    # expression to describe all regular expressions.
+                    ".+": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "target": {"type": "string"},
+                                "description_scm": {"type": "string"},
+                                "description_path": {"type": "string"},
+                                "kiwi_profile": {"type": "string"},
+                                "release": {"type": "string"},
+                                "arches": {"$ref": "#/definitions/list_of_strings"},
+                                "repos": {"$ref": "#/definitions/list_of_strings"},
+                                "failable": {"$ref": "#/definitions/list_of_strings"},
+                            },
+                            "required": [
+                                "target",
+                                "description_scm",
+                                "description_path",
+                                "kiwi_profile",
+                                "release",
+                            ],
+                            "additionalProperties": False,
+                        },
+                    }
+                },
+                "additionalProperties": False,
+            },
             "osbuild_target": {"type": "string"},
             "osbuild_release": {"$ref": "#/definitions/optional_string"},
             "osbuild_version": {"type": "string"},

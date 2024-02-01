@@ -112,6 +112,12 @@ ImageBuild
 This phase wraps up ``koji image-build``. It also updates the metadata
 ultimately responsible for ``images.json`` manifest.
 
+KiwiBuild
+---------
+
+Similarly to image build, this phases creates a koji `kiwiBuild` task. In the
+background it uses Kiwi to create images.
+
 OSBuild
 -------
 

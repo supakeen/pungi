@@ -1604,6 +1604,34 @@ Example
     }
 
 
+KiwiBuild Settings
+==================
+
+**kiwibuild**
+    (*dict*) -- configuration for building images using kiwi by a Koji plugin.
+    Pungi will trigger a Koji task delegating to kiwi, which will build the image,
+    import it to Koji via content generators.
+
+    Format: ``{variant_uid_regex: [{...}]}``.
+
+    Required keys in the configuration dict:
+
+    * ``target`` -- (*str*) which build target to use for the task.
+    * ``description_scm`` -- (*str*) scm URL of description kiwi description.
+    * ``description_path`` -- (*str*) path to kiwi description
+    * ``kiwi_profile`` -- (*str*) select profile from description file.
+    * ``release`` -- (*str*) release of the output image.
+    * ``arches`` -- (*[str]*) List of architectures.
+    * ``repos`` -- a list of repositories from which to consume packages for
+      building the image. By default only the variant repository is used.
+    * ``failable`` -- (*[str]*) List of architectures for which this
+      deliverable is not release blocking.
+
+    Optional keys:
+
+    * ``repos`` -- the repos used to install RPMs in the image.
+
+
 OSBuild Composer for building images
 ====================================
 
