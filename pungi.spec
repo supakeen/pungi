@@ -1,5 +1,5 @@
 Name:           pungi
-Version:        4.6.0
+Version:        4.6.1
 Release:        1%{?dist}
 Summary:        Distribution compose tool
 
@@ -110,6 +110,16 @@ pytest
 cd tests && ./test_compose.sh
 
 %changelog
+* Thu Feb  8 2024 Lubomír Sedlář <lsedlar>redhat.com> - 4.6.1-1
+- Make python3-mock dependency optional (lsedlar)
+- Make latest black happy (lsedlar)
+- Update tox configuration (lsedlar)
+- Fix scm tests to not use user configuration (lsedlar)
+- Add workaround for old requests in kojiwrapper (lsedlar)
+- Use pungi_buildinstall without NFS (lsedlar)
+- checks: don't require "repo" in the "ostree" schema (awilliam)
+- ostree_container: Use unique temporary directory (lsedlar)
+
 * Mon Dec 11 2023 Lubomír Sedlář <lsedlar@redhat.com> - 4.6.0-1
 - Add ostree container to image metadata (lsedlar)
 - Updates for ostree-container phase (lsedlar)
