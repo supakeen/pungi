@@ -761,6 +761,7 @@ class KojiPackageSet(PackageSetBase):
                         "exclusive_noarch": compose.conf[
                             "pkgset_exclusive_arch_considers_noarch"
                         ],
+                        "module_defaults_dir": compose.conf.get("module_defaults_dir"),
                     },
                     f,
                     protocol=pickle.HIGHEST_PROTOCOL,
@@ -857,6 +858,7 @@ class KojiPackageSet(PackageSetBase):
 
         inherit_to_noarch = compose.conf["pkgset_inherit_exclusive_arch_to_noarch"]
         exclusive_noarch = compose.conf["pkgset_exclusive_arch_considers_noarch"]
+        module_defaults_dir = compose.conf.get("module_defaults_dir")
         if (
             reuse_data["allow_invalid_sigkeys"] == self._allow_invalid_sigkeys
             and reuse_data["packages"] == self.packages
@@ -868,6 +870,7 @@ class KojiPackageSet(PackageSetBase):
             # generated with older version of Pungi. Best to not reuse.
             and reuse_data.get("inherit_to_noarch") == inherit_to_noarch
             and reuse_data.get("exclusive_noarch") == exclusive_noarch
+            and reuse_data.get("module_defaults_dir") == module_defaults_dir
         ):
             self.log_info("Copying repo data for reuse: %s" % old_repo_dir)
             copy_all(old_repo_dir, repo_dir)
