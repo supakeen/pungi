@@ -709,8 +709,8 @@ class BuildinstallThread(WorkerThread):
         # input on RPM level.
         cmd_copy = copy(cmd)
         for key in ["outputdir", "sources"]:
-            del cmd_copy[key]
-            del old_metadata["cmd"][key]
+            cmd_copy.pop(key, None)
+            old_metadata["cmd"].pop(key, None)
 
         # Do not reuse if command line arguments are not the same.
         if old_metadata["cmd"] != cmd_copy:
