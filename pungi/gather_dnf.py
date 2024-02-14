@@ -49,8 +49,8 @@ def filter_dotarch(queue, pattern, **kwargs):
     if "." in pattern:
         name, arch = pattern.split(".", 1)
         if arch in arch_utils.arches or arch == "noarch":
-            kwargs["name_glob"] = name
-            kwargs["arch_eq"] = arch
+            kwargs["name__glob"] = name
+            kwargs["arch"] = arch
     return queue.filter(**kwargs).apply()
 
 
