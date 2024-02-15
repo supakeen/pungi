@@ -97,6 +97,7 @@ def main(ns, persistdir, cachedir):
     dnf_conf = Conf(ns.arch)
     dnf_conf.persistdir = persistdir
     dnf_conf.cachedir = cachedir
+    dnf_conf.optional_metadata_types = ["filelists"]
     dnf_obj = DnfWrapper(dnf_conf)
 
     gather_opts = GatherOptions()
