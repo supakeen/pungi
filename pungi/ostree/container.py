@@ -74,7 +74,7 @@ class Container(OSTree):
             repos = []
             keep_original_sources = True
 
-        update_dict = {}
+        update_dict = {"automatic-version-prefix": self.args.version}
 
         self.treefile = tweak_treeconf(
             self.treefile,

@@ -121,10 +121,11 @@ class OSTreeContainerThread(WorkerThread):
     ):
         target_dir = compose.paths.compose.image_dir(variant) % {"arch": arch}
         util.makedirs(target_dir)
+        version = util.version_generator(compose, config.get("version"))
         archive_name = "%s-%s-%s" % (
             compose.conf["release_short"],
             variant.uid,
-            util.version_generator(compose, config.get("version")),
+            version,
         )
 
         # Run the pungi-make-ostree command locally to create a script to
@@ -137,6 +138,7 @@ class OSTreeContainerThread(WorkerThread):
             "--path=%s" % target_dir,
             "--treefile=%s" % os.path.join(config_repo, config["treefile"]),
             "--extra-config=%s" % extra_config_file,
+            "--version=%s" % version,
         ]
 
         _, runroot_script = shortcuts.run(cmd, universal_newlines=True)
