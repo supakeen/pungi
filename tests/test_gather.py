@@ -2286,6 +2286,7 @@ class DNFDepsolvingTestCase(DepsolvingBase, unittest.TestCase):
         conf = Conf(base_arch)
         conf.persistdir = persistdir
         conf.cachedir = self.cachedir
+        conf.optional_metadata_types = ["filelists"]
         if exclude:
             conf.exclude = exclude
         dnf = DnfWrapper(conf)
