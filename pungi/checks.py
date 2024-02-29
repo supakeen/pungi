@@ -1235,6 +1235,7 @@ def make_schema():
                                 "arches": {"$ref": "#/definitions/list_of_strings"},
                                 "repos": {"$ref": "#/definitions/list_of_strings"},
                                 "failable": {"$ref": "#/definitions/list_of_strings"},
+                                "subvariant": {"type": "string"},
                             },
                             "required": [
                                 "target",
