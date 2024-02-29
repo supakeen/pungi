@@ -1228,7 +1228,7 @@ def make_schema():
                             "type": "object",
                             "properties": {
                                 "target": {"type": "string"},
-                                "description_scm": {"type": "string"},
+                                "description_scm": {"type": "url"},
                                 "description_path": {"type": "string"},
                                 "kiwi_profile": {"type": "string"},
                                 "release": {"type": "string"},
@@ -1241,7 +1241,6 @@ def make_schema():
                                 "description_scm",
                                 "description_path",
                                 "kiwi_profile",
-                                "release",
                             ],
                             "additionalProperties": False,
                         },

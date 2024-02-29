@@ -175,27 +175,21 @@ class RunKiwiBuildThread(WorkerThread):
                 # Ignore values that are not of required types.
                 continue
 
-            # Get architecture of the image from extra data.
-            try:
-                arch = archive["extra"]["image"]["arch"]
-            except KeyError:
+            # HACK: there's no metadata telling which image is for which
+            # architecture, so we need to check the filename.
+            for arch in arches:
+                if arch in archive["filename"]:
+                    break
+            else:
                 raise RuntimeError("Image doesn't have any architecture!")
 
             # image_dir is absolute path to which the image should be copied.
             # We also need the same path as relative to compose directory for
             # including in the metadata.
-            if archive["type_name"] == "iso":
-                # If the produced image is actually an ISO, it should go to
-                # iso/ subdirectory.
-                image_dir = compose.paths.compose.iso_dir(arch, variant)
-                rel_image_dir = compose.paths.compose.iso_dir(
-                    arch, variant, relative=True
-                )
-            else:
-                image_dir = compose.paths.compose.image_dir(variant) % {"arch": arch}
-                rel_image_dir = compose.paths.compose.image_dir(
-                    variant, relative=True
-                ) % {"arch": arch}
+            image_dir = compose.paths.compose.image_dir(variant) % {"arch": arch}
+            rel_image_dir = compose.paths.compose.image_dir(
+                variant, relative=True
+            ) % {"arch": arch}
             util.makedirs(image_dir)
 
             image_dest = os.path.join(image_dir, archive["filename"])
@@ -224,21 +218,7 @@ class RunKiwiBuildThread(WorkerThread):
 
             # Get the manifest type from the config if supplied, otherwise we
             # determine the manifest type based on the koji output
-            img.type = config.get("manifest_type")
-            if not img.type:
-                if archive["type_name"] != "iso":
-                    img.type = archive["type_name"]
-                else:
-                    fn = archive["filename"].lower()
-                    if "ostree" in fn:
-                        img.type = "dvd-ostree-osbuild"
-                    elif "live" in fn:
-                        img.type = "live-osbuild"
-                    elif "netinst" in fn or "boot" in fn:
-                        img.type = "boot"
-                    else:
-                        img.type = "dvd"
-
+            img.type = archive["type_name"]
             img.format = suffix
             img.path = os.path.join(rel_image_dir, archive["filename"])
             img.mtime = util.get_mtime(image_dest)
