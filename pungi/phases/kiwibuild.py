@@ -169,67 +169,57 @@ class RunKiwiBuildThread(WorkerThread):
 
         # Process all images in the build. There should be one for each
         # architecture, but we don't verify that.
-        build_info = koji.koji_proxy.listBuilds(taskID=task_id)[0]
-        for archive in koji.koji_proxy.listArchives(buildID=build_info["build_id"]):
-            if archive["type_name"] not in EXTENSIONS:
-                # Ignore values that are not of required types.
-                continue
+        paths = koji.get_image_paths(task_id)
 
-            # HACK: there's no metadata telling which image is for which
-            # architecture, so we need to check the filename.
-            for arch in arches:
-                if arch in archive["filename"]:
-                    break
-            else:
-                raise RuntimeError("Image doesn't have any architecture!")
+        for arch, paths in paths.items():
+            for path in paths:
+                type_, suffix = _find_suffix(path)
+                if not suffix:
+                    # Path doesn't match any know type.
+                    continue
 
-            # image_dir is absolute path to which the image should be copied.
-            # We also need the same path as relative to compose directory for
-            # including in the metadata.
-            image_dir = compose.paths.compose.image_dir(variant) % {"arch": arch}
-            rel_image_dir = compose.paths.compose.image_dir(
-                variant, relative=True
-            ) % {"arch": arch}
-            util.makedirs(image_dir)
+                # image_dir is absolute path to which the image should be copied.
+                # We also need the same path as relative to compose directory for
+                # including in the metadata.
+                image_dir = compose.paths.compose.image_dir(variant) % {"arch": arch}
+                rel_image_dir = compose.paths.compose.image_dir(
+                    variant, relative=True
+                ) % {"arch": arch}
+                util.makedirs(image_dir)
 
-            image_dest = os.path.join(image_dir, archive["filename"])
+                filename = os.path.basename(path)
 
-            src_file = compose.koji_downloader.get_file(
-                os.path.join(
-                    koji.koji_module.pathinfo.imagebuild(build_info),
-                    archive["filename"],
-                ),
-            )
+                image_dest = os.path.join(image_dir, filename)
 
-            linker.link(src_file, image_dest, link_type=compose.conf["link_type"])
+                src_file = compose.koji_downloader.get_file(path)
 
-            for suffix in EXTENSIONS[archive["type_name"]]:
-                if archive["filename"].endswith(suffix):
-                    break
-            else:
-                # No suffix matched.
-                raise RuntimeError(
-                    "Failed to generate metadata. Format %s doesn't match type %s"
-                    % (suffix, archive["type_name"])
-                )
+                linker.link(src_file, image_dest, link_type=compose.conf["link_type"])
 
-            # Update image manifest
-            img = Image(compose.im)
+                # Update image manifest
+                img = Image(compose.im)
 
-            # Get the manifest type from the config if supplied, otherwise we
-            # determine the manifest type based on the koji output
-            img.type = archive["type_name"]
-            img.format = suffix
-            img.path = os.path.join(rel_image_dir, archive["filename"])
-            img.mtime = util.get_mtime(image_dest)
-            img.size = util.get_file_size(image_dest)
-            img.arch = arch
-            img.disc_number = 1  # We don't expect multiple disks
-            img.disc_count = 1
-            img.bootable = False
-            img.subvariant = config.get("subvariant", variant.uid)
-            setattr(img, "can_fail", self.can_fail)
-            setattr(img, "deliverable", "image-build")
-            compose.im.add(variant=variant.uid, arch=arch, image=img)
+                # Get the manifest type from the config if supplied, otherwise we
+                # determine the manifest type based on the koji output
+                img.type = type_
+                img.format = suffix
+                img.path = os.path.join(rel_image_dir, filename)
+                img.mtime = util.get_mtime(image_dest)
+                img.size = util.get_file_size(image_dest)
+                img.arch = arch
+                img.disc_number = 1  # We don't expect multiple disks
+                img.disc_count = 1
+                img.bootable = False
+                img.subvariant = config.get("subvariant", variant.uid)
+                setattr(img, "can_fail", self.can_fail)
+                setattr(img, "deliverable", "kiwibuild")
+                compose.im.add(variant=variant.uid, arch=arch, image=img)
 
         self.pool.log_info("[DONE ] %s (task id: %s)" % (msg, task_id))
+
+
+def _find_suffix(path):
+    for type_, suffixes in EXTENSIONS.items():
+        for suffix in suffixes:
+            if path.endswith(suffix):
+                return type_, suffix
+    return None, None
