@@ -1616,20 +1616,23 @@ KiwiBuild Settings
 
     Required keys in the configuration dict:
 
-    * ``target`` -- (*str*) which build target to use for the task.
     * ``description_scm`` -- (*str*) scm URL of description kiwi description.
-    * ``description_path`` -- (*str*) path to kiwi description
+    * ``description_path`` -- (*str*) path to kiwi description inside the scm repo
     * ``kiwi_profile`` -- (*str*) select profile from description file.
-    * ``release`` -- (*str*) release of the output image.
-    * ``arches`` -- (*[str]*) List of architectures.
-    * ``repos`` -- a list of repositories from which to consume packages for
-      building the image. By default only the variant repository is used.
-    * ``failable`` -- (*[str]*) List of architectures for which this
-      deliverable is not release blocking.
 
     Optional keys:
 
-    * ``repos`` -- the repos used to install RPMs in the image.
+    * ``repos`` -- additional repos used to install RPMs in the image. The
+      compose repository for the enclosing variant is added automatically.
+      Either variant name or a URL is supported.
+    * ``target`` -- (*str*) which build target to use for the task. If not
+      provided, then either ``kiwibuild_target`` or ``global_target`` is
+      needed.
+    * ``release`` -- (*str*) release of the output image.
+    * ``arches`` -- (*[str]*) List of architectures to build for. If not
+      provided, all variant architectures will be built.
+    * ``failable`` -- (*[str]*) List of architectures for which this
+      deliverable is not release blocking.
 
 
 OSBuild Composer for building images
