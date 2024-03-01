@@ -1238,7 +1238,6 @@ def make_schema():
                                 "subvariant": {"type": "string"},
                             },
                             "required": [
-                                "target",
                                 "description_scm",
                                 "description_path",
                                 "kiwi_profile",
@@ -1249,6 +1248,9 @@ def make_schema():
                 },
                 "additionalProperties": False,
             },
+            "kiwibuild_target": {"type": "string"},
+            "kiwibuild_release": {"$ref": "#/definitions/optional_string"},
+            "kiwibuild_version": {"type": "string"},
             "osbuild_target": {"type": "string"},
             "osbuild_release": {"$ref": "#/definitions/optional_string"},
             "osbuild_version": {"type": "string"},
