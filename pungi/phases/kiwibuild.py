@@ -145,6 +145,7 @@ class RunKiwiBuildThread(WorkerThread):
             profile=config["kiwi_profile"],
             release=release,
             repos=repo,
+            optional_arches=self.can_fail,
         )
 
         koji.save_task_id(task_id)
