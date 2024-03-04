@@ -1690,6 +1690,10 @@ OSBuild Composer for building images
     * ``ostree_ref`` -- name of the ostree branch
     * ``ostree_parent`` -- commit hash or a a branch-like reference to the
       parent commit.
+    * ``customizations`` -- a dictionary with customizations to use for the
+      image build. For the list of supported customizations, see the **hosted**
+      variants in the `Image Builder documentation
+      <https://osbuild.org/docs/user-guide/blueprint-reference#installation-device>`.
     * ``upload_options`` -- a dictionary with upload options specific to the
       target cloud environment. If provided, the image will be uploaded to the
       cloud environment, in addition to the Koji server. One can't combine

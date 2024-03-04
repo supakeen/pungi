@@ -159,6 +159,10 @@ class RunOSBuildThread(WorkerThread):
         if upload_options:
             opts["upload_options"] = upload_options
 
+        customizations = config.get("customizations")
+        if customizations:
+            opts["customizations"] = customizations
+
         if release:
             opts["release"] = release
         task_id = koji.koji_proxy.osbuildImage(

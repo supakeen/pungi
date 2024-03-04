@@ -190,6 +190,51 @@ class OSBuildPhaseTest(helpers.PungiTestCase):
         self.assertNotEqual(validate(compose.conf), ([], []))
 
     @mock.patch("pungi.phases.osbuild.ThreadPool")
+    def test_run_with_customizations(self, ThreadPool):
+        cfg = {
+            "name": "test-image",
+            "distro": "rhel-8",
+            "image_types": ["qcow2"],
+            "customizations": {"installation_device": "/dev/sda"},
+        }
+        compose = helpers.DummyCompose(
+            self.topdir,
+            {
+                "osbuild": {"^Everything$": [cfg]},
+                "osbuild_target": "image-target",
+                "osbuild_version": "1",
+                "osbuild_release": "2",
+            },
+        )
+
+        self.assertValidConfig(compose.conf)
+
+        pool = ThreadPool.return_value
+
+        phase = osbuild.OSBuildPhase(compose)
+        phase.run()
+
+        self.assertEqual(len(pool.add.call_args_list), 1)
+        self.assertEqual(
+            pool.queue_put.call_args_list,
+            [
+                mock.call(
+                    (
+                        compose,
+                        compose.variants["Everything"],
+                        cfg,
+                        sorted(compose.variants["Everything"].arches),
+                        "1",
+                        "2",
+                        "image-target",
+                        [self.topdir + "/compose/Everything/$arch/os"],
+                        [],
+                    ),
+                ),
+            ],
+        )
+
+    @mock.patch("pungi.phases.osbuild.ThreadPool")
     def test_rich_repos(self, ThreadPool):
         repo = {"baseurl": "http://example.com/repo", "package_sets": ["build"]}
         cfg = {
