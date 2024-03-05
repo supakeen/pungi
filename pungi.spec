@@ -1,5 +1,5 @@
 Name:           pungi
-Version:        4.6.1
+Version:        4.6.2
 Release:        1%{?dist}
 Summary:        Distribution compose tool
 
@@ -110,6 +110,24 @@ pytest
 cd tests && ./test_compose.sh
 
 %changelog
+* Tue Mar 05 2024 Lubomír Sedlář <lsedlar@redhat.com> - 4.6.2-1
+- Phases/osbuild: support passing 'customizations' for image builds (thozza)
+- dnf: Load filelists for actual solver too (lsedlar)
+- kiwibuild: Tell Koji which arches are allowed to fail (lsedlar)
+- kiwibuild: Update documentation with more details (lsedlar)
+- kiwibuild: Add kiwibuild global options (lsedlar)
+- kiwibuild: Process images same as image-build (lsedlar)
+- kiwibuild: Add subvariant configuration (lsedlar)
+- kiwibuild: Work around missing arch in build data (lsedlar)
+- Support KiwiBuild (hlin)
+- ostree/container: Set version in treefile 'automatic-version-prefix' (tim)
+- dnf: Explicitly load filelists (lsedlar)
+- Fix buildinstall reuse with pungi_buildinstall plugin (lsedlar)
+- Fix filters for DNF query (lsedlar)
+- gather-dnf: Support dotarch in filter_packages (lsedlar)
+- gather: Support dotarch notation for debuginfo packages (lsedlar)
+- Correctly set input and fultree_exclude flags for debuginfo (lsedlar)
+
 * Thu Feb  8 2024 Lubomír Sedlář <lsedlar>redhat.com> - 4.6.1-1
 - Make python3-mock dependency optional (lsedlar)
 - Make latest black happy (lsedlar)
