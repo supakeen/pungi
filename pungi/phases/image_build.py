@@ -39,7 +39,7 @@ EXTENSIONS = {
     "vagrant-vmware-fusion": ["vagrant-vmware-fusion.box"],
     "vdi": ["vdi"],
     "vmdk": ["vmdk"],
-    "vpc": ["vhd"],
+    "vpc": ["vhd", "vhdfixed"],
     "vhd-compressed": ["vhd.gz", "vhd.xz"],
     "vsphere-ova": ["vsphere.ova"],
 }
