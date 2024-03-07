@@ -1238,8 +1238,10 @@ def make_schema():
                                 "subvariant": {"type": "string"},
                             },
                             "required": [
-                                "description_scm",
-                                "description_path",
+                                # description_scm and description_path
+                                # are really required, but as they can
+                                # be set at the phase level we cannot
+                                # enforce that here
                                 "kiwi_profile",
                             ],
                             "additionalProperties": False,
@@ -1248,6 +1250,8 @@ def make_schema():
                 },
                 "additionalProperties": False,
             },
+            "kiwibuild_description_scm": {"type": "url"},
+            "kiwibuild_description_path": {"type": "string"},
             "kiwibuild_target": {"type": "string"},
             "kiwibuild_release": {"$ref": "#/definitions/optional_string"},
             "kiwibuild_version": {"type": "string"},

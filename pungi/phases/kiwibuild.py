@@ -79,8 +79,14 @@ class KiwiBuildPhase(
                     self.log_debug("skip: no arches")
                     continue
 
-                release = self.get_release(image_conf)
-                target = self.get_config(image_conf, "target")
+                # these properties can be set per-image *or* as e.g.
+                # kiwibuild_description_scm or global_release in the config
+                generics = {
+                    "release": self.get_release(image_conf),
+                    "target": self.get_config(image_conf, "target"),
+                    "descscm": self.get_config(image_conf, "description_scm"),
+                    "descpath": self.get_config(image_conf, "description_path"),
+                }
 
                 repo = self._get_repo(image_conf, variant)
 
@@ -95,8 +101,7 @@ class KiwiBuildPhase(
                         variant,
                         image_conf,
                         build_arches,
-                        release,
-                        target,
+                        generics,
                         repo,
                         failable_arches,
                     )
@@ -107,16 +112,7 @@ class KiwiBuildPhase(
 
 class RunKiwiBuildThread(WorkerThread):
     def process(self, item, num):
-        (
-            compose,
-            variant,
-            config,
-            arches,
-            release,
-            target,
-            repo,
-            failable_arches,
-        ) = item
+        (compose, variant, config, arches, generics, repo, failable_arches) = item
         self.failable_arches = failable_arches
         # the Koji task as a whole can only fail if *all* arches are failable
         can_task_fail = set(failable_arches).issuperset(set(arches))
@@ -129,21 +125,21 @@ class RunKiwiBuildThread(WorkerThread):
             "kiwibuild",
             logger=self.pool._logger,
         ):
-            self.worker(compose, variant, config, arches, release, target, repo)
+            self.worker(compose, variant, config, arches, generics, repo)
 
-    def worker(self, compose, variant, config, arches, release, target, repo):
+    def worker(self, compose, variant, config, arches, generics, repo):
         msg = "kiwibuild task for variant %s" % variant.uid
         self.pool.log_info("[BEGIN] %s" % msg)
         koji = kojiwrapper.KojiWrapper(compose)
         koji.login()
 
         task_id = koji.koji_proxy.kiwiBuild(
-            target,
+            generics["target"],
             arches,
-            config["description_scm"],
-            config["description_path"],
+            generics["descscm"],
+            generics["descpath"],
             profile=config["kiwi_profile"],
-            release=release,
+            release=generics["release"],
             repos=repo,
             # this ensures the task won't fail if only failable arches fail
             optional_arches=self.failable_arches,
