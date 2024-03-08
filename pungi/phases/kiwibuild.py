@@ -84,11 +84,9 @@ class KiwiBuildPhase(
 
                 repo = self._get_repo(image_conf, variant)
 
-                can_fail = image_conf.pop("failable", [])
-                if can_fail == ["*"]:
-                    can_fail = image_conf["arches"]
-                if can_fail:
-                    can_fail = sorted(can_fail)
+                failable_arches = image_conf.pop("failable", [])
+                if failable_arches == ["*"]:
+                    failable_arches = image_conf["arches"]
 
                 self.pool.add(RunKiwiBuildThread(self.pool))
                 self.pool.queue_put(
@@ -100,7 +98,7 @@ class KiwiBuildPhase(
                         release,
                         target,
                         repo,
-                        can_fail,
+                        failable_arches,
                     )
                 )
 
@@ -117,13 +115,15 @@ class RunKiwiBuildThread(WorkerThread):
             release,
             target,
             repo,
-            can_fail,
+            failable_arches,
         ) = item
-        self.can_fail = can_fail
+        self.failable_arches = failable_arches
+        # the Koji task as a whole can only fail if *all* arches are failable
+        can_task_fail = set(failable_arches).issuperset(set(arches))
         self.num = num
         with util.failable(
             compose,
-            can_fail,
+            can_task_fail,
             variant,
             "*",
             "kiwibuild",
@@ -145,7 +145,8 @@ class RunKiwiBuildThread(WorkerThread):
             profile=config["kiwi_profile"],
             release=release,
             repos=repo,
-            optional_arches=self.can_fail,
+            # this ensures the task won't fail if only failable arches fail
+            optional_arches=self.failable_arches,
         )
 
         koji.save_task_id(task_id)
