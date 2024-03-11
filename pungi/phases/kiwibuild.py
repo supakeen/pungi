@@ -208,7 +208,7 @@ class RunKiwiBuildThread(WorkerThread):
                 img.disc_count = 1
                 img.bootable = False
                 img.subvariant = config.get("subvariant", variant.uid)
-                setattr(img, "can_fail", self.can_fail)
+                setattr(img, "can_fail", arch in self.failable_arches)
                 setattr(img, "deliverable", "kiwibuild")
                 compose.im.add(variant=variant.uid, arch=arch, image=img)
 
