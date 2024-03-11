@@ -36,23 +36,10 @@ class KiwiBuildPhase(
         resolved_repos = []
 
         for repo in repos:
-            if isinstance(repo, dict):
-                try:
-                    url = repo["baseurl"]
-                except KeyError:
-                    raise RuntimeError(
-                        "`baseurl` is required in repo dict %s" % str(repo)
-                    )
-                url = util.get_repo_url(compose, url, arch=arch)
-                if url is None:
-                    raise RuntimeError("Failed to resolve repo URL for %s" % str(repo))
-                repo["baseurl"] = url
-                resolved_repos.append(repo)
-            else:
-                repo = util.get_repo_url(compose, repo, arch=arch)
-                if repo is None:
-                    raise RuntimeError("Failed to resolve repo URL for %s" % repo)
-                resolved_repos.append(repo)
+            repo = util.get_repo_url(compose, repo, arch=arch)
+            if repo is None:
+                raise RuntimeError("Failed to resolve repo URL for %s" % repo)
+            resolved_repos.append(repo)
 
         return resolved_repos
 
