@@ -1254,7 +1254,6 @@ def make_schema():
             "kiwibuild_description_path": {"type": "string"},
             "kiwibuild_target": {"type": "string"},
             "kiwibuild_release": {"$ref": "#/definitions/optional_string"},
-            "kiwibuild_version": {"type": "string"},
             "osbuild_target": {"type": "string"},
             "osbuild_release": {"$ref": "#/definitions/optional_string"},
             "osbuild_version": {"type": "string"},
