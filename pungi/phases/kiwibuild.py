@@ -11,6 +11,12 @@ from ..linker import Linker
 from ..wrappers import kojiwrapper
 from .image_build import EXTENSIONS
 
+KIWIEXTENSIONS = [
+    ("vhd-compressed", ["vhdfixed.xz"], "vhd.xz"),
+    ("vagrant-libvirt", ["vagrant.libvirt.box"], "vagrant-libvirt.box"),
+    ("vagrant-virtualbox", ["vagrant.virtualbox.box"], "vagrant-virtualbox.box"),
+]
+
 
 class KiwiBuildPhase(
     base.PhaseLoggerMixin, base.ImageConfigMixin, base.ConfigGuardedPhase
@@ -158,9 +164,9 @@ class RunKiwiBuildThread(WorkerThread):
 
         for arch, paths in paths.items():
             for path in paths:
-                type_, suffix = _find_suffix(path)
-                if not suffix:
-                    # Path doesn't match any know type.
+                type_, format_ = _find_type_and_format(path)
+                if not format_:
+                    # Path doesn't match any known type.
                     continue
 
                 # image_dir is absolute path to which the image should be copied.
@@ -186,7 +192,7 @@ class RunKiwiBuildThread(WorkerThread):
                 # Get the manifest type from the config if supplied, otherwise we
                 # determine the manifest type based on the koji output
                 img.type = type_
-                img.format = suffix
+                img.format = format_
                 img.path = os.path.join(rel_image_dir, filename)
                 img.mtime = util.get_mtime(image_dest)
                 img.size = util.get_file_size(image_dest)
@@ -202,9 +208,14 @@ class RunKiwiBuildThread(WorkerThread):
         self.pool.log_info("[DONE ] %s (task id: %s)" % (msg, task_id))
 
 
-def _find_suffix(path):
+def _find_type_and_format(path):
     for type_, suffixes in EXTENSIONS.items():
         for suffix in suffixes:
             if path.endswith(suffix):
                 return type_, suffix
+    # these are our kiwi-exclusive mappings for images whose extensions
+    # aren't quite the same as imagefactory
+    for type_, suffixes, format_ in KIWIEXTENSIONS:
+        if any(path.endswith(suffix) for suffix in suffixes):
+            return type_, format_
     return None, None
