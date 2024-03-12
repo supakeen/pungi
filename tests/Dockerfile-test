@@ -1,4 +1,4 @@
-FROM fedora:33
+FROM registry.fedoraproject.org/fedora:latest
 LABEL \
     name="Pungi test" \
     description="Run tests using tox with Python 3" \
