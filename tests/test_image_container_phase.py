@@ -230,7 +230,7 @@ class ImageContainerThreadTest(helpers.PungiTestCase):
                 (self.compose, self.compose.variants["Server"], self.cfg.copy()), 1
             )
 
-        self.assertRegex(str(ctx.exception), r"task 12345 failed: see .+ for details")
+        self.assertRegex(str(ctx.exception), r"task failed: 12345. See .+ for details")
         self.assertRepoFile()
         self.assertKojiCalls(self.cfg)
         self.assertEqual(add_metadata.call_args_list, [])

@@ -579,7 +579,7 @@ class OSBSThreadTest(helpers.PungiTestCase):
         with self.assertRaises(RuntimeError) as ctx:
             self.t.process((self.compose, self.compose.variants["Server"], cfg), 1)
 
-        self.assertRegex(str(ctx.exception), r"task 12345 failed: see .+ for details")
+        self.assertRegex(str(ctx.exception), r"task failed: 12345. See .+ for details")
 
     @mock.patch("pungi.phases.osbs.get_file_from_scm")
     @mock.patch("pungi.phases.osbs.kojiwrapper.KojiWrapper")

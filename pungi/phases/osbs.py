@@ -134,7 +134,7 @@ class OSBSThread(WorkerThread):
         # though there is not much there).
         if koji.watch_task(task_id, log_file) != 0:
             raise RuntimeError(
-                "OSBS: task %s failed: see %s for details" % (task_id, log_file)
+                "OSBS task failed: %s. See %s for details" % (task_id, log_file)
             )
 
         scratch = config.get("scratch", False)

@@ -76,7 +76,7 @@ class ImageContainerThread(WorkerThread):
         )
         if koji.watch_task(task_id, log_file) != 0:
             raise RuntimeError(
-                "ImageContainer: task %s failed: see %s for details"
+                "ImageContainer task failed: %s. See %s for details"
                 % (task_id, log_file)
             )
 

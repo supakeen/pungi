@@ -148,7 +148,7 @@ class RunKiwiBuildThread(WorkerThread):
         )
         if koji.watch_task(task_id, log_file) != 0:
             raise RuntimeError(
-                "kiwiBuild: task %s failed: see %s for details" % (task_id, log_file)
+                "kiwiBuild task failed: %s. See %s for details" % (task_id, log_file)
             )
 
         # Refresh koji session which may have timed out while the task was
