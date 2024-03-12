@@ -154,7 +154,7 @@ class OSBSThread(WorkerThread):
             reuse_file,
         )
 
-        self.pool.log_info("[DONE ] %s" % msg)
+        self.pool.log_info("[DONE ] %s (task id: %s)" % (msg, task_id))
 
     def _get_image_conf(self, compose, config):
         """Get image-build.conf from git repo.
