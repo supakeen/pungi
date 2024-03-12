@@ -2,4 +2,4 @@ mock; python_version < '3.3'
 parameterized
 pytest
 pytest-cov
-unittest2
+unittest2; python_version < '3.0'
