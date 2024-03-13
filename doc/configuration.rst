@@ -1616,12 +1616,17 @@ KiwiBuild Settings
 
     Required keys in the configuration dict:
 
-    * ``description_scm`` -- (*str*) scm URL of description kiwi description.
-    * ``description_path`` -- (*str*) path to kiwi description inside the scm repo
     * ``kiwi_profile`` -- (*str*) select profile from description file.
+
+    Description scm, description path and target have to be provided too, but
+    instead of specifying them for each image separately, you can use the
+    ``kiwibuild_*`` options or ``global_target``.
 
     Optional keys:
 
+    * ``description_scm`` -- (*str*) scm URL of description kiwi description.
+    * ``description_path`` -- (*str*) path to kiwi description inside the scm
+      repo.
     * ``repos`` -- additional repos used to install RPMs in the image. The
       compose repository for the enclosing variant is added automatically.
       Either variant name or a URL is supported.
@@ -1633,6 +1638,12 @@ KiwiBuild Settings
       provided, all variant architectures will be built.
     * ``failable`` -- (*[str]*) List of architectures for which this
       deliverable is not release blocking.
+
+**kiwibuild_description_scm**
+    (*str*) -- URL for scm containing the description files
+
+**kiwibuild_description_path**
+    (*str*) -- path to a description file within the description scm
 
 
 OSBuild Composer for building images
