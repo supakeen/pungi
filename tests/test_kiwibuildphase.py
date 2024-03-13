@@ -213,6 +213,7 @@ class TestKiwiBuildThread(PungiTestCase):
         return path
 
     def test_process(self, KojiWrapper, get_file_size, get_mtime, Linker):
+        img_name = "FCBG.{arch}-Rawhide-1.6.vagrant.libvirt.box"
         self.repo = self.topdir + "/compose/Server/$arch/os"
         compose = DummyCompose(self.topdir, {"koji_profile": "koji"})
         config = _merge({"subvariant": "Test"}, MINIMAL_CONF)
@@ -222,11 +223,11 @@ class TestKiwiBuildThread(PungiTestCase):
         get_image_paths.return_value = {
             "x86_64": [
                 "/koji/task/1234/FCBG.x86_64-Rawhide-1.6.packages",
-                "/koji/task/1234/FCBG.x86_64-Rawhide-1.6.qcow2",
+                "/koji/task/1234/%s" % img_name.format(arch="x86_64"),
             ],
             "amd64": [
                 "/koji/task/1234/FCBG.amd64-Rawhide-1.6.packages",
-                "/koji/task/1234/FCBG.amd64-Rawhide-1.6.qcow2",
+                "/koji/task/1234/%s" % img_name.format(arch="amd64"),
             ],
         }
 
@@ -266,19 +267,20 @@ class TestKiwiBuildThread(PungiTestCase):
                 optional_arches=[],
             )
         ]
+
         assert get_image_paths.mock_calls == [mock.call(1234)]
         assert os.path.isdir(self._img_path("x86_64"))
         assert os.path.isdir(self._img_path("amd64"))
         Linker.return_value.link.assert_has_calls(
             [
                 mock.call(
-                    "/koji/task/1234/FCBG.amd64-Rawhide-1.6.qcow2",
-                    self._img_path("amd64", "FCBG.amd64-Rawhide-1.6.qcow2"),
+                    "/koji/task/1234/FCBG.amd64-Rawhide-1.6.vagrant.libvirt.box",
+                    self._img_path("amd64", img_name.format(arch="amd64")),
                     link_type="hardlink-or-copy",
                 ),
                 mock.call(
-                    "/koji/task/1234/FCBG.x86_64-Rawhide-1.6.qcow2",
-                    self._img_path("x86_64", "FCBG.x86_64-Rawhide-1.6.qcow2"),
+                    "/koji/task/1234/FCBG.x86_64-Rawhide-1.6.vagrant.libvirt.box",
+                    self._img_path("x86_64", img_name.format(arch="x86_64")),
                     link_type="hardlink-or-copy",
                 ),
             ],
@@ -289,15 +291,15 @@ class TestKiwiBuildThread(PungiTestCase):
         for call in compose.im.add.call_args_list:
             _, kwargs = call
             image = kwargs["image"]
-            expected_path = (
-                "Server/{0.arch}/images/FCBG.{0.arch}-Rawhide-1.6.qcow2".format(image)
+            expected_path = "Server/{0.arch}/images/{1}".format(
+                image, img_name.format(arch=image.arch)
             )
             assert kwargs["variant"] == "Server"
             assert kwargs["arch"] in ("amd64", "x86_64")
             assert kwargs["arch"] == image.arch
             assert image.path == expected_path
-            assert "qcow2" == image.format
-            assert "qcow2" == image.type
+            assert "vagrant-libvirt.box" == image.format
+            assert "vagrant-libvirt" == image.type
             assert "Test" == image.subvariant
 
     def test_handle_koji_fail(self, KojiWrapper, get_file_size, get_mtime, Linker):
