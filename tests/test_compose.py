@@ -7,15 +7,12 @@ try:
 except ImportError:
     import mock
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+import json
 import os
+import shutil
 import six
 import tempfile
-import shutil
-import json
+import unittest
 
 from requests.exceptions import HTTPError
 

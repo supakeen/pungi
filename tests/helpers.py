@@ -15,10 +15,7 @@ except ImportError:
 import six
 from kobo.rpmlib import parse_nvr
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+import unittest
 
 from pungi.util import get_arch_variant_data
 from pungi import paths, checks

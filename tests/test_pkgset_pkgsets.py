@@ -7,10 +7,7 @@ except ImportError:
 import os
 import six
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+import unittest
 import json
 import tempfile
 import re

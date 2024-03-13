@@ -4,12 +4,9 @@ try:
     from unittest import mock
 except ImportError:
     import mock
-import os
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+import os
+import unittest
 
 from tests.helpers import boom, touch, copy_fixture
 from pungi_utils import patch_iso

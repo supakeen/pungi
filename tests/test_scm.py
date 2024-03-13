@@ -5,15 +5,12 @@ try:
 except ImportError:
     import mock
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+import os
+import random
 import shutil
 import tempfile
-import random
+import unittest
 
-import os
 import six
 
 from parameterized import parameterized

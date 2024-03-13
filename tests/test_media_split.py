@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+import unittest
+
 try:
     from unittest import mock
 except ImportError:

@@ -9,11 +9,7 @@ except ImportError:
 import os
 import re
 import six
-
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+import unittest
 
 from pungi.phases.pkgset.sources import source_koji
 from tests import helpers

@@ -8,10 +8,7 @@ except ImportError:
     import mock
 import os
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+import unittest
 import tempfile
 import shutil
 import subprocess

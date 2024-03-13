@@ -1,12 +1,8 @@
 # -*- coding: utf-8 -*-
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
-
 import glob
 import os
+import unittest
 
 try:
     from unittest import mock

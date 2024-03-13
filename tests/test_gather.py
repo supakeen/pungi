@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
-
-
+import logging
 import os
-import tempfile
 import shutil
 import six
 import sys
-import logging
+import tempfile
+import unittest
 
 from six.moves import cStringIO
 

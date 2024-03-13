@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
 
 try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
-try:
     from unittest import mock
 except ImportError:
     import mock
 
 import os
-import tempfile
 import shutil
+import tempfile
+import unittest
 
 from pungi.phases.image_checksum import ImageChecksumPhase, dump_checksums
 from tests.helpers import DummyCompose, PungiTestCase
