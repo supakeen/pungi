@@ -101,6 +101,13 @@ def main(args=None):
     container.add_argument(
         "--extra-config", metavar="FILE", help="JSON file contains extra configurations"
     )
+    container.add_argument(
+        "-v",
+        "--version",
+        metavar="VERSION",
+        required=True,
+        help="version identifier (required)",
+    )
 
     installerp = subparser.add_parser(
         "installer", help="Create an OSTree installer image"
