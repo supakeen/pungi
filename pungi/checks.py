@@ -1209,6 +1209,9 @@ def make_schema():
                                 "repos": {"$ref": "#/definitions/list_of_strings"},
                                 "failable": {"$ref": "#/definitions/list_of_strings"},
                                 "subvariant": {"type": "string"},
+                                "type": {"type": "string"},
+                                "type_attr": {"$ref": "#/definitions/list_of_strings"},
+                                "bundle_name_format": {"type": "string"},
                             },
                             "required": [
                                 # description_scm and description_path
@@ -1227,6 +1230,9 @@ def make_schema():
             "kiwibuild_description_path": {"type": "string"},
             "kiwibuild_target": {"type": "string"},
             "kiwibuild_release": {"$ref": "#/definitions/optional_string"},
+            "kiwibuild_type": {"type": "string"},
+            "kiwibuild_type_attr": {"$ref": "#/definitions/list_of_strings"},
+            "kiwibuild_bundle_name_format": {"type": "string"},
             "osbuild_target": {"type": "string"},
             "osbuild_release": {"$ref": "#/definitions/optional_string"},
             "osbuild_version": {"type": "string"},

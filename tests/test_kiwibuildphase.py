@@ -47,6 +47,9 @@ class TestKiwiBuildPhase(PungiTestCase):
                         "target": "f40",
                         "descscm": MINIMAL_CONF["description_scm"],
                         "descpath": MINIMAL_CONF["description_path"],
+                        "type": None,
+                        "type_attr": None,
+                        "bundle_name_format": None,
                     },
                     [self.topdir + "/compose/Server/$arch/os"],
                     [],  # failable arches
@@ -63,6 +66,9 @@ class TestKiwiBuildPhase(PungiTestCase):
                 "repos": ["https://example.com/repo/", "Client"],
                 "failable": ["*"],
                 "subvariant": "Test",
+                "type": "custom",
+                "type_attr": ["foo", "bar"],
+                "bundle_name_format": "fmt",
             },
             MINIMAL_CONF,
         )
@@ -86,6 +92,9 @@ class TestKiwiBuildPhase(PungiTestCase):
                         "target": "f40",
                         "descscm": MINIMAL_CONF["description_scm"],
                         "descpath": MINIMAL_CONF["description_path"],
+                        "type": "custom",
+                        "type_attr": ["foo", "bar"],
+                        "bundle_name_format": "fmt",
                     },
                     [
                         "https://example.com/repo/",
@@ -119,6 +128,9 @@ class TestKiwiBuildPhase(PungiTestCase):
                         "target": "f40",
                         "descscm": MINIMAL_CONF["description_scm"],
                         "descpath": MINIMAL_CONF["description_path"],
+                        "type": None,
+                        "type_attr": None,
+                        "bundle_name_format": None,
                     },
                     [self.topdir + "/compose/Server/$arch/os"],
                     ["x86_64"],  # failable arches
@@ -136,6 +148,9 @@ class TestKiwiBuildPhase(PungiTestCase):
                 "kiwibuild_release": "1234",
                 "kiwibuild_description_scm": "foo",
                 "kiwibuild_description_path": "bar",
+                "kiwibuild_type": "custom",
+                "kiwibuild_type_attr": ["foo", "bar"],
+                "kiwibuild_bundle_name_format": "fmt",
             },
         )
 
@@ -157,6 +172,9 @@ class TestKiwiBuildPhase(PungiTestCase):
                         "target": "f40",
                         "descscm": "foo",
                         "descpath": "bar",
+                        "type": "custom",
+                        "type_attr": ["foo", "bar"],
+                        "bundle_name_format": "fmt",
                     },
                     [self.topdir + "/compose/Server/$arch/os"],
                     [],  # failable arches
@@ -193,6 +211,9 @@ class TestKiwiBuildPhase(PungiTestCase):
                         "target": "f40",
                         "descscm": MINIMAL_CONF["description_scm"],
                         "descpath": MINIMAL_CONF["description_path"],
+                        "type": None,
+                        "type_attr": None,
+                        "bundle_name_format": None,
                     },
                     [self.topdir + "/compose/Server/$arch/os"],
                     [],  # failable arches
@@ -215,7 +236,13 @@ class TestKiwiBuildThread(PungiTestCase):
     def test_process(self, KojiWrapper, get_file_size, get_mtime, Linker):
         img_name = "FCBG.{arch}-Rawhide-1.6.vagrant.libvirt.box"
         self.repo = self.topdir + "/compose/Server/$arch/os"
-        compose = DummyCompose(self.topdir, {"koji_profile": "koji"})
+        compose = DummyCompose(
+            self.topdir,
+            {
+                "koji_profile": "koji",
+                "kiwibuild_bundle_format": "%N-%P-40_Beta-%I.%A.%T",
+            },
+        )
         config = _merge({"subvariant": "Test"}, MINIMAL_CONF)
         pool = mock.Mock()
 
@@ -248,6 +275,9 @@ class TestKiwiBuildThread(PungiTestCase):
                     "target": "f40",
                     "descscm": MINIMAL_CONF["description_scm"],
                     "descpath": MINIMAL_CONF["description_path"],
+                    "type": "t",
+                    "type_attr": ["ta"],
+                    "bundle_name_format": "fmt",
                 },
                 [self.repo],
                 [],
@@ -264,6 +294,9 @@ class TestKiwiBuildThread(PungiTestCase):
                 profile=MINIMAL_CONF["kiwi_profile"],
                 release="1.6",
                 repos=[self.repo],
+                type="t",
+                type_attr=["ta"],
+                result_bundle_name_format="fmt",
                 optional_arches=[],
             )
         ]
@@ -326,6 +359,9 @@ class TestKiwiBuildThread(PungiTestCase):
                         "target": "f40",
                         "descscm": MINIMAL_CONF["description_scm"],
                         "descpath": MINIMAL_CONF["description_path"],
+                        "type": None,
+                        "type_attr": None,
+                        "bundle_name_format": None,
                     },
                     [self.repo],
                     [],
@@ -374,6 +410,9 @@ class TestKiwiBuildThread(PungiTestCase):
                     "target": "f40",
                     "descscm": MINIMAL_CONF["description_scm"],
                     "descpath": MINIMAL_CONF["description_path"],
+                    "type": None,
+                    "type_attr": None,
+                    "bundle_name_format": None,
                 },
                 [self.repo],
                 ["amd64"],
@@ -390,6 +429,9 @@ class TestKiwiBuildThread(PungiTestCase):
                 profile=MINIMAL_CONF["kiwi_profile"],
                 release="1.6",
                 repos=[self.repo],
+                type=None,
+                type_attr=None,
+                result_bundle_name_format=None,
                 optional_arches=["amd64"],
             )
         ]

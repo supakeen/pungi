@@ -79,6 +79,11 @@ class KiwiBuildPhase(
                     "target": self.get_config(image_conf, "target"),
                     "descscm": self.get_config(image_conf, "description_scm"),
                     "descpath": self.get_config(image_conf, "description_path"),
+                    "type": self.get_config(image_conf, "type"),
+                    "type_attr": self.get_config(image_conf, "type_attr"),
+                    "bundle_name_format": self.get_config(
+                        image_conf, "bundle_name_format"
+                    ),
                 }
 
                 repo = self._get_repo(image_conf, variant)
@@ -134,6 +139,9 @@ class RunKiwiBuildThread(WorkerThread):
             profile=config["kiwi_profile"],
             release=generics["release"],
             repos=repo,
+            type=generics["type"],
+            type_attr=generics["type_attr"],
+            result_bundle_name_format=generics["bundle_name_format"],
             # this ensures the task won't fail if only failable arches fail
             optional_arches=self.failable_arches,
         )

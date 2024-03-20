@@ -1566,12 +1566,25 @@ KiwiBuild Settings
       provided, all variant architectures will be built.
     * ``failable`` -- (*[str]*) List of architectures for which this
       deliverable is not release blocking.
+    * ``type`` -- (*str*) override default type from the bundle with this value.
+    * ``type_attr`` -- (*[str]*) override default attributes for the build type
+      from description.
+    * ``bundle_name_format`` -- (*str*) override default bundle format name.
 
 **kiwibuild_description_scm**
     (*str*) -- URL for scm containing the description files
 
 **kiwibuild_description_path**
     (*str*) -- path to a description file within the description scm
+
+**kiwibuild_type**
+    (*str*) -- override default type from the bundle with this value.
+
+**kiwibuild_type_attr**
+    (*[str]*) -- override default attributes for the build type from description.
+
+**kiwibuild_bundle_name_format**
+    (*str*) -- override default bundle format name.
 
 
 OSBuild Composer for building images
