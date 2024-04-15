@@ -718,8 +718,10 @@ class Compose(kobo.log.LoggingBase):
             basename += "-" + detail
         tb_path = self.paths.log.log_file("global", basename)
         self.log_error("Extended traceback in: %s", tb_path)
-        with open(tb_path, "wb") as f:
-            f.write(kobo.tback.Traceback(show_locals=show_locals).get_traceback())
+        tback = kobo.tback.Traceback(show_locals=show_locals).get_traceback()
+        # Kobo 0.36.0 returns traceback as str, older versions return bytes
+        with open(tb_path, "wb" if isinstance(tback, bytes) else "w") as f:
+            f.write(tback)
 
     def load_old_compose_config(self):
         """
