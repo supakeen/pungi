@@ -613,7 +613,9 @@ class CreateisoThreadTest(helpers.PungiTestCase):
             iso.get_implanted_md5.call_args_list,
             [mock.call(cmd["iso_path"], logger=compose._logger)],
         )
-        self.assertEqual(iso.get_volume_id.call_args_list, [mock.call(cmd["iso_path"])])
+        self.assertEqual(
+            iso.get_volume_id.call_args_list, [mock.call(cmd["iso_path"], False)]
+        )
 
         self.assertEqual(len(compose.im.add.call_args_list), 1)
         args, _ = compose.im.add.call_args_list[0]
@@ -696,7 +698,9 @@ class CreateisoThreadTest(helpers.PungiTestCase):
             iso.get_implanted_md5.call_args_list,
             [mock.call(cmd["iso_path"], logger=compose._logger)],
         )
-        self.assertEqual(iso.get_volume_id.call_args_list, [mock.call(cmd["iso_path"])])
+        self.assertEqual(
+            iso.get_volume_id.call_args_list, [mock.call(cmd["iso_path"], False)]
+        )
 
         self.assertEqual(len(compose.im.add.call_args_list), 2)
         for args, _ in compose.im.add.call_args_list:
@@ -787,7 +791,9 @@ class CreateisoThreadTest(helpers.PungiTestCase):
             iso.get_implanted_md5.call_args_list,
             [mock.call(cmd["iso_path"], logger=compose._logger)],
         )
-        self.assertEqual(iso.get_volume_id.call_args_list, [mock.call(cmd["iso_path"])])
+        self.assertEqual(
+            iso.get_volume_id.call_args_list, [mock.call(cmd["iso_path"], False)]
+        )
 
         self.assertEqual(len(compose.im.add.call_args_list), 1)
         args, _ = compose.im.add.call_args_list[0]
@@ -968,7 +974,9 @@ class CreateisoThreadTest(helpers.PungiTestCase):
             iso.get_implanted_md5.call_args_list,
             [mock.call(cmd["iso_path"], logger=compose._logger)],
         )
-        self.assertEqual(iso.get_volume_id.call_args_list, [mock.call(cmd["iso_path"])])
+        self.assertEqual(
+            iso.get_volume_id.call_args_list, [mock.call(cmd["iso_path"], False)]
+        )
 
         self.assertEqual(len(compose.im.add.call_args_list), 1)
         args, _ = compose.im.add.call_args_list[0]

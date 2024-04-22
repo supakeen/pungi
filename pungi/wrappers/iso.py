@@ -280,14 +280,21 @@ def get_manifest_cmd(iso_name, xorriso=False, output_file=None):
         )
 
 
-def get_volume_id(path):
-    cmd = ["isoinfo", "-d", "-i", path]
-    retcode, output = run(cmd, universal_newlines=True)
+def get_volume_id(path, xorriso=False):
+    if xorriso:
+        cmd = ["xorriso", "-indev", path]
+        retcode, output = run(cmd, universal_newlines=True)
+        for line in output.splitlines():
+            if line.startswith("Volume id"):
+                return line.split("'")[1]
+    else:
+        cmd = ["isoinfo", "-d", "-i", path]
+        retcode, output = run(cmd, universal_newlines=True)
 
-    for line in output.splitlines():
-        line = line.strip()
-        if line.startswith("Volume id:"):
-            return line[11:].strip()
+        for line in output.splitlines():
+            line = line.strip()
+            if line.startswith("Volume id:"):
+                return line[11:].strip()
 
     raise RuntimeError("Could not read Volume ID")
 

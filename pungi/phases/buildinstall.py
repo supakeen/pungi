@@ -521,7 +521,10 @@ def link_boot_iso(compose, arch, variant, can_fail):
     setattr(img, "can_fail", can_fail)
     setattr(img, "deliverable", "buildinstall")
     try:
-        img.volume_id = iso.get_volume_id(new_boot_iso_path)
+        img.volume_id = iso.get_volume_id(
+            new_boot_iso_path,
+            compose.conf.get("createiso_use_xorrisofs"),
+        )
     except RuntimeError:
         pass
     compose.im.add(variant.uid, arch, img)

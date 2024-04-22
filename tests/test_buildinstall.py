@@ -1859,7 +1859,7 @@ class TestSymlinkIso(PungiTestCase):
         )
         self.assertEqual(iso.get_implanted_md5.mock_calls, [mock.call(tgt)])
         self.assertEqual(iso.get_manifest_cmd.mock_calls, [mock.call("image-name")])
-        self.assertEqual(iso.get_volume_id.mock_calls, [mock.call(tgt)])
+        self.assertEqual(iso.get_volume_id.mock_calls, [mock.call(tgt, None)])
         self.assertEqual(
             run.mock_calls,
             [
@@ -1924,7 +1924,7 @@ class TestSymlinkIso(PungiTestCase):
         )
         self.assertEqual(iso.get_implanted_md5.mock_calls, [mock.call(tgt)])
         self.assertEqual(iso.get_manifest_cmd.mock_calls, [mock.call("image-name")])
-        self.assertEqual(iso.get_volume_id.mock_calls, [mock.call(tgt)])
+        self.assertEqual(iso.get_volume_id.mock_calls, [mock.call(tgt, None)])
         self.assertEqual(
             run.mock_calls,
             [

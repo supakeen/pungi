@@ -24,6 +24,19 @@ Supported ISO: no
 
 INCORRECT_OUTPUT = """This should never happen: File not found"""
 
+XORRISO_LOAD_OUTPUT = """\
+xorriso 1.5.4 : RockRidge filesystem manipulator, libburnia project.
+
+xorriso : NOTE : Loading ISO image tree from LBA 0
+xorriso : UPDATE :    7074 nodes read in 1 seconds
+Drive current: -indev 'dummy.iso'
+Media current: stdio file, overwriteable
+Media status : is written , is appendable
+Boot record  : El Torito , MBR isohybrid cyl-align-off GPT
+Media summary: 1 session, 5415454 data blocks, 10.3g data, 4086g free
+Volume id    : 'My volume id'
+"""
+
 # Cached to use in tests that mock os.listdir
 orig_listdir = os.listdir
 
@@ -186,6 +199,11 @@ class TestIsoUtils(unittest.TestCase):
         self.assertEqual(len(mock_run.call_args_list), 2)
         self.assertEqual(len(mock_unmount.call_args_list), 0)
         self.assertEqual(len(log.mock_calls), 1)
+
+    @mock.patch("pungi.wrappers.iso.run")
+    def test_get_volume_id_xorriso(self, mock_run):
+        mock_run.return_value = (0, XORRISO_LOAD_OUTPUT)
+        self.assertEqual(iso.get_volume_id("/dummy.iso", True), "My volume id")
 
 
 class TestCmpGraftPoints(unittest.TestCase):

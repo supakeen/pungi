@@ -524,7 +524,10 @@ def add_iso_to_metadata(
     setattr(img, "can_fail", compose.can_fail(variant, arch, "iso"))
     setattr(img, "deliverable", "iso")
     try:
-        img.volume_id = iso.get_volume_id(iso_path)
+        img.volume_id = iso.get_volume_id(
+            iso_path,
+            compose.conf.get("createiso_use_xorrisofs"),
+        )
     except RuntimeError:
         pass
     if arch == "src":
