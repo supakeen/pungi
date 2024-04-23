@@ -660,6 +660,11 @@ def _make_lookaside_repo(compose, variant, arch, pkg_map, package_sets=None):
                 # we need a union of all SRPMs.
                 if pkg_type == "srpm" or pkg_arch == arch:
                     for pkg in packages:
+                        if "lookaside" in pkg.get("flags", []):
+                            # We want to ignore lookaside packages, those will
+                            # be visible to the depending variants from the
+                            # lookaside repo directly.
+                            continue
                         pkg = pkg["path"]
                         if path_prefix and pkg.startswith(path_prefix):
                             pkg = pkg[len(path_prefix) :]
