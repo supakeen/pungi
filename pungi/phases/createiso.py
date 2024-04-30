@@ -14,6 +14,7 @@
 # along with this program; if not, see <https://gnu.org/licenses/>.
 
 
+import itertools
 import os
 import random
 import shutil
@@ -23,7 +24,7 @@ import json
 import productmd.treeinfo
 from productmd.images import Image
 from kobo.threads import ThreadPool, WorkerThread
-from kobo.shortcuts import run, relative_path
+from kobo.shortcuts import run, relative_path, compute_file_checksums
 from six.moves import shlex_quote
 
 from pungi.wrappers import iso
@@ -457,7 +458,14 @@ class CreateIsoThread(WorkerThread):
 
         try:
             run_createiso_command(
-                num, compose, bootable, arch, cmd["cmd"], mounts, log_file
+                num,
+                compose,
+                bootable,
+                arch,
+                cmd["cmd"],
+                mounts,
+                log_file,
+                cmd["iso_path"],
             )
         except Exception:
             self.fail(compose, cmd, variant, arch)
@@ -538,7 +546,9 @@ def add_iso_to_metadata(
     return img
 
 
-def run_createiso_command(num, compose, bootable, arch, cmd, mounts, log_file):
+def run_createiso_command(
+    num, compose, bootable, arch, cmd, mounts, log_file, iso_path
+):
     packages = [
         "coreutils",
         "xorriso" if compose.conf.get("createiso_use_xorrisofs") else "genisoimage",
@@ -579,6 +589,76 @@ def run_createiso_command(num, compose, bootable, arch, cmd, mounts, log_file):
         mounts=mounts,
         weight=compose.conf["runroot_weights"].get("createiso"),
     )
+
+    if bootable and compose.conf.get("createiso_use_xorrisofs"):
+        fix_treeinfo_checksums(compose, iso_path, arch)
+
+
+def fix_treeinfo_checksums(compose, iso_path, arch):
+    """It is possible for the ISO to contain a .treefile with incorrect
+    checksums. By modifying the ISO (adding files) some of the images may
+    change.
+
+    This function fixes that after the fact by looking for incorrect checksums,
+    recalculating them and updating the .treeinfo file. Since the size of the
+    file doesn't change, this seems to not change any images.
+    """
+    modified = False
+    with iso.mount(iso_path, compose._logger) as mountpoint:
+        ti = productmd.TreeInfo()
+        ti.load(os.path.join(mountpoint, ".treeinfo"))
+        for image, (type_, expected) in ti.checksums.checksums.items():
+            checksums = compute_file_checksums(os.path.join(mountpoint, image), [type_])
+            actual = checksums[type_]
+            if actual == expected:
+                # Everything fine here, skip to next image.
+                continue
+
+            compose.log_debug("%s: %s: checksum mismatch", iso_path, image)
+            # Update treeinfo with correct checksum
+            ti.checksums.checksums[image] = (type_, actual)
+            modified = True
+
+    if not modified:
+        compose.log_debug("%s: All checksums match, nothing to do.", iso_path)
+        return
+
+    try:
+        tmpdir = compose.mkdtemp(arch, prefix="fix-checksum-")
+        # Write modified .treeinfo
+        ti_path = os.path.join(tmpdir, ".treeinfo")
+        compose.log_debug("Storing modified .treeinfo in %s", ti_path)
+        ti.dump(ti_path)
+        # Write a modified DVD into a temporary path, that is atomically moved
+        # over the original file.
+        fixed_path = os.path.join(tmpdir, "fixed-checksum-dvd.iso")
+        cmd = ["xorriso"]
+        cmd.extend(
+            itertools.chain.from_iterable(
+                iso.xorriso_commands(arch, iso_path, fixed_path)
+            )
+        )
+        cmd.extend(["-map", ti_path, ".treeinfo"])
+        run(
+            cmd,
+            logfile=compose.paths.log.log_file(
+                arch, "checksum-fix_generate_%s" % os.path.basename(iso_path)
+            ),
+        )
+        # The modified ISO no longer has implanted MD5, so that needs to be
+        # fixed again.
+        compose.log_debug("Implanting new MD5 to %s fixed_path")
+        run(
+            iso.get_implantisomd5_cmd(fixed_path, compose.supported),
+            logfile=compose.paths.log.log_file(
+                arch, "checksum-fix_implantisomd5_%s" % os.path.basename(iso_path)
+            ),
+        )
+        # All done, move the updated image to the final location.
+        compose.log_debug("Updating %s", iso_path)
+        os.rename(fixed_path, iso_path)
+    finally:
+        shutil.rmtree(tmpdir)
 
 
 def split_iso(compose, arch, variant, no_split=False, logger=None):

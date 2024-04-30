@@ -2,6 +2,7 @@
 
 
 import logging
+import contextlib
 
 try:
     from unittest import mock
@@ -9,6 +10,7 @@ except ImportError:
     import mock
 import six
 
+import productmd
 import os
 
 from tests import helpers
@@ -1606,4 +1608,104 @@ class ComposeConfGetIsoLevelTest(helpers.PungiTestCase):
             createiso.get_iso_level_config(
                 compose, compose.variants["Client"], "x86_64"
             ),
+        )
+
+
+def mk_mount(topdir, images):
+    @contextlib.contextmanager
+    def dummy_mount(path, logger):
+        treeinfo = [
+            "[general]",
+            "family = Test",
+            "version = 1.0",
+            "arch = x86_64",
+            "variant = Server",
+            "[checksums]",
+        ]
+        for image in images:
+            helpers.touch(os.path.join(topdir, image.path), image.content)
+            treeinfo.append("%s = sha256:%s" % (image.path, image.checksum))
+        helpers.touch(os.path.join(topdir, ".treeinfo"), "\n".join(treeinfo))
+        yield topdir
+
+    return dummy_mount
+
+
+class _MockRun:
+    """This class replaces kobo.shortcuts.run and validates that the correct
+    two commands are called. The assertions can not be done after the tested
+    function finishes because it will clean up the .treeinfo file that needs to
+    be checked.
+    """
+
+    def __init__(self):
+        self.num_calls = 0
+        self.asserts = [self._assert_xorriso, self._assert_implantisomd5]
+
+    def __call__(self, cmd, logfile):
+        self.num_calls += 1
+        self.asserts.pop(0)(cmd)
+
+    def _assert_xorriso(self, cmd):
+        assert cmd[0] == "xorriso"
+        ti = productmd.TreeInfo()
+        input_iso = None
+        for i, arg in enumerate(cmd):
+            if arg == "-map":
+                ti.load(cmd[i + 1])
+            if arg == "-outdev":
+                self.temp_iso = cmd[i + 1]
+            if arg == "-indev":
+                input_iso = cmd[i + 1]
+        assert self.input_iso == input_iso
+        assert ti.checksums.checksums[self.image_relative_path] == self.image_checksum
+
+    def _assert_implantisomd5(self, cmd):
+        assert cmd[0] == "/usr/bin/implantisomd5"
+        assert cmd[-1] == self.temp_iso
+
+
+class DummyImage:
+    def __init__(self, path, content, checksum=None):
+        self.path = path
+        self.content = content
+        self.checksum = checksum or helpers.hash_string("sha256", content)
+
+
+@mock.patch("os.rename")
+@mock.patch("pungi.phases.createiso.run", new_callable=_MockRun)
+class FixChecksumsTest(helpers.PungiTestCase):
+    def test_checksum_matches(self, mock_run, mock_rename):
+        compose = helpers.DummyCompose(self.topdir, {})
+        arch = "x86_64"
+        iso_path = "DUMMY_ISO"
+
+        with mock.patch(
+            "pungi.wrappers.iso.mount",
+            new=mk_mount(self.topdir, [DummyImage("images/eltorito.img", "eltorito")]),
+        ):
+            createiso.fix_treeinfo_checksums(compose, iso_path, arch)
+
+        self.assertEqual(mock_run.num_calls, 0)
+        self.assertEqual(mock_rename.call_args_list, [])
+
+    def test_checksum_fix(self, mock_run, mock_rename):
+        compose = helpers.DummyCompose(self.topdir, {})
+        arch = "x86_64"
+        img = "images/eltorito.img"
+        content = "eltorito"
+        iso_path = "DUMMY_ISO"
+        mock_run.input_iso = iso_path
+        mock_run.image_relative_path = "images/eltorito.img"
+        mock_run.image_checksum = ("sha256", helpers.hash_string("sha256", content))
+
+        with mock.patch(
+            "pungi.wrappers.iso.mount",
+            new=mk_mount(self.topdir, [DummyImage(img, content, "abc")]),
+        ):
+            createiso.fix_treeinfo_checksums(compose, iso_path, arch)
+
+        # The new image was copied over the old one
+        self.assertEqual(
+            mock_rename.call_args_list, [mock.call(mock_run.temp_iso, iso_path)]
         )

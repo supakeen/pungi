@@ -166,6 +166,7 @@ class ExtraIsosThread(WorkerThread):
                 log_file=compose.paths.log.log_file(
                     arch, "extraiso-%s" % os.path.basename(iso_path)
                 ),
+                iso_path=iso_path,
             )
 
         img = add_iso_to_metadata(

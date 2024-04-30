@@ -159,15 +159,11 @@ def write_xorriso_commands(opts):
 
     script = os.path.join(opts.script_dir, "xorriso-%s.txt" % id(opts))
     with open(script, "w") as f:
-        emit(f, "-indev %s" % opts.boot_iso)
-        emit(f, "-outdev %s" % os.path.join(opts.output_dir, opts.iso_name))
-        emit(f, "-boot_image any replay")
+        for cmd in iso.xorriso_commands(
+            opts.arch, opts.boot_iso, os.path.join(opts.output_dir, opts.iso_name)
+        ):
+            emit(f, " ".join(cmd))
         emit(f, "-volid %s" % opts.volid)
-        # isoinfo -J uses the Joliet tree, and it's used by virt-install
-        emit(f, "-joliet on")
-        # Support long filenames in the Joliet trees. Repodata is particularly
-        # likely to run into this limit.
-        emit(f, "-compliance joliet_long_names")
 
         with open(opts.graft_points) as gp:
             for line in gp:
@@ -177,10 +173,6 @@ def write_xorriso_commands(opts):
                 cmd = "-update" if iso_path in updated_files else "-map"
                 emit(f, "%s %s %s" % (cmd, fs_path, iso_path))
                 emit(f, "-chmod 0%o %s" % (_get_perms(fs_path), iso_path))
-
-        if opts.arch == "ppc64le":
-            # This is needed for the image to be bootable.
-            emit(f, "-as mkisofs -U --")
 
         emit(f, "-chown_r 0 /")
         emit(f, "-chgrp_r 0 /")

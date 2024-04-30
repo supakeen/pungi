@@ -516,3 +516,21 @@ def mount(image, logger=None, use_guestmount=True):
                 util.run_unmount_cmd(["fusermount", "-u", mount_dir], path=mount_dir)
             else:
                 util.run_unmount_cmd(["umount", mount_dir], path=mount_dir)
+
+
+def xorriso_commands(arch, input, output):
+    """List of xorriso commands to modify a bootable image."""
+    commands = [
+        ("-indev", input),
+        ("-outdev", output),
+        # isoinfo -J uses the Joliet tree, and it's used by virt-install
+        ("-joliet", "on"),
+        # Support long filenames in the Joliet trees. Repodata is particularly
+        # likely to run into this limit.
+        ("-compliance", "joliet_long_names"),
+        ("-boot_image", "any", "replay"),
+    ]
+    if arch == "ppc64le":
+        # This is needed for the image to be bootable.
+        commands.append(("-as", "mkisofs", "-U", "--"))
+    return commands

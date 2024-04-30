@@ -2,6 +2,7 @@
 
 import difflib
 import errno
+import hashlib
 import os
 import shutil
 import tempfile
@@ -364,3 +365,9 @@ def fake_run_in_threads(func, params, threads=None):
     """Like run_in_threads from Kobo, but actually runs tasks serially."""
     for num, param in enumerate(params):
         func(None, param, num)
+
+
+def hash_string(alg, s):
+    m = hashlib.new(alg)
+    m.update(s.encode("utf-8"))
+    return m.hexdigest()

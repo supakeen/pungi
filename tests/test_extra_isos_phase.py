@@ -134,6 +134,7 @@ class ExtraIsosThreadTest(helpers.PungiTestCase):
                 ),
             ],
         )
+        iso_path = os.path.join(self.topdir, "compose/Server/x86_64/iso/my.iso")
         self.assertEqual(
             rcc.call_args_list,
             [
@@ -152,6 +153,7 @@ class ExtraIsosThreadTest(helpers.PungiTestCase):
                     log_file=os.path.join(
                         self.topdir, "logs/x86_64/extraiso-my.iso.x86_64.log"
                     ),
+                    iso_path=iso_path,
                 )
             ],
         )
@@ -162,7 +164,7 @@ class ExtraIsosThreadTest(helpers.PungiTestCase):
                     compose,
                     server,
                     "x86_64",
-                    os.path.join(self.topdir, "compose/Server/x86_64/iso/my.iso"),
+                    iso_path,
                     True,
                     additional_variants=["Client"],
                 )
@@ -209,6 +211,7 @@ class ExtraIsosThreadTest(helpers.PungiTestCase):
                 ),
             ],
         )
+        iso_path = os.path.join(self.topdir, "compose/Server/x86_64/iso/my.iso")
         self.assertEqual(
             rcc.call_args_list,
             [
@@ -227,6 +230,7 @@ class ExtraIsosThreadTest(helpers.PungiTestCase):
                     log_file=os.path.join(
                         self.topdir, "logs/x86_64/extraiso-my.iso.x86_64.log"
                     ),
+                    iso_path=iso_path,
                 )
             ],
         )
@@ -237,7 +241,7 @@ class ExtraIsosThreadTest(helpers.PungiTestCase):
                     compose,
                     server,
                     "x86_64",
-                    os.path.join(self.topdir, "compose/Server/x86_64/iso/my.iso"),
+                    iso_path,
                     True,
                     additional_variants=["Client"],
                 )
@@ -282,6 +286,7 @@ class ExtraIsosThreadTest(helpers.PungiTestCase):
                 ),
             ],
         )
+        iso_path = os.path.join(self.topdir, "compose/Server/x86_64/iso/my.iso")
         self.assertEqual(
             rcc.call_args_list,
             [
@@ -300,6 +305,7 @@ class ExtraIsosThreadTest(helpers.PungiTestCase):
                     log_file=os.path.join(
                         self.topdir, "logs/x86_64/extraiso-my.iso.x86_64.log"
                     ),
+                    iso_path=iso_path,
                 )
             ],
         )
@@ -310,7 +316,7 @@ class ExtraIsosThreadTest(helpers.PungiTestCase):
                     compose,
                     server,
                     "x86_64",
-                    os.path.join(self.topdir, "compose/Server/x86_64/iso/my.iso"),
+                    iso_path,
                     True,
                     additional_variants=["Client"],
                 )
@@ -357,6 +363,7 @@ class ExtraIsosThreadTest(helpers.PungiTestCase):
                 ),
             ],
         )
+        iso_path = os.path.join(self.topdir, "compose/Server/x86_64/iso/my.iso")
         self.assertEqual(
             rcc.call_args_list,
             [
@@ -375,6 +382,7 @@ class ExtraIsosThreadTest(helpers.PungiTestCase):
                     log_file=os.path.join(
                         self.topdir, "logs/x86_64/extraiso-my.iso.x86_64.log"
                     ),
+                    iso_path=iso_path,
                 )
             ],
         )
@@ -385,7 +393,7 @@ class ExtraIsosThreadTest(helpers.PungiTestCase):
                     compose,
                     server,
                     "x86_64",
-                    os.path.join(self.topdir, "compose/Server/x86_64/iso/my.iso"),
+                    iso_path,
                     False,
                     additional_variants=["Client"],
                 )
@@ -427,6 +435,7 @@ class ExtraIsosThreadTest(helpers.PungiTestCase):
                 ),
             ],
         )
+        iso_path = os.path.join(self.topdir, "compose/Server/source/iso/my.iso")
         self.assertEqual(
             rcc.call_args_list,
             [
@@ -445,6 +454,7 @@ class ExtraIsosThreadTest(helpers.PungiTestCase):
                     log_file=os.path.join(
                         self.topdir, "logs/src/extraiso-my.iso.src.log"
                     ),
+                    iso_path=iso_path,
                 )
             ],
         )
@@ -455,7 +465,7 @@ class ExtraIsosThreadTest(helpers.PungiTestCase):
                     compose,
                     server,
                     "src",
-                    os.path.join(self.topdir, "compose/Server/source/iso/my.iso"),
+                    iso_path,
                     False,
                     additional_variants=["Client"],
                 )
