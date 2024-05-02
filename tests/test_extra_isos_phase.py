@@ -1090,7 +1090,9 @@ class ExtraisoTryReusePhaseTest(helpers.PungiTestCase):
         )
 
     def test_buildinstall_changed(self):
-        compose = helpers.DummyCompose(self.topdir, {"extraiso_allow_reuse": True})
+        compose = helpers.DummyCompose(
+            self.topdir, {"extraiso_allow_reuse": True, "sigkeys": ["abcdef"]}
+        )
         thread = extra_isos.ExtraIsosThread(compose, mock.Mock())
         thread.logger = self.logger
         thread.bi = mock.Mock()
@@ -1104,7 +1106,9 @@ class ExtraisoTryReusePhaseTest(helpers.PungiTestCase):
         )
 
     def test_no_old_config(self):
-        compose = helpers.DummyCompose(self.topdir, {"extraiso_allow_reuse": True})
+        compose = helpers.DummyCompose(
+            self.topdir, {"extraiso_allow_reuse": True, "sigkeys": ["abcdef"]}
+        )
         thread = extra_isos.ExtraIsosThread(compose, mock.Mock())
         thread.logger = self.logger
         opts = CreateIsoOpts()
@@ -1116,7 +1120,9 @@ class ExtraisoTryReusePhaseTest(helpers.PungiTestCase):
         )
 
     def test_old_config_changed(self):
-        compose = helpers.DummyCompose(self.topdir, {"extraiso_allow_reuse": True})
+        compose = helpers.DummyCompose(
+            self.topdir, {"extraiso_allow_reuse": True, "sigkeys": ["abcdef"]}
+        )
         old_config = compose.conf.copy()
         old_config["release_version"] = "2"
         compose.load_old_compose_config.return_value = old_config
@@ -1131,7 +1137,9 @@ class ExtraisoTryReusePhaseTest(helpers.PungiTestCase):
         )
 
     def test_no_old_metadata(self):
-        compose = helpers.DummyCompose(self.topdir, {"extraiso_allow_reuse": True})
+        compose = helpers.DummyCompose(
+            self.topdir, {"extraiso_allow_reuse": True, "sigkeys": ["abcdef"]}
+        )
         compose.load_old_compose_config.return_value = compose.conf.copy()
         thread = extra_isos.ExtraIsosThread(compose, mock.Mock())
         thread.logger = self.logger
@@ -1145,7 +1153,9 @@ class ExtraisoTryReusePhaseTest(helpers.PungiTestCase):
 
     @mock.patch("pungi.phases.extra_isos.read_json_file")
     def test_volume_id_differs(self, read_json_file):
-        compose = helpers.DummyCompose(self.topdir, {"extraiso_allow_reuse": True})
+        compose = helpers.DummyCompose(
+            self.topdir, {"extraiso_allow_reuse": True, "sigkeys": ["abcdef"]}
+        )
         compose.load_old_compose_config.return_value = compose.conf.copy()
         thread = extra_isos.ExtraIsosThread(compose, mock.Mock())
         thread.logger = self.logger
@@ -1162,7 +1172,9 @@ class ExtraisoTryReusePhaseTest(helpers.PungiTestCase):
 
     @mock.patch("pungi.phases.extra_isos.read_json_file")
     def test_packages_differ(self, read_json_file):
-        compose = helpers.DummyCompose(self.topdir, {"extraiso_allow_reuse": True})
+        compose = helpers.DummyCompose(
+            self.topdir, {"extraiso_allow_reuse": True, "sigkeys": ["abcdef"]}
+        )
         compose.load_old_compose_config.return_value = compose.conf.copy()
         thread = extra_isos.ExtraIsosThread(compose, mock.Mock())
         thread.logger = self.logger
@@ -1184,8 +1196,40 @@ class ExtraisoTryReusePhaseTest(helpers.PungiTestCase):
         )
 
     @mock.patch("pungi.phases.extra_isos.read_json_file")
-    def test_runs_perform_reuse(self, read_json_file):
+    def test_unsigned_packages(self, read_json_file):
         compose = helpers.DummyCompose(self.topdir, {"extraiso_allow_reuse": True})
+        compose.load_old_compose_config.return_value = compose.conf.copy()
+        thread = extra_isos.ExtraIsosThread(compose, mock.Mock())
+        thread.logger = self.logger
+        thread.perform_reuse = mock.Mock()
+
+        new_graft_points = os.path.join(self.topdir, "new_graft_points")
+        helpers.touch(new_graft_points)
+        opts = CreateIsoOpts(graft_points=new_graft_points, volid="volid")
+
+        old_graft_points = os.path.join(self.topdir, "old_graft_points")
+        helpers.touch(old_graft_points)
+        dummy_iso_path = "dummy-iso-path/dummy.iso"
+        read_json_file.return_value = {
+            "opts": {
+                "graft_points": old_graft_points,
+                "volid": "volid",
+                "output_dir": os.path.dirname(dummy_iso_path),
+                "iso_name": os.path.basename(dummy_iso_path),
+            },
+        }
+
+        self.assertFalse(
+            thread.try_reuse(
+                compose, compose.variants["Server"], "x86_64", "abcdef", opts
+            )
+        )
+
+    @mock.patch("pungi.phases.extra_isos.read_json_file")
+    def test_runs_perform_reuse(self, read_json_file):
+        compose = helpers.DummyCompose(
+            self.topdir, {"extraiso_allow_reuse": True, "sigkeys": ["abcdef"]}
+        )
         compose.load_old_compose_config.return_value = compose.conf.copy()
         thread = extra_isos.ExtraIsosThread(compose, mock.Mock())
         thread.logger = self.logger

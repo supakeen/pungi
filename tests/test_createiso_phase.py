@@ -1390,7 +1390,9 @@ class CreateisoTryReusePhaseTest(helpers.PungiTestCase):
         )
 
     def test_old_config_changed(self):
-        compose = helpers.DummyCompose(self.topdir, {"createiso_allow_reuse": True})
+        compose = helpers.DummyCompose(
+            self.topdir, {"createiso_allow_reuse": True, "sigkeys": ["abcdef"]}
+        )
         old_config = compose.conf.copy()
         old_config["release_version"] = "2"
         compose.load_old_compose_config.return_value = old_config
@@ -1403,8 +1405,26 @@ class CreateisoTryReusePhaseTest(helpers.PungiTestCase):
             phase.try_reuse(cmd, compose.variants["Server"], "x86_64", opts)
         )
 
-    def test_no_old_metadata(self):
+    @mock.patch("pungi.phases.createiso.read_json_file")
+    def test_unsigned_packages_allowed(self, read_json_file):
         compose = helpers.DummyCompose(self.topdir, {"createiso_allow_reuse": True})
+        compose.load_old_compose_config.return_value = compose.conf.copy()
+        phase = createiso.CreateisoPhase(compose, mock.Mock())
+        phase.logger = self.logger
+        cmd = {"disc_num": 1, "disc_count": 1}
+
+        opts = CreateIsoOpts(volid="new-volid")
+
+        read_json_file.return_value = {"opts": {"volid": "old-volid"}}
+
+        self.assertFalse(
+            phase.try_reuse(cmd, compose.variants["Server"], "x86_64", opts)
+        )
+
+    def test_no_old_metadata(self):
+        compose = helpers.DummyCompose(
+            self.topdir, {"createiso_allow_reuse": True, "sigkeys": ["abcdef"]}
+        )
         compose.load_old_compose_config.return_value = compose.conf.copy()
         phase = createiso.CreateisoPhase(compose, mock.Mock())
         phase.logger = self.logger
@@ -1417,7 +1437,9 @@ class CreateisoTryReusePhaseTest(helpers.PungiTestCase):
 
     @mock.patch("pungi.phases.createiso.read_json_file")
     def test_volume_id_differs(self, read_json_file):
-        compose = helpers.DummyCompose(self.topdir, {"createiso_allow_reuse": True})
+        compose = helpers.DummyCompose(
+            self.topdir, {"createiso_allow_reuse": True, "sigkeys": ["abcdef"]}
+        )
         compose.load_old_compose_config.return_value = compose.conf.copy()
         phase = createiso.CreateisoPhase(compose, mock.Mock())
         phase.logger = self.logger
@@ -1433,7 +1455,9 @@ class CreateisoTryReusePhaseTest(helpers.PungiTestCase):
 
     @mock.patch("pungi.phases.createiso.read_json_file")
     def test_packages_differ(self, read_json_file):
-        compose = helpers.DummyCompose(self.topdir, {"createiso_allow_reuse": True})
+        compose = helpers.DummyCompose(
+            self.topdir, {"createiso_allow_reuse": True, "sigkeys": ["abcdef"]}
+        )
         compose.load_old_compose_config.return_value = compose.conf.copy()
         phase = createiso.CreateisoPhase(compose, mock.Mock())
         phase.logger = self.logger
@@ -1455,7 +1479,9 @@ class CreateisoTryReusePhaseTest(helpers.PungiTestCase):
 
     @mock.patch("pungi.phases.createiso.read_json_file")
     def test_runs_perform_reuse(self, read_json_file):
-        compose = helpers.DummyCompose(self.topdir, {"createiso_allow_reuse": True})
+        compose = helpers.DummyCompose(
+            self.topdir, {"createiso_allow_reuse": True, "sigkeys": ["abcdef"]}
+        )
         compose.load_old_compose_config.return_value = compose.conf.copy()
         phase = createiso.CreateisoPhase(compose, mock.Mock())
         phase.logger = self.logger

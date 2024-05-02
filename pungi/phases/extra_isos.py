@@ -205,6 +205,14 @@ class ExtraIsosThread(WorkerThread):
         if not old_config:
             self.pool.log_info("%s - no config for old compose", log_msg)
             return False
+
+        # Disable reuse if unsigned packages are allowed. The older compose
+        # could have unsigned packages, and those may have been signed since
+        # then. We want to regenerate the ISO to have signatures.
+        if None in compose.conf["sigkeys"]:
+            self.pool.log_info("%s - unsigned packages are allowed", log_msg)
+            return False
+
         # Convert current configuration to JSON and back to encode it similarly
         # to the old one
         config = json.loads(json.dumps(compose.conf))

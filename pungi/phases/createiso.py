@@ -189,6 +189,14 @@ class CreateisoPhase(PhaseLoggerMixin, PhaseBase):
         if not old_config:
             self.logger.info("%s - no config for old compose", log_msg)
             return False
+
+        # Disable reuse if unsigned packages are allowed. The older compose
+        # could have unsigned packages, and those may have been signed since
+        # then. We want to regenerate the ISO to have signatures.
+        if None in self.compose.conf["sigkeys"]:
+            self.logger.info("%s - unsigned packages are allowed", log_msg)
+            return False
+
         # Convert current configuration to JSON and back to encode it similarly
         # to the old one
         config = json.loads(json.dumps(self.compose.conf))
