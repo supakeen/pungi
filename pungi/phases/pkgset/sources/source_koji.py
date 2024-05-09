@@ -222,6 +222,7 @@ def _add_module_to_variant(
     """
     mmds = {}
     archives = koji_wrapper.koji_proxy.listArchives(build["id"])
+    available_arches = set()
     for archive in archives:
         if archive["btype"] != "module":
             # Skip non module archives
@@ -235,7 +236,9 @@ def _add_module_to_variant(
             # in basearch. This assumes that each arch in the build maps to a
             # unique basearch.
             _, arch, _ = filename.split(".")
-            filename = "modulemd.%s.txt" % getBaseArch(arch)
+            basearch = getBaseArch(arch)
+            filename = "modulemd.%s.txt" % basearch
+            available_arches.add(basearch)
         except ValueError:
             pass
         mmds[filename] = file_path
@@ -258,6 +261,12 @@ def _add_module_to_variant(
     for arch in variant.arches:
         if _is_filtered_out(compose, variant, arch, info["name"], info["stream"]):
             compose.log_debug("Module %s is filtered from %s.%s", nsvc, variant, arch)
+            continue
+
+        if arch not in available_arches:
+            compose.log_debug(
+                "Module %s is not available for arch %s.%s", nsvc, variant, arch
+            )
             continue
 
         filename = "modulemd.%s.txt" % arch

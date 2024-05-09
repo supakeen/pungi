@@ -745,7 +745,9 @@ class TestAddModuleToVariant(helpers.PungiTestCase):
         }
 
     def test_adding_module(self):
-        variant = mock.Mock(arches=["armhfp", "x86_64"], arch_mmds={}, modules=[])
+        variant = mock.Mock(
+            arches=["armhfp", "x86_64", "ppc64le"], arch_mmds={}, modules=[]
+        )
 
         source_koji._add_module_to_variant(
             self.koji, variant, self.buildinfo, compose=self.compose
@@ -755,6 +757,7 @@ class TestAddModuleToVariant(helpers.PungiTestCase):
         self.assertEqual(mod1.get_NSVCA(), "module:master:20190318:abcdef:armhfp")
         mod2 = variant.arch_mmds["x86_64"]["module:master:20190318:abcdef"]
         self.assertEqual(mod2.get_NSVCA(), "module:master:20190318:abcdef:x86_64")
+        self.assertNotIn("ppc64le", variant.arch_mmds)
         self.assertEqual(len(variant.arch_mmds), 2)
         self.assertEqual(variant.modules, [])
 
