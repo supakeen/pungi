@@ -148,6 +148,13 @@ class UnifiedISO(object):
                     new_path = os.path.join(self.temp_dir, "trees", arch, old_relpath)
 
                 makedirs(os.path.dirname(new_path))
+                # Resolve symlinks to external files. Symlinks within the
+                # provided `dir` are kept.
+                if os.path.islink(old_path):
+                    real_path = os.readlink(old_path)
+                    abspath = os.path.normpath(os.path.join(os.path.dirname(old_path), real_path))
+                    if not abspath.startswith(dir):
+                        old_path = real_path
                 try:
                     self.linker.link(old_path, new_path)
                 except OSError as exc:
