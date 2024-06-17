@@ -152,7 +152,9 @@ class UnifiedISO(object):
                 # provided `dir` are kept.
                 if os.path.islink(old_path):
                     real_path = os.readlink(old_path)
-                    abspath = os.path.normpath(os.path.join(os.path.dirname(old_path), real_path))
+                    abspath = os.path.normpath(
+                        os.path.join(os.path.dirname(old_path), real_path)
+                    )
                     if not abspath.startswith(dir):
                         old_path = real_path
                 try:
