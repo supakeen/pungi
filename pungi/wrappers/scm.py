@@ -198,6 +198,17 @@ class GitWrapper(ScmBase):
                     copy_all(destdir, debugdir)
                 raise
 
+        if os.path.exists(os.path.join(destdir, ".gitmodules")):
+            try:
+                self.log_debug("Cloning submodules")
+                run(["git", "submodule", "init"], workdir=destdir)
+                run(["git", "submodule", "update"], workdir=destdir)
+            except RuntimeError as e:
+                self.log_error(
+                    "Failed to clone submodules: %s %s", e, getattr(e, "output", "")
+                )
+                # Ignore the error here, there may just be no submodules.
+
     def get_temp_repo_path(self, scm_root, scm_branch):
         scm_repo = scm_root.split("/")[-1]
         process_id = os.getpid()

@@ -10,6 +10,8 @@ import random
 import shutil
 import tempfile
 import unittest
+import http.server
+import threading
 
 import six
 
@@ -306,9 +308,9 @@ class GitSCMTestCase(SCMBaseTest):
         self.assertCalls(run, "git://example.com/git/repo.git", "master", "make")
 
 
-class GitSCMTestCaseReal(SCMBaseTest):
+class GitSCMTestCaseRealBase(SCMBaseTest):
     def setUp(self):
-        super(GitSCMTestCaseReal, self).setUp()
+        super(GitSCMTestCaseRealBase, self).setUp()
         self.compose = mock.Mock(conf={})
         self.gitRepositoryLocation = tempfile.mkdtemp()
         git_dir = os.path.join(self.gitRepositoryLocation, ".git")
@@ -361,9 +363,11 @@ class GitSCMTestCaseReal(SCMBaseTest):
         )
 
     def tearDown(self):
-        super(GitSCMTestCaseReal, self).tearDown()
+        super(GitSCMTestCaseRealBase, self).tearDown()
         shutil.rmtree(self.gitRepositoryLocation)
 
+
+class GitSCMTestCaseReal(GitSCMTestCaseRealBase):
     def test_get_file_function(self):
         sourceFileLocation = random.choice(list(self.files.keys()))
         sourceFilename = os.path.basename(sourceFileLocation)
@@ -415,6 +419,91 @@ class GitSCMTestCaseReal(SCMBaseTest):
             destinationFileContent = destinationFileHandle.read()
         # Ensuring that the file was in fact overwritten
         self.assertNotEqual(preExistingContent, destinationFileContent)
+        # Comparing the contents of source to the destination file.
+        self.assertEqual(sourceFileContent, destinationFileContent)
+
+
+class GitSCMTestCaseRealSubmodule(GitSCMTestCaseRealBase):
+
+    def setUp(self):
+        # This gets a little complicated. The test sets up a git repo with a
+        # submodule and tries to obtain a file from the submodule. However,
+        # submodules over file:// are restricted for security reasons. The test
+        # should not modify any global configuration file, so to avoid the
+        # issues we instead start a one-off HTTP server to serve the repository
+        # on localhost.
+        # The server runs in a separate thread.
+        super(GitSCMTestCaseRealSubmodule, self).setUp()
+        self.main_repo_path = tempfile.mkdtemp()
+        submodule_path = self.gitRepositoryLocation
+
+        run(["git", "update-server-info"], workdir=submodule_path)
+
+        class MyHandler(http.server.SimpleHTTPRequestHandler):
+            def __init__(self, *args, **kwargs):
+                super(MyHandler, self).__init__(
+                    *args, directory=submodule_path, **kwargs
+                )
+
+        self.httpd = http.server.HTTPServer(("", 0), MyHandler)
+        self.httpd.timeout = 1
+        self.url = "http://localhost:%s/.git" % self.httpd.server_port
+
+        self.thread_done = False
+
+        def runner():
+            # Repeatedly handle a request until the flag is set. The timeout is
+            # configured on the self.httpd object.
+            while not self.thread_done:
+                self.httpd.handle_request()
+
+        self.t = threading.Thread(target=runner)
+        self.t.start()
+
+        cmds = [
+            ["git", "-c", "init.defaultBranch=master", "init"],
+            ["git", "submodule", "add", "-b", "master", self.url, "submodule"],
+            [
+                "git",
+                "-c",
+                "user.name=Pungi Test Engineer",
+                "-c",
+                "user.email=ptestengineer@example.com",
+                "commit",
+                "-am",
+                "Add submodule",
+            ],
+        ]
+        for cmd in cmds:
+            run(cmd, workdir=self.main_repo_path)
+
+    def tearDown(self):
+        super(GitSCMTestCaseRealSubmodule, self).tearDown()
+        self.thread_done = True
+        self.t.join()
+        shutil.rmtree(self.main_repo_path)
+
+    def test_get_file(self):
+        sourceFileLocation = random.choice(list(self.files.keys()))
+        sourceFilename = os.path.basename(sourceFileLocation)
+        destinationFileLocation = os.path.join(self.destdir, "other_file.txt")
+        destinationFileActualLocation = scm.get_file(
+            {
+                "scm": "git",
+                "repo": self.main_repo_path,
+                "file": os.path.join("submodule", sourceFilename),
+            },
+            destinationFileLocation,
+            compose=self.compose,
+        )
+        self.assertEqual(destinationFileActualLocation, destinationFileLocation)
+        self.assertTrue(os.path.isfile(destinationFileActualLocation))
+
+        # Reading the contents of both files to compare later.
+        with open(sourceFileLocation) as sourceFileHandle:
+            sourceFileContent = sourceFileHandle.read()
+        with open(destinationFileActualLocation) as destinationFileHandle:
+            destinationFileContent = destinationFileHandle.read()
         # Comparing the contents of source to the destination file.
         self.assertEqual(sourceFileContent, destinationFileContent)
 
