@@ -1,5 +1,5 @@
 Name:           pungi
-Version:        4.6.2
+Version:        4.6.3
 Release:        1%{?dist}
 Summary:        Distribution compose tool
 
@@ -110,6 +110,32 @@ pytest
 cd tests && ./test_compose.sh
 
 %changelog
+* Fri Jul 12 2024 Haibo Lin <hlin@redhat.com> - 4.6.3-1
+- Fix formatting of long line (lsedlar)
+- unified-isos: Resolve symlinks (lsedlar)
+- gather: Skip lookaside packages from local lookaside repo (lsedlar)
+- pkgset: Avoid adding modules to unavailable arches (hlin)
+- iso: Extract volume id with xorriso if available (lsedlar)
+- De-duplicate log messages for ostree and ostree_container phases (awilliam)
+- Handle tracebacks as str or bytes (lsedlar)
+- ostree/container: add missing --version arg (awilliam)
+- Block pkgset reuse on module defaults change (lsedlar)
+- Include task ID in DONE message for OSBS phase (awilliam)
+- Various phases: consistent format of failure message (awilliam)
+- Update tests to exercise kiwi specific metadata (lsedlar)
+- Kiwi: translate virtualbox and azure productmd formats (awilliam)
+- kiwibuild: Add tests for the basic functionality (lsedlar)
+- kiwibuild: Remove repos as dicts (lsedlar)
+- Fix additional image metadata (lsedlar)
+- Drop kiwibuild_version option (lsedlar)
+- Update docs with kiwibuild options (lsedlar)
+- kiwibuild: allow setting description scm and path at phase level (awilliam)
+- Use latest Fedora for python 3 test environment (lsedlar)
+- Install unittest2 only on python 2 (lsedlar)
+- Fix 'failable' handling for kiwibuild phase (awilliam)
+- image_build: Accept Kiwi extension for Azure VHD images (jeremycline)
+- image_build: accept Kiwi vagrant image name format (awilliam)
+
 * Tue Mar 05 2024 Lubomír Sedlář <lsedlar@redhat.com> - 4.6.2-1
 - Phases/osbuild: support passing 'customizations' for image builds (thozza)
 - dnf: Load filelists for actual solver too (lsedlar)
