@@ -71,11 +71,11 @@ notification to Fedora Message Bus.
 %setup -q
 
 %build
-%{__python} setup.py build
+%{__python3} setup.py build
 
 %install
 rm -rf %{buildroot}
-%{__python} setup.py install -O1 --skip-build --root %{buildroot}
+%{__python3} setup.py install -O1 --skip-build --root %{buildroot}
 %{__install} -d %{buildroot}/var/cache/pungi
 %{__install} -d %{buildroot}/%{_mandir}/man8
 
@@ -83,8 +83,8 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %license COPYING GPL
 %doc AUTHORS
-%{python_sitelib}/%{name}
-%{python_sitelib}/%{name}-%{version}-py?.?.egg-info
+%{python3_sitelib}/%{name}
+%{python3_sitelib}/%{name}-%{version}-py?.?.egg-info
 %{_bindir}/%{name}
 %{_bindir}/%{name}-koji
 %{_bindir}/%{name}-gather
@@ -94,7 +94,7 @@ rm -rf %{buildroot}
 %dir %attr(1777, root, root) /var/cache/%{name}
 
 %files utils
-%{python_sitelib}/%{name}_utils
+%{python3_sitelib}/%{name}_utils
 %{_bindir}/%{name}-create-unified-isos
 %{_bindir}/%{name}-config-dump
 %{_bindir}/%{name}-config-validate
