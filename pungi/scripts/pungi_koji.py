@@ -420,7 +420,6 @@ def run_compose(
     ostree_container_phase = pungi.phases.OSTreeContainerPhase(compose, pkgset_phase)
     createiso_phase = pungi.phases.CreateisoPhase(compose, buildinstall_phase)
     extra_isos_phase = pungi.phases.ExtraIsosPhase(compose, buildinstall_phase)
-    liveimages_phase = pungi.phases.LiveImagesPhase(compose)
     livemedia_phase = pungi.phases.LiveMediaPhase(compose)
     image_build_phase = pungi.phases.ImageBuildPhase(compose, buildinstall_phase)
     kiwibuild_phase = pungi.phases.KiwiBuildPhase(compose)
@@ -440,7 +439,6 @@ def run_compose(
         gather_phase,
         extrafiles_phase,
         createiso_phase,
-        liveimages_phase,
         livemedia_phase,
         image_build_phase,
         image_checksum_phase,
@@ -477,7 +475,6 @@ def run_compose(
         "signing_key_password_file" in compose.conf
         and "signing_command" in compose.conf
         and "%(signing_key_password)s" in compose.conf["signing_command"]
-        and not liveimages_phase.skip()
     ):
         # TODO: Don't require key if signing is turned off
         # Obtain signing key password
@@ -548,7 +545,6 @@ def run_compose(
     compose_images_schema = (
         createiso_phase,
         extra_isos_phase,
-        liveimages_phase,
         image_build_phase,
         livemedia_phase,
         osbuild_phase,
@@ -574,7 +570,6 @@ def run_compose(
         and ostree_installer_phase.skip()
         and createiso_phase.skip()
         and extra_isos_phase.skip()
-        and liveimages_phase.skip()
         and livemedia_phase.skip()
         and image_build_phase.skip()
         and kiwibuild_phase.skip()

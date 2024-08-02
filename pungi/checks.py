@@ -553,26 +553,6 @@ def make_schema():
             "list_of_strings": {"type": "array", "items": {"type": "string"}},
             "strings": _one_or_list({"type": "string"}),
             "optional_string": {"anyOf": [{"type": "string"}, {"type": "null"}]},
-            "live_image_config": {
-                "type": "object",
-                "properties": {
-                    "kickstart": {"type": "string"},
-                    "ksurl": {"type": "url"},
-                    "name": {"type": "string"},
-                    "subvariant": {"type": "string"},
-                    "target": {"type": "string"},
-                    "version": {"type": "string"},
-                    "repo": {"$ref": "#/definitions/repos"},
-                    "specfile": {"type": "string"},
-                    "scratch": {"type": "boolean"},
-                    "type": {"type": "string"},
-                    "sign": {"type": "boolean"},
-                    "failable": {"type": "boolean"},
-                    "release": {"$ref": "#/definitions/optional_string"},
-                },
-                "required": ["kickstart"],
-                "additionalProperties": False,
-            },
             "osbs_config": {
                 "type": "object",
                 "properties": {
@@ -903,11 +883,6 @@ def make_schema():
             },
             "restricted_volid": {"type": "boolean", "default": False},
             "volume_id_substitutions": {"type": "object", "default": {}},
-            "live_images_no_rename": {"type": "boolean", "default": False},
-            "live_images_ksurl": {"type": "url"},
-            "live_images_target": {"type": "string"},
-            "live_images_release": {"$ref": "#/definitions/optional_string"},
-            "live_images_version": {"type": "string"},
             "image_build_ksurl": {"type": "url"},
             "image_build_target": {"type": "string"},
             "image_build_release": {"$ref": "#/definitions/optional_string"},
@@ -940,8 +915,6 @@ def make_schema():
             "product_id": {"$ref": "#/definitions/str_or_scm_dict"},
             "product_id_allow_missing": {"type": "boolean", "default": False},
             "product_id_allow_name_prefix": {"type": "boolean", "default": True},
-            # Deprecated in favour of regular local/phase/global setting.
-            "live_target": {"type": "string"},
             "tree_arches": {"$ref": "#/definitions/list_of_strings", "default": []},
             "tree_variants": {"$ref": "#/definitions/list_of_strings", "default": []},
             "translate_paths": {"$ref": "#/definitions/string_pairs", "default": []},
@@ -1163,9 +1136,6 @@ def make_schema():
             "ostree_container_use_koji_plugin": {"type": "boolean", "default": False},
             "ostree_installer_use_koji_plugin": {"type": "boolean", "default": False},
             "ostree_installer_overwrite": {"type": "boolean", "default": False},
-            "live_images": _variant_arch_mapping(
-                _one_or_list({"$ref": "#/definitions/live_image_config"})
-            ),
             "image_build_allow_reuse": {"type": "boolean", "default": False},
             "image_build": {
                 "type": "object",

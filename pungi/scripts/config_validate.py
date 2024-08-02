@@ -128,7 +128,6 @@ def run(config, topdir, has_old, offline, defined_variables, schema_overrides):
         pungi.phases.OSTreePhase(compose),
         pungi.phases.CreateisoPhase(compose, buildinstall_phase),
         pungi.phases.ExtraIsosPhase(compose, buildinstall_phase),
-        pungi.phases.LiveImagesPhase(compose),
         pungi.phases.LiveMediaPhase(compose),
         pungi.phases.ImageBuildPhase(compose),
         pungi.phases.ImageChecksumPhase(compose),

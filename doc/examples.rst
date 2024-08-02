@@ -294,30 +294,6 @@ This is a shortened configuration for Fedora Radhide compose as of 2019-10-14.
         })
     ]
 
-    live_target = 'f32'
-    live_images_no_rename = True
-    live_images = [
-        ('^Workstation$', {
-            'armhfp': {
-                'kickstart': 'fedora-arm-workstation.ks',
-                'name': 'Fedora-Workstation-armhfp',
-                # Again workstation takes packages from Everything.
-                'repo': 'Everything',
-                'type': 'appliance',
-                'failable': True,
-            }
-        }),
-        ('^Server$', {
-            # But Server has its own repo.
-            'armhfp': {
-                'kickstart': 'fedora-arm-server.ks',
-                'name': 'Fedora-Server-armhfp',
-                'type': 'appliance',
-                'failable': True,
-            }
-        }),
-    ]
-
     ostree = {
         "^Silverblue$": {
             "version": "!OSTREE_VERSION_FROM_LABEL_DATE_TYPE_RESPIN",
