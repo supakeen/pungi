@@ -465,49 +465,6 @@ def run_compose(
             print(i)
         raise RuntimeError("Configuration is not valid")
 
-    # PREP
-
-    # Note: This may be put into a new method of phase classes (e.g. .prep())
-    # in same way as .validate() or .run()
-
-    # Prep for liveimages - Obtain a password for signing rpm wrapped images
-    if (
-        "signing_key_password_file" in compose.conf
-        and "signing_command" in compose.conf
-        and "%(signing_key_password)s" in compose.conf["signing_command"]
-    ):
-        # TODO: Don't require key if signing is turned off
-        # Obtain signing key password
-        signing_key_password = None
-
-        # Use appropriate method
-        if compose.conf["signing_key_password_file"] == "-":
-            # Use stdin (by getpass module)
-            try:
-                signing_key_password = getpass.getpass("Signing key password: ")
-            except EOFError:
-                compose.log_debug("Ignoring signing key password")
-                pass
-        else:
-            # Use text file with password
-            try:
-                signing_key_password = (
-                    open(compose.conf["signing_key_password_file"], "r")
-                    .readline()
-                    .rstrip("\n")
-                )
-            except IOError:
-                # Filename is not print intentionally in case someone puts
-                # password directly into the option
-                err_msg = "Cannot load password from file specified by 'signing_key_password_file' option"  # noqa: E501
-                compose.log_error(err_msg)
-                print(err_msg)
-                raise RuntimeError(err_msg)
-
-        if signing_key_password:
-            # Store the password
-            compose.conf["signing_key_password"] = signing_key_password
-
     init_phase.start()
     init_phase.stop()
 

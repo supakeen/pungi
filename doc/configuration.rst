@@ -354,43 +354,6 @@ Example
     }
 
 
-Signing
-=======
-
-If you want to sign deliverables generated during pungi run like RPM wrapped
-images. You must provide few configuration options:
-
-**signing_command** [optional]
-    (*str*) -- Command that will be run with a koji build as a single
-    argument. This command must not require any user interaction.
-    If you need to pass a password for a signing key to the command,
-    do this via command line option of the command and use string
-    formatting syntax ``%(signing_key_password)s``.
-    (See **signing_key_password_file**).
-
-**signing_key_id** [optional]
-    (*str*) -- ID of the key that will be used for the signing.
-    This ID will be used when crafting koji paths to signed files
-    (``kojipkgs.fedoraproject.org/packages/NAME/VER/REL/data/signed/KEYID/..``).
-
-**signing_key_password_file** [optional]
-    (*str*) -- Path to a file with password that will be formatted
-    into **signing_command** string via ``%(signing_key_password)s``
-    string format syntax (if used).
-    Because pungi config is usually stored in git and is part of compose
-    logs we don't want password to be included directly in the config.
-    Note: If ``-`` string is used instead of a filename, then you will be asked
-    for the password interactivelly right after pungi starts.
-
-Example
--------
-::
-
-        signing_command = '~/git/releng/scripts/sigulsign_unsigned.py -vv --password=%(signing_key_password)s fedora-24'
-        signing_key_id = '81b46521'
-        signing_key_password_file = '~/password_for_fedora-24_key'
-
-
 .. _git-urls:
 
 Git URLs

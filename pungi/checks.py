@@ -1405,9 +1405,6 @@ def make_schema():
                 {"$ref": "#/definitions/strings"}
             ),
             "lorax_use_koji_plugin": {"type": "boolean", "default": False},
-            "signing_key_id": {"type": "string"},
-            "signing_key_password_file": {"type": "string"},
-            "signing_command": {"type": "string"},
             "productimg": {
                 "deprecated": "remove it. Productimg phase has been removed"
             },
