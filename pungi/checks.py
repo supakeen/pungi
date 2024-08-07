@@ -849,7 +849,10 @@ def make_schema():
             "paths_module": {"type": "string"},
             "skip_phases": {
                 "type": "array",
-                "items": {"type": "string", "enum": PHASES_NAMES + ["productimg"]},
+                "items": {
+                    "type": "string",
+                    "enum": PHASES_NAMES + ["productimg", "live_images"],
+                },
                 "default": [],
             },
             "image_name_format": {
