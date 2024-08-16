@@ -1,5 +1,5 @@
 Name:           pungi
-Version:        4.6.3
+Version:        4.7.0
 Release:        1%{?dist}
 Summary:        Distribution compose tool
 
@@ -110,6 +110,16 @@ pytest
 cd tests && ./test_compose.sh
 
 %changelog
+* Fri Aug 16 2024 Lubomír Sedlář <lsedlar@redhat.com> - 4.7.0-1
+- kiwibuild: Add support for type, type attr and bundle format (lsedlar)
+- createiso: Block reuse if unsigned packages are allowed (lsedlar)
+- Allow live_images phase to still be skipped (lsedlar)
+- createiso: Recompute .treeinfo checksums for images (lsedlar)
+- Drop support for signing rpm-wrapped artifacts (lsedlar)
+- Remove live_images.py (LiveImagesPhase) (awilliam)
+- Clean up requirements (lsedlar)
+- Update pungi.spec for py3 (hlin)
+
 * Fri Jul 12 2024 Haibo Lin <hlin@redhat.com> - 4.6.3-1
 - Fix formatting of long line (lsedlar)
 - unified-isos: Resolve symlinks (lsedlar)
