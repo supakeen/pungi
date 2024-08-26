@@ -84,6 +84,8 @@ class KiwiBuildPhase(
                     "bundle_name_format": self.get_config(
                         image_conf, "bundle_name_format"
                     ),
+                    "version": self.get_version(image_conf),
+                    "repo_releasever": self.get_config(image_conf, "repo_releasever"),
                 }
 
                 repo = self._get_repo(image_conf, variant)
@@ -144,6 +146,8 @@ class RunKiwiBuildThread(WorkerThread):
             result_bundle_name_format=generics["bundle_name_format"],
             # this ensures the task won't fail if only failable arches fail
             optional_arches=self.failable_arches,
+            version=generics["version"],
+            repo_releasever=generics["repo_releasever"],
         )
 
         koji.save_task_id(task_id)

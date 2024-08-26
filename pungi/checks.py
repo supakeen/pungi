@@ -1212,6 +1212,8 @@ def make_schema():
                                 "type": {"type": "string"},
                                 "type_attr": {"$ref": "#/definitions/list_of_strings"},
                                 "bundle_name_format": {"type": "string"},
+                                "version": {"type": "string"},
+                                "repo_releasever": {"type": "string"},
                             },
                             "required": [
                                 # description_scm and description_path
@@ -1233,6 +1235,8 @@ def make_schema():
             "kiwibuild_type": {"type": "string"},
             "kiwibuild_type_attr": {"$ref": "#/definitions/list_of_strings"},
             "kiwibuild_bundle_name_format": {"type": "string"},
+            "kiwibuild_version": {"type": "string"},
+            "kiwibuild_repo_releasever": {"type": "string"},
             "osbuild_target": {"type": "string"},
             "osbuild_release": {"$ref": "#/definitions/optional_string"},
             "osbuild_version": {"type": "string"},

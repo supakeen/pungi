@@ -50,6 +50,8 @@ class TestKiwiBuildPhase(PungiTestCase):
                         "type": None,
                         "type_attr": None,
                         "bundle_name_format": None,
+                        "version": compose.image_version,
+                        "repo_releasever": None,
                     },
                     [self.topdir + "/compose/Server/$arch/os"],
                     [],  # failable arches
@@ -69,6 +71,8 @@ class TestKiwiBuildPhase(PungiTestCase):
                 "type": "custom",
                 "type_attr": ["foo", "bar"],
                 "bundle_name_format": "fmt",
+                "version": "Rawhide",
+                "repo_releasever": "41",
             },
             MINIMAL_CONF,
         )
@@ -95,6 +99,8 @@ class TestKiwiBuildPhase(PungiTestCase):
                         "type": "custom",
                         "type_attr": ["foo", "bar"],
                         "bundle_name_format": "fmt",
+                        "version": "Rawhide",
+                        "repo_releasever": "41",
                     },
                     [
                         "https://example.com/repo/",
@@ -131,6 +137,8 @@ class TestKiwiBuildPhase(PungiTestCase):
                         "type": None,
                         "type_attr": None,
                         "bundle_name_format": None,
+                        "version": compose.image_version,
+                        "repo_releasever": None,
                     },
                     [self.topdir + "/compose/Server/$arch/os"],
                     ["x86_64"],  # failable arches
@@ -151,6 +159,8 @@ class TestKiwiBuildPhase(PungiTestCase):
                 "kiwibuild_type": "custom",
                 "kiwibuild_type_attr": ["foo", "bar"],
                 "kiwibuild_bundle_name_format": "fmt",
+                "kiwibuild_version": "Rawhide",
+                "kiwibuild_repo_releasever": "41",
             },
         )
 
@@ -175,6 +185,8 @@ class TestKiwiBuildPhase(PungiTestCase):
                         "type": "custom",
                         "type_attr": ["foo", "bar"],
                         "bundle_name_format": "fmt",
+                        "version": "Rawhide",
+                        "repo_releasever": "41",
                     },
                     [self.topdir + "/compose/Server/$arch/os"],
                     [],  # failable arches
@@ -190,6 +202,7 @@ class TestKiwiBuildPhase(PungiTestCase):
                 "kiwibuild": {"^Server$": [cfg]},
                 "global_target": "f40",
                 "global_release": "1234",
+                "global_version": "41",
             },
         )
 
@@ -214,6 +227,8 @@ class TestKiwiBuildPhase(PungiTestCase):
                         "type": None,
                         "type_attr": None,
                         "bundle_name_format": None,
+                        "version": "41",
+                        "repo_releasever": None,
                     },
                     [self.topdir + "/compose/Server/$arch/os"],
                     [],  # failable arches
@@ -278,6 +293,8 @@ class TestKiwiBuildThread(PungiTestCase):
                     "type": "t",
                     "type_attr": ["ta"],
                     "bundle_name_format": "fmt",
+                    "version": "v",
+                    "repo_releasever": "r",
                 },
                 [self.repo],
                 [],
@@ -298,6 +315,8 @@ class TestKiwiBuildThread(PungiTestCase):
                 type_attr=["ta"],
                 result_bundle_name_format="fmt",
                 optional_arches=[],
+                version="v",
+                repo_releasever="r",
             )
         ]
 
@@ -362,6 +381,8 @@ class TestKiwiBuildThread(PungiTestCase):
                         "type": None,
                         "type_attr": None,
                         "bundle_name_format": None,
+                        "version": None,
+                        "repo_releasever": None,
                     },
                     [self.repo],
                     [],
@@ -413,6 +434,8 @@ class TestKiwiBuildThread(PungiTestCase):
                     "type": None,
                     "type_attr": None,
                     "bundle_name_format": None,
+                    "version": None,
+                    "repo_releasever": None,
                 },
                 [self.repo],
                 ["amd64"],
@@ -433,6 +456,8 @@ class TestKiwiBuildThread(PungiTestCase):
                 type_attr=None,
                 result_bundle_name_format=None,
                 optional_arches=["amd64"],
+                version=None,
+                repo_releasever=None,
             )
         ]
         assert get_image_paths.mock_calls == [mock.call(1234)]

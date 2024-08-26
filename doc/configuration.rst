@@ -1570,6 +1570,13 @@ KiwiBuild Settings
     * ``type_attr`` -- (*[str]*) override default attributes for the build type
       from description.
     * ``bundle_name_format`` -- (*str*) override default bundle format name.
+    * ``version`` -- (*str*) override version. Follows the same rules as
+      described in :ref:`automatic versioning <auto-version>`.
+    * ``repo_releasever`` -- (*str*) Override default releasever of the output
+      image.
+
+    The options can be set either for the specific image, or at the phase level
+    (see below). Version also falls back to ``global_version``.
 
 **kiwibuild_description_scm**
     (*str*) -- URL for scm containing the description files
@@ -1585,6 +1592,12 @@ KiwiBuild Settings
 
 **kiwibuild_bundle_name_format**
     (*str*) -- override default bundle format name.
+
+**kiwibuild_version**
+    (*str*) -- overide version for all kiwibuild tasks.
+
+**kiwibuild_repo_releasever**
+    (*str*) -- override releasever for all kiwibuild tasks.
 
 
 OSBuild Composer for building images
