@@ -242,13 +242,14 @@ class TestKiwiBuildPhase(PungiTestCase):
 @mock.patch("pungi.util.get_file_size")
 @mock.patch("pungi.wrappers.kojiwrapper.KojiWrapper")
 class TestKiwiBuildThread(PungiTestCase):
-    def _img_path(self, arch, filename=None):
-        path = self.topdir + "/compose/Server/%s/images" % arch
+    def _img_path(self, arch, filename=None, dir=None):
+        dir = dir or "images"
+        path = self.topdir + "/compose/Server/%s/%s" % (arch, dir)
         if filename:
             path += "/" + filename
         return path
 
-    def test_process(self, KojiWrapper, get_file_size, get_mtime, Linker):
+    def test_process_vagrant_box(self, KojiWrapper, get_file_size, get_mtime, Linker):
         img_name = "FCBG.{arch}-Rawhide-1.6.vagrant.libvirt.box"
         self.repo = self.topdir + "/compose/Server/$arch/os"
         compose = DummyCompose(
@@ -352,6 +353,114 @@ class TestKiwiBuildThread(PungiTestCase):
             assert image.path == expected_path
             assert "vagrant-libvirt.box" == image.format
             assert "vagrant-libvirt" == image.type
+            assert "Test" == image.subvariant
+            assert not image.bootable
+
+    def test_process_iso(self, KojiWrapper, get_file_size, get_mtime, Linker):
+        img_name = "FCBG.{arch}-Rawhide-1.6.iso"
+        self.repo = self.topdir + "/compose/Server/$arch/os"
+        compose = DummyCompose(
+            self.topdir,
+            {
+                "koji_profile": "koji",
+                "kiwibuild_bundle_format": "%N-%P-40_Beta-%I.%A.%T",
+            },
+        )
+        config = _merge({"subvariant": "Test"}, MINIMAL_CONF)
+        pool = mock.Mock()
+
+        get_image_paths = KojiWrapper.return_value.get_image_paths
+        get_image_paths.return_value = {
+            "x86_64": [
+                "/koji/task/1234/FCBG.x86_64-Rawhide-1.6.packages",
+                "/koji/task/1234/%s" % img_name.format(arch="x86_64"),
+            ],
+            "amd64": [
+                "/koji/task/1234/FCBG.amd64-Rawhide-1.6.packages",
+                "/koji/task/1234/%s" % img_name.format(arch="amd64"),
+            ],
+        }
+
+        KojiWrapper.return_value.koji_proxy.kiwiBuild.return_value = 1234
+        KojiWrapper.return_value.watch_task.return_value = 0
+
+        t = RunKiwiBuildThread(pool)
+        get_file_size.return_value = 1024
+        get_mtime.return_value = 13579
+        t.process(
+            (
+                compose,
+                compose.variants["Server"],
+                config,
+                ["amd64", "x86_64"],
+                {
+                    "release": "1.6",
+                    "target": "f40",
+                    "descscm": MINIMAL_CONF["description_scm"],
+                    "descpath": MINIMAL_CONF["description_path"],
+                    "type": "t",
+                    "type_attr": ["ta"],
+                    "bundle_name_format": "fmt",
+                    "version": "v",
+                    "repo_releasever": "r",
+                },
+                [self.repo],
+                [],
+            ),
+            1,
+        )
+
+        assert KojiWrapper.return_value.koji_proxy.kiwiBuild.mock_calls == [
+            mock.call(
+                "f40",
+                ["amd64", "x86_64"],
+                MINIMAL_CONF["description_scm"],
+                MINIMAL_CONF["description_path"],
+                profile=MINIMAL_CONF["kiwi_profile"],
+                release="1.6",
+                repos=[self.repo],
+                type="t",
+                type_attr=["ta"],
+                result_bundle_name_format="fmt",
+                optional_arches=[],
+                version="v",
+                repo_releasever="r",
+            )
+        ]
+
+        assert get_image_paths.mock_calls == [mock.call(1234)]
+        assert os.path.isdir(self._img_path("x86_64", dir="iso"))
+        assert os.path.isdir(self._img_path("amd64", dir="iso"))
+        Linker.return_value.link.assert_has_calls(
+            [
+                mock.call(
+                    "/koji/task/1234/FCBG.amd64-Rawhide-1.6.iso",
+                    self._img_path("amd64", img_name.format(arch="amd64"), dir="iso"),
+                    link_type="hardlink-or-copy",
+                ),
+                mock.call(
+                    "/koji/task/1234/FCBG.x86_64-Rawhide-1.6.iso",
+                    self._img_path("x86_64", img_name.format(arch="x86_64"), dir="iso"),
+                    link_type="hardlink-or-copy",
+                ),
+            ],
+            any_order=True,
+        )
+
+        assert len(compose.im.add.call_args_list) == 2
+        for call in compose.im.add.call_args_list:
+            _, kwargs = call
+            image = kwargs["image"]
+            expected_path = "Server/{0.arch}/iso/{1}".format(
+                image, img_name.format(arch=image.arch)
+            )
+            assert kwargs["variant"] == "Server"
+            assert kwargs["arch"] in ("amd64", "x86_64")
+            assert kwargs["arch"] == image.arch
+            assert image.path == expected_path
+            assert "iso" == image.format
+            assert "iso" == image.type
+            assert image.bootable
             assert "Test" == image.subvariant
 
     def test_handle_koji_fail(self, KojiWrapper, get_file_size, get_mtime, Linker):

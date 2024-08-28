@@ -184,10 +184,20 @@ class RunKiwiBuildThread(WorkerThread):
                 # image_dir is absolute path to which the image should be copied.
                 # We also need the same path as relative to compose directory for
                 # including in the metadata.
-                image_dir = compose.paths.compose.image_dir(variant) % {"arch": arch}
-                rel_image_dir = compose.paths.compose.image_dir(
-                    variant, relative=True
-                ) % {"arch": arch}
+                if format_ == "iso":
+                    # If the produced image is actually an ISO, it should go to
+                    # iso/ subdirectory.
+                    image_dir = compose.paths.compose.iso_dir(arch, variant)
+                    rel_image_dir = compose.paths.compose.iso_dir(
+                        arch, variant, relative=True
+                    )
+                else:
+                    image_dir = compose.paths.compose.image_dir(variant) % {
+                        "arch": arch
+                    }
+                    rel_image_dir = compose.paths.compose.image_dir(
+                        variant, relative=True
+                    ) % {"arch": arch}
                 util.makedirs(image_dir)
 
                 filename = os.path.basename(path)
@@ -211,7 +221,8 @@ class RunKiwiBuildThread(WorkerThread):
                 img.arch = arch
                 img.disc_number = 1  # We don't expect multiple disks
                 img.disc_count = 1
-                img.bootable = False
+                # Kiwi produces only bootable ISOs. Other kinds of images are
+                img.bootable = format_ == "iso"
                 img.subvariant = config.get("subvariant", variant.uid)
                 setattr(img, "can_fail", arch in self.failable_arches)
                 setattr(img, "deliverable", "kiwibuild")
