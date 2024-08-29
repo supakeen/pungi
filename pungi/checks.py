@@ -1214,6 +1214,7 @@ def make_schema():
                                 "bundle_name_format": {"type": "string"},
                                 "version": {"type": "string"},
                                 "repo_releasever": {"type": "string"},
+                                "manifest_type": {"type": "string"},
                             },
                             "required": [
                                 # description_scm and description_path

@@ -211,9 +211,9 @@ class RunKiwiBuildThread(WorkerThread):
                 # Update image manifest
                 img = Image(compose.im)
 
-                # Get the manifest type from the config if supplied, otherwise we
-                # determine the manifest type based on the koji output
-                img.type = type_
+                # If user configured exact type, use it, otherwise try to
+                # figure it out based on the koji output.
+                img.type = config.get("manifest_type", type_)
                 img.format = format_
                 img.path = os.path.join(rel_image_dir, filename)
                 img.mtime = util.get_mtime(image_dest)

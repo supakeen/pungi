@@ -73,6 +73,7 @@ class TestKiwiBuildPhase(PungiTestCase):
                 "bundle_name_format": "fmt",
                 "version": "Rawhide",
                 "repo_releasever": "41",
+                "manifest_type": "live-kiwi",
             },
             MINIMAL_CONF,
         )
@@ -366,7 +367,9 @@ class TestKiwiBuildThread(PungiTestCase):
                 "kiwibuild_bundle_format": "%N-%P-40_Beta-%I.%A.%T",
             },
         )
-        config = _merge({"subvariant": "Test"}, MINIMAL_CONF)
+        config = _merge(
+            {"subvariant": "Test", "manifest_type": "live-kiwi"}, MINIMAL_CONF
+        )
         pool = mock.Mock()
 
         get_image_paths = KojiWrapper.return_value.get_image_paths
@@ -459,7 +462,7 @@ class TestKiwiBuildThread(PungiTestCase):
             assert kwargs["arch"] == image.arch
             assert image.path == expected_path
             assert "iso" == image.format
-            assert "iso" == image.type
+            assert "live-kiwi" == image.type
             assert image.bootable
             assert "Test" == image.subvariant
 

@@ -1574,6 +1574,9 @@ KiwiBuild Settings
       described in :ref:`automatic versioning <auto-version>`.
     * ``repo_releasever`` -- (*str*) Override default releasever of the output
       image.
+    * ``manifest_type`` -- the image type that is put into the manifest by
+      pungi. If not supplied, an autodetected value will be provided. It may or
+      may not make sense.
 
     The options can be set either for the specific image, or at the phase level
     (see below). Version also falls back to ``global_version``.
