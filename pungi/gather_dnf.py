@@ -35,11 +35,6 @@ from pungi.profiler import Profiler
 from pungi.util import DEBUG_PATTERNS
 
 
-def get_source_name(pkg):
-    # Workaround for rhbz#1418298
-    return pkg.sourcerpm.rsplit("-", 2)[0]
-
-
 def filter_dotarch(queue, pattern, **kwargs):
     """Filter queue for packages matching the pattern. If pattern matches the
     dotarch format of <name>.<arch>, it is processed as such. Otherwise it is
@@ -389,7 +384,7 @@ class Gather(GatherBase):
                 # lookaside
                 if self.is_from_lookaside(i):
                     self._set_flag(i, PkgFlag.lookaside)
-                if i.sourcerpm.rsplit("-", 2)[0] in self.opts.fulltree_excludes:
+                if i.source_name in self.opts.fulltree_excludes:
                     self._set_flag(i, PkgFlag.fulltree_exclude)
 
     def _get_package_deps(self, pkg, debuginfo=False):
@@ -839,7 +834,7 @@ class Gather(GatherBase):
                     continue
                 if self.is_from_lookaside(i):
                     self._set_flag(i, PkgFlag.lookaside)
-                srpm_name = i.sourcerpm.rsplit("-", 2)[0]
+                srpm_name = i.source_name
                 if srpm_name in self.opts.fulltree_excludes:
                     self._set_flag(i, PkgFlag.fulltree_exclude)
                 if PkgFlag.input in self.result_package_flags.get(srpm_name, set()):
@@ -871,7 +866,7 @@ class Gather(GatherBase):
         for pkg in sorted(self.result_binary_packages):
             assert pkg is not None
 
-            if get_source_name(pkg) in self.opts.fulltree_excludes:
+            if pkg.source_name in self.opts.fulltree_excludes:
                 self.logger.debug("No fulltree for %s due to exclude list", pkg)
                 continue
 
