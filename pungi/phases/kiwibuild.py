@@ -15,6 +15,10 @@ KIWIEXTENSIONS = [
     ("vhd-compressed", ["vhdfixed.xz"], "vhd.xz"),
     ("vagrant-libvirt", ["vagrant.libvirt.box"], "vagrant-libvirt.box"),
     ("vagrant-virtualbox", ["vagrant.virtualbox.box"], "vagrant-virtualbox.box"),
+    # .iso images can be of many types - boot, cd, dvd, live... -
+    # so 'boot' is just a default guess. 'iso' is not a valid
+    # productmd image type
+    ("boot", [".iso"], "iso"),
 ]
 
 

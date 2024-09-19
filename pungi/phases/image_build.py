@@ -22,10 +22,13 @@ from productmd.rpms import Rpms
 # This is a mapping from formats to file extensions. The format is what koji
 # image-build command expects as argument, and the extension is what the file
 # name will be ending with. The extensions are used to filter out which task
-# results will be pulled into the compose.
+# results will be pulled into the compose. This dict is also used later in
+# the process to set the image 'type' in productmd metadata terms - the type
+# is set as the first key in this dict which has the file's extension in its
+# values. This dict is imported and extended for similar purposes by other
+# phases (at least osbuild and kiwibuild).
 EXTENSIONS = {
     "docker": ["tar.gz", "tar.xz"],
-    "iso": ["iso"],
     "liveimg-squashfs": ["liveimg.squashfs"],
     "qcow": ["qcow"],
     "qcow2": ["qcow2"],
@@ -40,7 +43,6 @@ EXTENSIONS = {
     "vdi": ["vdi"],
     "vmdk": ["vmdk"],
     "vpc": ["vhd"],
-    "vhd-compressed": ["vhd.gz", "vhd.xz"],
     "vsphere-ova": ["vsphere.ova"],
 }
 

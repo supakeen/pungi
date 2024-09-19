@@ -11,6 +11,16 @@ from ..linker import Linker
 from ..wrappers import kojiwrapper
 from .image_build import EXTENSIONS
 
+# copy and modify EXTENSIONS with some that osbuild produces but which
+# do not exist as `koji image-build` formats
+OSBUILDEXTENSIONS = EXTENSIONS.copy()
+OSBUILDEXTENSIONS.update(
+    {
+        "iso": ["iso"],
+        "vhd-compressed": ["vhd.gz", "vhd.xz"],
+    }
+)
+
 
 class OSBuildPhase(
     base.PhaseLoggerMixin, base.ImageConfigMixin, base.ConfigGuardedPhase
@@ -203,7 +213,7 @@ class RunOSBuildThread(WorkerThread):
         # architecture, but we don't verify that.
         build_info = koji.koji_proxy.getBuild(build_id)
         for archive in koji.koji_proxy.listArchives(buildID=build_id):
-            if archive["type_name"] not in EXTENSIONS:
+            if archive["type_name"] not in OSBUILDEXTENSIONS:
                 # Ignore values that are not of required types.
                 continue
 
@@ -241,7 +251,7 @@ class RunOSBuildThread(WorkerThread):
 
             linker.link(src_file, image_dest, link_type=compose.conf["link_type"])
 
-            for suffix in EXTENSIONS[archive["type_name"]]:
+            for suffix in OSBUILDEXTENSIONS[archive["type_name"]]:
                 if archive["filename"].endswith(suffix):
                     break
             else:
