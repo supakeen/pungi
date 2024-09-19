@@ -846,12 +846,12 @@ class TestCreateImageBuildThread(PungiTestCase):
             "amd64": [
                 "/koji/task/1235/tdl-amd64.xml",
                 "/koji/task/1235/Fedora-Docker-Base-20160103.amd64.qcow2",
-                "/koji/task/1235/Fedora-Docker-Base-20160103.amd64.tar.gz",
+                "/koji/task/1235/Fedora-Docker-Base-20160103.amd64.tar.xz",
             ],
             "x86_64": [
                 "/koji/task/1235/tdl-x86_64.xml",
                 "/koji/task/1235/Fedora-Docker-Base-20160103.x86_64.qcow2",
-                "/koji/task/1235/Fedora-Docker-Base-20160103.x86_64.tar.gz",
+                "/koji/task/1235/Fedora-Docker-Base-20160103.x86_64.tar.xz",
             ],
         }
 
@@ -896,9 +896,9 @@ class TestCreateImageBuildThread(PungiTestCase):
                     link_type="hardlink-or-copy",
                 ),
                 mock.call.link(
-                    "/koji/task/1235/Fedora-Docker-Base-20160103.amd64.tar.gz",
+                    "/koji/task/1235/Fedora-Docker-Base-20160103.amd64.tar.xz",
                     self.topdir
-                    + "/compose/Client/amd64/images/Fedora-Docker-Base-20160103.amd64.tar.gz",  # noqa: E501
+                    + "/compose/Client/amd64/images/Fedora-Docker-Base-20160103.amd64.tar.xz",  # noqa: E501
                     link_type="hardlink-or-copy",
                 ),
                 mock.call.link(
@@ -908,9 +908,9 @@ class TestCreateImageBuildThread(PungiTestCase):
                     link_type="hardlink-or-copy",
                 ),
                 mock.call.link(
-                    "/koji/task/1235/Fedora-Docker-Base-20160103.x86_64.tar.gz",
+                    "/koji/task/1235/Fedora-Docker-Base-20160103.x86_64.tar.xz",
                     self.topdir
-                    + "/compose/Client/x86_64/images/Fedora-Docker-Base-20160103.x86_64.tar.gz",  # noqa: E501
+                    + "/compose/Client/x86_64/images/Fedora-Docker-Base-20160103.x86_64.tar.xz",  # noqa: E501
                     link_type="hardlink-or-copy",
                 ),
             ],
@@ -922,8 +922,8 @@ class TestCreateImageBuildThread(PungiTestCase):
                 "type": "qcow2",
                 "arch": "amd64",
             },
-            "image_dir/Client/amd64/Fedora-Docker-Base-20160103.amd64.tar.gz": {
-                "format": "tar.gz",
+            "image_dir/Client/amd64/Fedora-Docker-Base-20160103.amd64.tar.xz": {
+                "format": "tar.xz",
                 "type": "docker",
                 "arch": "amd64",
             },
@@ -932,8 +932,8 @@ class TestCreateImageBuildThread(PungiTestCase):
                 "type": "qcow2",
                 "arch": "x86_64",
             },
-            "image_dir/Client/x86_64/Fedora-Docker-Base-20160103.x86_64.tar.gz": {
-                "format": "tar.gz",
+            "image_dir/Client/x86_64/Fedora-Docker-Base-20160103.x86_64.tar.xz": {
+                "format": "tar.xz",
                 "type": "docker",
                 "arch": "x86_64",
             },

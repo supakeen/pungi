@@ -28,7 +28,7 @@ from productmd.rpms import Rpms
 # values. This dict is imported and extended for similar purposes by other
 # phases (at least osbuild and kiwibuild).
 EXTENSIONS = {
-    "docker": ["tar.gz", "tar.xz"],
+    "docker": ["tar.xz"],
     "liveimg-squashfs": ["liveimg.squashfs"],
     "qcow": ["qcow"],
     "qcow2": ["qcow2"],
