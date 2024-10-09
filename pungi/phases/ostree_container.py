@@ -119,12 +119,13 @@ class OSTreeContainerThread(WorkerThread):
     def _run_ostree_container_cmd(
         self, compose, variant, arch, config, config_repo, extra_config_file=None
     ):
+        subvariant = config.get("subvariant", variant.uid)
         target_dir = compose.paths.compose.image_dir(variant) % {"arch": arch}
         util.makedirs(target_dir)
         version = util.version_generator(compose, config.get("version"))
         archive_name = "%s-%s-%s" % (
             compose.conf["release_short"],
-            variant.uid,
+            subvariant,
             version,
         )
 
@@ -177,7 +178,7 @@ class OSTreeContainerThread(WorkerThread):
         img.disc_number = 1
         img.disc_count = 1
         img.bootable = False
-        img.subvariant = config.get("subvariant", variant.uid)
+        img.subvariant = subvariant
         setattr(img, "can_fail", self.can_fail)
         setattr(img, "deliverable", "ostree-container")
         compose.im.add(variant=variant.uid, arch=arch, image=img)

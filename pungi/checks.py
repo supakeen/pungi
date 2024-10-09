@@ -1101,6 +1101,7 @@ def make_schema():
                                 "runroot_packages": {
                                     "$ref": "#/definitions/list_of_strings",
                                 },
+                                "subvariant": {"type": "string"},
                             },
                             "required": [
                                 "treefile",
