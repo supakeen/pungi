@@ -123,11 +123,8 @@ class OSTreeContainerThread(WorkerThread):
         target_dir = compose.paths.compose.image_dir(variant) % {"arch": arch}
         util.makedirs(target_dir)
         version = util.version_generator(compose, config.get("version"))
-        archive_name = "%s-%s-%s" % (
-            compose.conf["release_short"],
-            subvariant,
-            version,
-        )
+        anb = config.get("name", "%s-%s" % (compose.conf["release_short"], subvariant))
+        archive_name = "%s-%s-%s" % (anb, arch, version)
 
         # Run the pungi-make-ostree command locally to create a script to
         # execute in runroot environment.

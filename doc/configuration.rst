@@ -1887,9 +1887,14 @@ will thus create a new OCI archive image *from scratch*.
     * ``runroot_packages`` -- (*list*) A list of additional package names to be
       installed in the runroot environment in Koji.
     * ``subvariant`` -- (*str*) The subvariant value to be used in the metadata
-      for the image. Also used in the image's filename. Defaults to being the
-      same as the variant. If building more than one ostree container in a
-      variant, each must have a unique subvariant.
+      for the image. Also used in the image's filename, unless overridden by
+      ``name``. Defaults to being the same as the variant. If building more
+      than one ostree container in a variant, each must have a unique
+      subvariant.
+    * ``name`` -- (*str*) The base for the image's filename. To produce the
+      complete filename, the image's architecture, the version string, and the
+      format suffix are appended to this. Defaults to the value of
+      ``release_short`` and the subvariant, joined by a dash.
 
 Example config
 --------------

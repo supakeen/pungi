@@ -1102,6 +1102,7 @@ def make_schema():
                                     "$ref": "#/definitions/list_of_strings",
                                 },
                                 "subvariant": {"type": "string"},
+                                "name": {"type": "string"},
                             },
                             "required": [
                                 "treefile",
