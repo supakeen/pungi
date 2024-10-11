@@ -476,11 +476,15 @@ def run_compose(
         buildinstall_phase,
         (gather_phase, createrepo_phase),
         extrafiles_phase,
+    )
+    ostree_schema = (
         (ostree_phase, ostree_installer_phase),
         ostree_container_phase,
     )
     essentials_phase = pungi.phases.WeaverPhase(compose, essentials_schema)
+    ostree_phase = pungi.phases.WeaverPhase(compose, ostree_schema)
     essentials_phase.start()
+    ostree_phase.start()
     essentials_phase.stop()
 
     # write treeinfo before ISOs are created
@@ -507,12 +511,9 @@ def run_compose(
         osbuild_phase,
         kiwibuild_phase,
     )
-    post_image_phase = pungi.phases.WeaverPhase(
-        compose, (image_checksum_phase, image_container_phase)
-    )
     compose_images_phase = pungi.phases.WeaverPhase(compose, compose_images_schema)
     extra_phase_schema = (
-        (compose_images_phase, post_image_phase),
+        (compose_images_phase, image_container_phase),
         osbs_phase,
         repoclosure_phase,
     )
@@ -520,6 +521,12 @@ def run_compose(
 
     extra_phase.start()
     extra_phase.stop()
+    # wait for ostree phase here too - it can happily run in parallel
+    # with all of the other stuff
+    ostree_phase.stop()
+    # now we do checksums as all images are done
+    image_checksum_phase.start()
+    image_checksum_phase.stop()
 
     pungi.metadata.write_compose_info(compose)
     if not (
