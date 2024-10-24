@@ -799,3 +799,72 @@ class KojiSCMTestCase(SCMBaseTest):
             dl.call_args_list,
             [mock.call("http://koji.local/koji/images/abc.tar", mock.ANY)],
         )
+
+
+IMAGE_URL = "example.com/image"
+
+
+class ContainerImageScmWrapperTest(SCMBaseTest):
+    def test_get_dir_is_not_implemented(self):
+        with self.assertRaises(RuntimeError):
+            scm.get_dir_from_scm(
+                {"scm": "container-image", "repo": IMAGE_URL, "dir": ""}, self.destdir
+            )
+
+    @parameterized.expand(
+        [
+            ("x86_64", "amd64"),
+            ("aarch64", "arm64"),
+            ("s390x", "s390x"),
+        ]
+    )
+    @mock.patch("pungi.wrappers.scm.run")
+    def test_get_file(self, real_arch, translated_arch, mock_run):
+        scm.get_file_from_scm(
+            {
+                "scm": "container-image",
+                "repo": IMAGE_URL + ":latest",
+                "file": "",
+                "target": "subdir",
+            },
+            self.destdir,
+            arch=real_arch,
+        )
+        scm.get_file_from_scm(
+            {
+                "scm": "container-image",
+                "repo": IMAGE_URL + ":prev",
+                "file": "",
+                "target": "subdir",
+            },
+            self.destdir,
+            arch=real_arch,
+        )
+
+        self.assertCountEqual(
+            mock_run.mock_calls,
+            [
+                mock.call(
+                    [
+                        "skopeo",
+                        f"--override-arch={translated_arch}",
+                        "copy",
+                        IMAGE_URL + ":latest",
+                        f"oci:{self.destdir}",
+                        "--remove-signatures",
+                    ],
+                    can_fail=False,
+                ),
+                mock.call(
+                    [
+                        "skopeo",
+                        f"--override-arch={translated_arch}",
+                        "copy",
+                        IMAGE_URL + ":prev",
+                        f"oci:{self.destdir}",
+                        "--remove-signatures",
+                    ],
+                    can_fail=False,
+                ),
+            ],
+        )

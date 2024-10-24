@@ -78,7 +78,7 @@ class FileWrapper(ScmBase):
         for i in dirs:
             copy_all(i, target_dir)
 
-    def export_file(self, scm_root, scm_file, target_dir, scm_branch=None):
+    def export_file(self, scm_root, scm_file, target_dir, scm_branch=None, arch=None):
         if scm_root:
             raise ValueError("FileWrapper: 'scm_root' should be empty.")
         self.log_debug(
@@ -117,7 +117,7 @@ class CvsWrapper(ScmBase):
             )
             copy_all(os.path.join(tmp_dir, scm_dir), target_dir)
 
-    def export_file(self, scm_root, scm_file, target_dir, scm_branch=None):
+    def export_file(self, scm_root, scm_file, target_dir, scm_branch=None, arch=None):
         scm_file = scm_file.lstrip("/")
         scm_branch = scm_branch or "HEAD"
         with temp_dir() as tmp_dir:
@@ -243,7 +243,7 @@ class GitWrapper(ScmBase):
 
             copy_all(os.path.join(tmp_dir, scm_dir), target_dir)
 
-    def export_file(self, scm_root, scm_file, target_dir, scm_branch=None):
+    def export_file(self, scm_root, scm_file, target_dir, scm_branch=None, arch=None):
         scm_file = scm_file.lstrip("/")
         scm_branch = scm_branch or "master"
 
@@ -289,7 +289,7 @@ class RpmScmWrapper(ScmBase):
                         )
                     )
 
-    def export_file(self, scm_root, scm_file, target_dir, scm_branch=None):
+    def export_file(self, scm_root, scm_file, target_dir, scm_branch=None, arch=None):
         for rpm in self._list_rpms(scm_root):
             scm_file = scm_file.lstrip("/")
             with temp_dir() as tmp_dir:
@@ -314,7 +314,7 @@ class KojiScmWrapper(ScmBase):
     def export_dir(self, *args, **kwargs):
         raise RuntimeError("Only files can be exported from Koji")
 
-    def export_file(self, scm_root, scm_file, target_dir, scm_branch=None):
+    def export_file(self, scm_root, scm_file, target_dir, scm_branch=None, arch=None):
         if scm_branch:
             self._get_latest_from_tag(scm_branch, scm_root, scm_file, target_dir)
         else:
@@ -351,6 +351,26 @@ class KojiScmWrapper(ScmBase):
             urlretrieve(url, target_file)
 
 
+class ContainerImageScmWrapper(ScmBase):
+
+    def export_dir(self, *args, **kwargs):
+        raise RuntimeError("Containers can only be exported as files")
+
+    def export_file(self, scm_root, scm_file, target_dir, scm_branch=None, arch=None):
+        ARCHES = {"aarch64": "arm64", "x86_64": "amd64"}
+        arch = ARCHES.get(arch, arch)
+        cmd = [
+            "skopeo",
+            "--override-arch=" + arch,
+            "copy",
+            scm_root,
+            "oci:" + target_dir,
+            "--remove-signatures",
+        ]
+        self.log_debug("Exporting container %s to %s: %s", scm_root, target_dir, cmd)
+        run(cmd, can_fail=False)
+
+
 def _get_wrapper(scm_type, *args, **kwargs):
     SCM_WRAPPERS = {
         "file": FileWrapper,
@@ -358,6 +378,7 @@ def _get_wrapper(scm_type, *args, **kwargs):
         "git": GitWrapper,
         "rpm": RpmScmWrapper,
         "koji": KojiScmWrapper,
+        "container-image": ContainerImageScmWrapper,
     }
     try:
         cls = SCM_WRAPPERS[scm_type]
@@ -366,7 +387,7 @@ def _get_wrapper(scm_type, *args, **kwargs):
     return cls(*args, **kwargs)
 
 
-def get_file_from_scm(scm_dict, target_path, compose=None):
+def get_file_from_scm(scm_dict, target_path, compose=None, arch=None):
     """
     Copy one or more files from source control to a target path. A list of files
     created in ``target_path`` is returned.
@@ -420,8 +441,18 @@ def get_file_from_scm(scm_dict, target_path, compose=None):
     files_copied = []
     for i in force_list(scm_file):
         with temp_dir(prefix="scm_checkout_") as tmp_dir:
-            scm.export_file(scm_repo, i, scm_branch=scm_branch, target_dir=tmp_dir)
-            files_copied += copy_all(tmp_dir, target_path)
+            # Most SCM wrappers need a temporary directory: the git repo is
+            # cloned there, and only relevant files are copied out. But this
+            # doesn't work for the container image fetching. That pulls in only
+            # required files, and the final output needs to be done by skopeo
+            # to correctly handle multiple containers landing in the same OCI
+            # archive.
+            dest = target_path if scm_type == "container-image" else tmp_dir
+            scm.export_file(
+                scm_repo, i, scm_branch=scm_branch, target_dir=dest, arch=arch
+            )
+            if dest == tmp_dir:
+                files_copied += copy_all(tmp_dir, target_path)
     return files_copied
 
 
@@ -460,7 +491,7 @@ def get_file(source, destination, compose, overwrite=False):
     return destination
 
 
-def get_dir_from_scm(scm_dict, target_path, compose=None):
+def get_dir_from_scm(scm_dict, target_path, compose=None, arch=None):
     """
     Copy a directory from source control to a target path. A list of files
     created in ``target_path`` is returned.

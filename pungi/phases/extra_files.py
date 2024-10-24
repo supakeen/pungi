@@ -112,7 +112,7 @@ def copy_extra_files(
         target_path = os.path.join(
             extra_files_dir, scm_dict.get("target", "").lstrip("/")
         )
-        getter(scm_dict, target_path, compose=compose)
+        getter(scm_dict, target_path, compose=compose, arch=arch)
 
     if os.listdir(extra_files_dir):
         metadata.populate_extra_files_metadata(

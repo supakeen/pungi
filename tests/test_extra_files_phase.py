@@ -223,7 +223,7 @@ class TestCopyFiles(helpers.PungiTestCase):
             )
         )
 
-    def fake_get_file(self, scm_dict, dest, compose):
+    def fake_get_file(self, scm_dict, dest, compose, arch=None):
         self.scm_dict = scm_dict
         helpers.touch(os.path.join(dest, scm_dict["file"]))
         return [scm_dict["file"]]

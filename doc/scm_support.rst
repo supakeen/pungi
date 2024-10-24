@@ -18,6 +18,7 @@ which can contain following keys.
   * ``cvs`` -- copies files from a CVS repository
   * ``rpm`` -- copies files from a package in the compose
   * ``koji`` -- downloads archives from a given build in Koji build system
+  * ``container-image`` -- downloads an artifact from a container registry
 
 * ``repo``
 
@@ -83,6 +84,24 @@ configuration option should specify whether it expects a file or a directory.
 
 For ``extra_files`` phase either key is valid and should be chosen depending on
 what the actual use case.
+
+
+``container-image`` example
+---------------------------
+
+Example of pulling a container image into the compose. ::
+
+    {
+        # Pull a container into an oci-archive tar file
+        "scm": "container-image",
+        # This is the pull spec including tag. It is passed directly to skopeo
+        # copy with no modification.
+        "repo": "docker://registry.access.redhat.com/ubi9/ubi-minimal:latest",
+        # Key `file` is required, but the value is ignored.
+        "file": "",
+        # Optional subdirectory under Server/<arch>/os
+        "target": "containers",
+    }
 
 
 Caveats
