@@ -6,6 +6,7 @@ LABEL \
     license="MIT"
 
 RUN dnf -y update && dnf -y install \
+        --setopt=install_weak_deps=false \
         findutils \
         libmodulemd \
         git \
@@ -15,6 +16,7 @@ RUN dnf -y update && dnf -y install \
         python3-gobject-base \
         python3-tox \
         python3-urlgrabber \
+        python3-dnf \
     && dnf clean all
 
 WORKDIR /src
