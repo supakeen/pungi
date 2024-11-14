@@ -136,17 +136,6 @@ class PungiWrapper(object):
         # want it mandatory here
         cmd.append("--destdir=%s" % destdir)
 
-        # name
-        cmd.append("--name=%s" % name)
-
-        # version; optional, defaults to datestamp
-        if version:
-            cmd.append("--ver=%s" % version)
-
-        # rhel variant; optional
-        if flavor:
-            cmd.append("--flavor=%s" % flavor)
-
         # turn selfhosting on
         if selfhosting:
             cmd.append("--selfhosting")
@@ -293,8 +282,6 @@ class PungiWrapper(object):
         ksparser = ks.get_ksparser(ks_path=ks_file)
         cfg = config.Config()
         cfg.set("pungi", "destdir", destdir)
-        cfg.set("pungi", "family", name)
-        cfg.set("pungi", "iso_basename", name)
         cfg.set("pungi", "fulltree", str(fulltree))
         cfg.set("pungi", "selfhosting", str(selfhosting))
         cfg.set("pungi", "cachedir", cache_dir)
