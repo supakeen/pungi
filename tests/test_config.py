@@ -275,16 +275,6 @@ class GatherConfigTestCase(ConfigTestCase):
             self.assertValidation(cfg, [])
         self.assertEqual(cfg["gather_backend"], "dnf")
 
-    def test_yum_backend_is_default_on_py2(self):
-        cfg = load_config(
-            pkgset_source="koji",
-            pkgset_koji_tag="f27",
-        )
-
-        with mock.patch("six.PY2", new=True):
-            self.assertValidation(cfg, [])
-        self.assertEqual(cfg["gather_backend"], "yum")
-
     def test_yum_backend_is_rejected_on_py3(self):
         cfg = load_config(
             pkgset_source="koji",
@@ -468,7 +458,7 @@ class RepoclosureTestCase(ConfigTestCase):
             repoclosure_backend="fnd",  # Intentionally with a typo
         )
 
-        options = ["yum", "dnf"] if six.PY2 else ["dnf"]
+        options = ["dnf"]
         self.assertValidation(
             cfg,
             [

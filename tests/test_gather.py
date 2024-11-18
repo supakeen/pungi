@@ -25,11 +25,6 @@ try:
 except ImportError:
     HAS_DNF = False
 
-if six.PY2:
-    HAS_YUM = True
-else:
-    HAS_YUM = False
-
 
 def convert_pkg_map(data):
     """
@@ -2135,71 +2130,6 @@ class DepsolvingBase(object):
         self.assertEqual(pkg_map["rpm"], ["dummy-release-notes-en-US-1.2-1.noarch.rpm"])
         self.assertEqual(pkg_map["srpm"], ["dummy-release-notes-en-US-1.2-1.src.rpm"])
         self.assertEqual(pkg_map["debuginfo"], [])
-
-
-@unittest.skipUnless(HAS_YUM, "YUM only available on Python 2")
-class PungiYumDepsolvingTestCase(DepsolvingBase, unittest.TestCase):
-    def setUp(self):
-        super(PungiYumDepsolvingTestCase, self).setUp()
-        self.ks = os.path.join(self.tmp_dir, "ks")
-        self.out = os.path.join(self.tmp_dir, "out")
-        self.cwd = os.path.join(self.tmp_dir, "cwd")
-        os.mkdir(self.cwd)
-        self.old_cwd = os.getcwd()
-        os.chdir(self.cwd)
-
-        logger = logging.getLogger("Pungi")
-        if not logger.handlers:
-            formatter = logging.Formatter("%(name)s:%(levelname)s: %(message)s")
-            console = logging.StreamHandler(sys.stdout)
-            console.setFormatter(formatter)
-            console.setLevel(logging.INFO)
-            logger.addHandler(console)
-
-    def tearDown(self):
-        os.chdir(self.old_cwd)
-        super(PungiYumDepsolvingTestCase, self).tearDown()
-
-    def go(
-        self,
-        packages,
-        groups,
-        lookaside=None,
-        prepopulate=None,
-        fulltree_excludes=None,
-        multilib_blacklist=None,
-        multilib_whitelist=None,
-        **kwargs
-    ):
-        """
-        Write a kickstart with given packages and groups, then run the
-        depsolving and parse the output.
-        """
-        p = PungiWrapper()
-        repos = {"repo": self.repo}
-        if lookaside:
-            repos["lookaside"] = lookaside
-            kwargs["lookaside_repos"] = ["lookaside"]
-        p.write_kickstart(
-            self.ks,
-            repos,
-            groups,
-            packages,
-            prepopulate=prepopulate,
-            multilib_whitelist=multilib_whitelist,
-            multilib_blacklist=multilib_blacklist,
-            fulltree_excludes=fulltree_excludes,
-        )
-        kwargs.setdefault("cache_dir", self.tmp_dir)
-        # Unless the test specifies an arch, we need to default to x86_64.
-        # Otherwise the arch of current machine will be used, which will cause
-        # failure most of the time.
-        kwargs.setdefault("arch", "x86_64")
-
-        p.run_pungi(self.ks, self.tmp_dir, "DP", **kwargs)
-        with open(self.out, "r") as f:
-            pkg_map, self.broken_deps, _ = p.parse_log(f)
-        return convert_pkg_map(pkg_map)
 
 
 def convert_dnf_packages(pkgs, flags):

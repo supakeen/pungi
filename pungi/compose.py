@@ -466,13 +466,10 @@ class Compose(kobo.log.LoggingBase):
 
     @property
     def should_create_yum_database(self):
-        """Explicit configuration trumps all. Otherwise check gather backend
-        and only create it for Yum.
+        """Explicit configuration trumps all. Yum is no longer supported, so
+        default to False.
         """
-        config = self.conf.get("createrepo_database")
-        if config is not None:
-            return config
-        return self.conf["gather_backend"] == "yum"
+        return self.conf.get("createrepo_database", False)
 
     def read_variants(self):
         # TODO: move to phases/init ?

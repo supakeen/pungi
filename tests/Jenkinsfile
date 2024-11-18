@@ -40,7 +40,6 @@ git fetch proposed
 git checkout origin/master
 git merge --no-ff "proposed/$params.BRANCH" -m "Merge PR"
 podman run --rm -v .:/src:Z quay.io/exd-guild-compose/pungi-test tox -r -e flake8,black,py3,bandit
-podman run --rm -v .:/src:Z quay.io/exd-guild-compose/pungi-test-py2 tox -r -e py27
                         """
                         sh "cat job.sh"
                         sh "ssh -o StrictHostKeyChecking=no root@$hostname mkdir $remote_dir"

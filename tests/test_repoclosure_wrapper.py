@@ -9,11 +9,6 @@ from . import helpers
 
 
 class RepoclosureWrapperTestCase(helpers.BaseTestCase):
-    def test_minimal_command(self):
-        self.assertEqual(
-            rc.get_repoclosure_cmd(), ["/usr/bin/repoclosure", "--tempcache"]
-        )
-
     def test_minimal_dnf_command(self):
         self.assertEqual(rc.get_repoclosure_cmd(backend="dnf"), ["dnf", "repoclosure"])
 
@@ -22,37 +17,6 @@ class RepoclosureWrapperTestCase(helpers.BaseTestCase):
             rc.get_repoclosure_cmd(backend="rpm")
 
         self.assertEqual(str(ctx.exception), "Unknown repoclosure backend: rpm")
-
-    def test_multiple_arches(self):
-        self.assertEqual(
-            rc.get_repoclosure_cmd(arch=["x86_64", "i686", "noarch"]),
-            [
-                "/usr/bin/repoclosure",
-                "--tempcache",
-                "--arch=x86_64",
-                "--arch=i686",
-                "--arch=noarch",
-            ],
-        )
-
-    def test_full_command(self):
-        repos = {"my-repo": "/mnt/koji/repo"}
-        lookaside = {"fedora": "http://kojipkgs.fp.o/repo"}
-
-        cmd = rc.get_repoclosure_cmd(arch="x86_64", repos=repos, lookaside=lookaside)
-        self.assertEqual(cmd[0], "/usr/bin/repoclosure")
-        six.assertCountEqual(
-            self,
-            cmd[1:],
-            [
-                "--tempcache",
-                "--arch=x86_64",
-                "--repofrompath=my-repo,file:///mnt/koji/repo",
-                "--repofrompath=fedora,http://kojipkgs.fp.o/repo",
-                "--repoid=my-repo",
-                "--lookaside=fedora",
-            ],
-        )
 
     def test_full_dnf_command(self):
         repos = {"my-repo": "/mnt/koji/repo"}
@@ -100,44 +64,6 @@ class RepoclosureWrapperTestCase(helpers.BaseTestCase):
                 "--repo=my-repo",
                 "--check=my-repo",
                 "--repo=fedora",
-            ],
-        )
-
-    def test_expand_repo(self):
-        repos = {
-            "local": "/mnt/koji/repo",
-            "remote": "http://kojipkgs.fp.o/repo",
-        }
-        cmd = rc.get_repoclosure_cmd(repos=repos)
-        self.assertEqual(cmd[0], "/usr/bin/repoclosure")
-        six.assertCountEqual(
-            self,
-            cmd[1:],
-            [
-                "--tempcache",
-                "--repofrompath=local,file:///mnt/koji/repo",
-                "--repofrompath=remote,http://kojipkgs.fp.o/repo",
-                "--repoid=local",
-                "--repoid=remote",
-            ],
-        )
-
-    def test_expand_lookaside(self):
-        repos = {
-            "local": "/mnt/koji/repo",
-            "remote": "http://kojipkgs.fp.o/repo",
-        }
-        cmd = rc.get_repoclosure_cmd(lookaside=repos)
-        self.assertEqual(cmd[0], "/usr/bin/repoclosure")
-        six.assertCountEqual(
-            self,
-            cmd[1:],
-            [
-                "--tempcache",
-                "--repofrompath=local,file:///mnt/koji/repo",
-                "--repofrompath=remote,http://kojipkgs.fp.o/repo",
-                "--lookaside=local",
-                "--lookaside=remote",
             ],
         )
 

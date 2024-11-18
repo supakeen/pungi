@@ -30,7 +30,6 @@ setup(
     entry_points={
         "console_scripts": [
             "comps_filter = pungi.scripts.comps_filter:main",
-            "pungi = pungi.scripts.pungi:main",
             "pungi-create-unified-isos = pungi.scripts.create_unified_isos:main",
             "pungi-fedmsg-notification = pungi.scripts.fedmsg_notification:main",
             "pungi-patch-iso = pungi.scripts.patch_iso:cli_main",

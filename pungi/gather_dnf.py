@@ -1080,7 +1080,7 @@ class Gather(GatherBase):
                 if ex.errno == errno.EEXIST:
                     self.logger.warning("Downloaded package exists in %s", target)
                 else:
-                    self.logger.error("Unable to link %s from the yum cache.", pkg.name)
+                    self.logger.error("Unable to link %s from the dnf cache.", pkg.name)
                     raise
 
     def log_count(self, msg, method, *args):

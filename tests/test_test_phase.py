@@ -9,20 +9,6 @@ import os
 import pungi.phases.test as test_phase
 from tests.helpers import DummyCompose, PungiTestCase, touch, FIXTURE_DIR
 
-try:
-    import dnf  # noqa: F401
-
-    HAS_DNF = True
-except ImportError:
-    HAS_DNF = False
-
-try:
-    import yum  # noqa: F401
-
-    HAS_YUM = True
-except ImportError:
-    HAS_YUM = False
-
 
 PAD = b"\0" * 100
 UNBOOTABLE_ISO = (b"\0" * 0x8001) + b"CD001" + PAD

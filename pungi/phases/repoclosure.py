@@ -101,18 +101,13 @@ def run_repoclosure(compose):
 
 
 def _delete_repoclosure_cache_dirs(compose):
-    if "dnf" == compose.conf["repoclosure_backend"]:
-        from dnf.const import SYSTEM_CACHEDIR
-        from dnf.util import am_i_root
-        from dnf.yum.misc import getCacheDir
+    from dnf.const import SYSTEM_CACHEDIR
+    from dnf.util import am_i_root
+    from dnf.yum.misc import getCacheDir
 
-        if am_i_root():
-            top_cache_dir = SYSTEM_CACHEDIR
-        else:
-            top_cache_dir = getCacheDir()
+    if am_i_root():
+        top_cache_dir = SYSTEM_CACHEDIR
     else:
-        from yum.misc import getCacheDir
-
         top_cache_dir = getCacheDir()
 
     for name in os.listdir(top_cache_dir):

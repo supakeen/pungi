@@ -15,7 +15,6 @@
 
 
 import os
-import shutil
 
 from kobo.shortcuts import run
 
@@ -76,7 +75,6 @@ def get_pkgset_from_repos(compose):
         pungi_dir = compose.paths.work.pungi_download_dir(arch)
 
         backends = {
-            "yum": pungi.get_pungi_cmd,
             "dnf": pungi.get_pungi_cmd_dnf,
         }
         get_cmd = backends[compose.conf["gather_backend"]]
@@ -93,8 +91,6 @@ def get_pkgset_from_repos(compose):
             cache_dir=compose.paths.work.pungi_cache_dir(arch=arch),
             profiler=profiler,
         )
-        if compose.conf["gather_backend"] == "yum":
-            cmd.append("--force")
 
         # TODO: runroot
         run(cmd, logfile=pungi_log, show_cmd=True, stdout=False)
@@ -110,17 +106,6 @@ def get_pkgset_from_repos(compose):
                 dst = os.path.join(path_prefix, os.path.basename(src))
                 flist.append(dst)
                 pool.queue_put((src, dst))
-
-        # Clean up tmp dir
-        # Workaround for rpm not honoring sgid bit which only appears when yum is used.
-        yumroot_dir = os.path.join(pungi_dir, "work", arch, "yumroot")
-        if os.path.isdir(yumroot_dir):
-            try:
-                shutil.rmtree(yumroot_dir)
-            except Exception as e:
-                compose.log_warning(
-                    "Failed to clean up tmp dir: %s %s" % (yumroot_dir, str(e))
-                )
 
     msg = "Linking downloaded pkgset packages"
     compose.log_info("[BEGIN] %s" % msg)

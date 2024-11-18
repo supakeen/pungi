@@ -698,7 +698,6 @@ def make_schema():
             ),
             "repoclosure_backend": {
                 "type": "string",
-                # Gather and repoclosure both have the same backends: yum + dnf
                 "default": _get_default_gather_backend(),
                 "enum": _get_gather_backends(),
             },
@@ -1607,10 +1606,8 @@ def update_schema(schema, update_dict):
 
 
 def _get_gather_backends():
-    if six.PY2:
-        return ["yum", "dnf"]
     return ["dnf"]
 
 
 def _get_default_gather_backend():
-    return "yum" if six.PY2 else "dnf"
+    return "dnf"

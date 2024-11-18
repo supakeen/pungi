@@ -19,13 +19,8 @@ import os
 from kobo.shortcuts import force_list
 
 
-def get_repoclosure_cmd(backend="yum", arch=None, repos=None, lookaside=None):
+def get_repoclosure_cmd(backend="dnf", arch=None, repos=None, lookaside=None):
     cmds = {
-        "yum": {
-            "cmd": ["/usr/bin/repoclosure", "--tempcache"],
-            "repoarg": "--repoid=%s",
-            "lookaside": "--lookaside=%s",
-        },
         "dnf": {
             "cmd": ["dnf", "repoclosure"],
             "repoarg": "--repo=%s",
@@ -44,18 +39,17 @@ def get_repoclosure_cmd(backend="yum", arch=None, repos=None, lookaside=None):
     for i in arches:
         cmd.append("--arch=%s" % i)
 
-    if backend == "dnf" and arches:
+    if arches:
         cmd.append("--forcearch=%s" % arches[0])
 
     repos = repos or {}
     for repo_id, repo_path in repos.items():
         cmd.append("--repofrompath=%s,%s" % (repo_id, _to_url(repo_path)))
         cmd.append(cmds[backend]["repoarg"] % repo_id)
-        if backend == "dnf":
-            # For dnf we want to add all repos with the --repo option (which
-            # enables only those and not any system repo), and the repos to
-            # check are also listed with the --check option.
-            cmd.append("--check=%s" % repo_id)
+        # For dnf we want to add all repos with the --repo option (which
+        # enables only those and not any system repo), and the repos to
+        # check are also listed with the --check option.
+        cmd.append("--check=%s" % repo_id)
 
     lookaside = lookaside or {}
     for repo_id, repo_path in lookaside.items():

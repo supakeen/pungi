@@ -752,15 +752,6 @@ class StatusTest(unittest.TestCase):
         self.compose.conf["createrepo_database"] = True
         self.assertTrue(self.compose.should_create_yum_database)
 
-    def test_no_database_with_yum_backend(self):
-        self.compose.conf["gather_backend"] = "yum"
-        self.assertTrue(self.compose.should_create_yum_database)
-
-    def test_no_database_with_yum_backend_config_override(self):
-        self.compose.conf["gather_backend"] = "yum"
-        self.compose.conf["createrepo_database"] = False
-        self.assertFalse(self.compose.should_create_yum_database)
-
 
 class DumpContainerMetadataTest(unittest.TestCase):
     def setUp(self):

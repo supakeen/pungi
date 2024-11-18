@@ -1,11 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
-
 try:
     from unittest import mock
 except ImportError:
@@ -14,20 +8,6 @@ import six
 
 import pungi.phases.repoclosure as repoclosure_phase
 from tests.helpers import DummyCompose, PungiTestCase, mk_boom
-
-try:
-    import dnf  # noqa: F401
-
-    HAS_DNF = True
-except ImportError:
-    HAS_DNF = False
-
-try:
-    import yum  # noqa: F401
-
-    HAS_YUM = True
-except ImportError:
-    HAS_YUM = False
 
 
 class TestRepoclosure(PungiTestCase):
@@ -52,53 +32,6 @@ class TestRepoclosure(PungiTestCase):
 
         self.assertEqual(mock_grc.call_args_list, [])
 
-    @unittest.skipUnless(HAS_YUM, "YUM is not available")
-    @mock.patch("pungi.wrappers.repoclosure.get_repoclosure_cmd")
-    @mock.patch("pungi.phases.repoclosure.run")
-    def test_repoclosure_default_backend(self, mock_run, mock_grc):
-        with mock.patch("six.PY2", new=True):
-            compose = DummyCompose(self.topdir, {})
-
-        repoclosure_phase.run_repoclosure(compose)
-
-        six.assertCountEqual(
-            self,
-            mock_grc.call_args_list,
-            [
-                mock.call(
-                    backend="yum",
-                    arch=["amd64", "x86_64", "noarch"],
-                    lookaside={},
-                    repos=self._get_repo(compose.compose_id, "Everything", "amd64"),
-                ),
-                mock.call(
-                    backend="yum",
-                    arch=["amd64", "x86_64", "noarch"],
-                    lookaside={},
-                    repos=self._get_repo(compose.compose_id, "Client", "amd64"),
-                ),
-                mock.call(
-                    backend="yum",
-                    arch=["amd64", "x86_64", "noarch"],
-                    lookaside={},
-                    repos=self._get_repo(compose.compose_id, "Server", "amd64"),
-                ),
-                mock.call(
-                    backend="yum",
-                    arch=["x86_64", "noarch"],
-                    lookaside={},
-                    repos=self._get_repo(compose.compose_id, "Server", "x86_64"),
-                ),
-                mock.call(
-                    backend="yum",
-                    arch=["x86_64", "noarch"],
-                    lookaside={},
-                    repos=self._get_repo(compose.compose_id, "Everything", "x86_64"),
-                ),
-            ],
-        )
-
-    @unittest.skipUnless(HAS_DNF, "DNF is not available")
     @mock.patch("pungi.wrappers.repoclosure.get_repoclosure_cmd")
     @mock.patch("pungi.phases.repoclosure.run")
     def test_repoclosure_dnf_backend(self, mock_run, mock_grc):
@@ -182,7 +115,6 @@ class TestRepoclosure(PungiTestCase):
         with self.assertRaises(RuntimeError):
             repoclosure_phase.run_repoclosure(compose)
 
-    @unittest.skipUnless(HAS_DNF, "DNF is not available")
     @mock.patch("pungi.wrappers.repoclosure.get_repoclosure_cmd")
     @mock.patch("pungi.phases.repoclosure.run")
     def test_repoclosure_overwrite_options_creates_correct_commands(
