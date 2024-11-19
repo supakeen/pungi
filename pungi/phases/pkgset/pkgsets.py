@@ -265,7 +265,7 @@ class PackageSetBase(kobo.log.LoggingBase):
         for arch in arch_list:
             self.rpms_by_arch.setdefault(arch, [])
             for i in other.rpms_by_arch.get(arch, []):
-                if i.file_path in self.file_cache:
+                if i.file_path in self.file_cache.file_cache:
                     # TODO: test if it really works
                     continue
                 if inherit_to_noarch and exclusivearch_list and arch == "noarch":
