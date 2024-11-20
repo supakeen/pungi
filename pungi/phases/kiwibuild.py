@@ -19,6 +19,12 @@ KIWIEXTENSIONS = [
     # so 'boot' is just a default guess. 'iso' is not a valid
     # productmd image type
     ("boot", [".iso"], "iso"),
+    ("fex", ["erofs.xz"], "erofs.xz"),
+    ("fex", ["erofs.gz"], "erofs.gz"),
+    ("fex", ["erofs"], "erofs"),
+    ("fex", ["squashfs.xz"], "squashfs.xz"),
+    ("fex", ["squashfs.gz"], "squashfs.gz"),
+    ("fex", ["squashfs"], "squashfs"),
 ]
 
 
