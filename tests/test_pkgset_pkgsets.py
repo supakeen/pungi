@@ -5,7 +5,6 @@ try:
 except ImportError:
     import mock
 import os
-import six
 
 import unittest
 import json
@@ -129,7 +128,7 @@ class PkgsetCompareMixin(object):
         for k, v1 in expected.items():
             self.assertIn(k, actual)
             v2 = actual.pop(k)
-            six.assertCountEqual(self, v1, v2)
+            self.assertCountEqual(v1, v2)
         self.assertEqual({}, actual)
 
 
@@ -164,7 +163,7 @@ class TestKojiPkgset(PkgsetCompareMixin, helpers.PungiTestCase):
         for k, v1 in expected.items():
             self.assertIn(k, actual)
             v2 = actual.pop(k)
-            six.assertCountEqual(self, v1, v2)
+            self.assertCountEqual(v1, v2)
         self.assertEqual({}, actual, msg="Some architectures were missing")
 
     def test_all_arches(self):
@@ -1113,6 +1112,6 @@ class TestSaveFileList(unittest.TestCase):
 
         with open(self.tmpfile) as f:
             rpms = f.read().strip().split("\n")
-            six.assertCountEqual(
-                self, rpms, ["pungi@4.1.3@3.fc25@noarch", "pungi@4.1.3@3.fc25@src"]
+            self.assertCountEqual(
+                rpms, ["pungi@4.1.3@3.fc25@noarch", "pungi@4.1.3@3.fc25@src"]
             )

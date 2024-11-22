@@ -15,8 +15,8 @@
 from kobo import shortcuts
 import os
 import productmd
+import shlex
 import tempfile
-from six.moves import shlex_quote
 
 from pungi import util
 from pungi.phases.buildinstall import tweak_configs
@@ -24,7 +24,7 @@ from pungi.wrappers import iso
 
 
 def sh(log, cmd, *args, **kwargs):
-    log.info("Running: %s", " ".join(shlex_quote(x) for x in cmd))
+    log.info("Running: %s", " ".join(shlex.quote(x) for x in cmd))
     ret, out = shortcuts.run(cmd, *args, universal_newlines=True, **kwargs)
     if out:
         log.debug("%s", out)

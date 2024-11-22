@@ -11,13 +11,12 @@ import locale
 import logging
 import os
 import socket
+import shlex
 import signal
 import sys
 import traceback
 import shutil
 import subprocess
-
-from six.moves import shlex_quote
 
 from pungi.phases import PHASES_NAMES
 from pungi import get_full_version, util
@@ -380,7 +379,7 @@ def run_compose(
     compose.log_info("User name: %s" % getpass.getuser())
     compose.log_info("Working directory: %s" % os.getcwd())
     compose.log_info(
-        "Command line: %s" % " ".join([shlex_quote(arg) for arg in sys.argv])
+        "Command line: %s" % " ".join([shlex.quote(arg) for arg in sys.argv])
     )
     compose.log_info("Compose top directory: %s" % compose.topdir)
     compose.log_info("Current timezone offset: %s" % pungi.util.get_tz_offset())

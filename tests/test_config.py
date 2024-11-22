@@ -2,8 +2,6 @@
 
 import unittest
 
-import six
-
 try:
     from unittest import mock
 except ImportError:
@@ -16,7 +14,7 @@ from tests.helpers import load_config, PKGSET_REPOS
 class ConfigTestCase(unittest.TestCase):
     def assertValidation(self, cfg, errors=[], warnings=[]):
         actual_errors, actual_warnings = checks.validate(cfg)
-        six.assertCountEqual(self, errors, actual_errors)
+        self.assertCountEqual(errors, actual_errors)
         self.assertEqual(warnings, actual_warnings)
 
 
@@ -267,8 +265,7 @@ class GatherConfigTestCase(ConfigTestCase):
             pkgset_koji_tag="f27",
         )
 
-        with mock.patch("six.PY2", new=False):
-            self.assertValidation(cfg, [])
+        self.assertValidation(cfg, [])
         self.assertEqual(cfg["gather_backend"], "dnf")
 
     def test_yum_backend_is_rejected_on_py3(self):
@@ -278,11 +275,10 @@ class GatherConfigTestCase(ConfigTestCase):
             gather_backend="yum",
         )
 
-        with mock.patch("six.PY2", new=False):
-            self.assertValidation(
-                cfg,
-                ["Failed validation in gather_backend: 'yum' is not one of ['dnf']"],
-            )
+        self.assertValidation(
+            cfg,
+            ["Failed validation in gather_backend: 'yum' is not one of ['dnf']"],
+        )
 
 
 class OSBSConfigTestCase(ConfigTestCase):
@@ -441,9 +437,10 @@ class TestRegexValidation(ConfigTestCase):
     def test_incorrect_regular_expression(self):
         cfg = load_config(PKGSET_REPOS, multilib=[("^*$", {"*": []})])
 
-        msg = "Failed validation in multilib.0.0: incorrect regular expression: nothing to repeat"  # noqa: E501
-        if six.PY3:
-            msg += " at position 1"
+        msg = (
+            "Failed validation in multilib.0.0: incorrect regular expression: "
+            "nothing to repeat at position 1"
+        )
         self.assertValidation(cfg, [msg], [])
 
 

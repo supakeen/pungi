@@ -6,7 +6,6 @@ try:
     from unittest import mock
 except ImportError:
     import mock
-import six
 
 import os
 
@@ -39,8 +38,7 @@ class ExtraIsosPhaseTest(helpers.PungiTestCase):
         phase.run()
 
         self.assertEqual(len(ThreadPool.return_value.add.call_args_list), 3)
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             ThreadPool.return_value.queue_put.call_args_list,
             [
                 mock.call((compose, cfg, compose.variants["Server"], "x86_64")),
@@ -60,8 +58,7 @@ class ExtraIsosPhaseTest(helpers.PungiTestCase):
         phase.run()
 
         self.assertEqual(len(ThreadPool.return_value.add.call_args_list), 2)
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             ThreadPool.return_value.queue_put.call_args_list,
             [
                 mock.call((compose, cfg, compose.variants["Server"], "x86_64")),
@@ -80,8 +77,7 @@ class ExtraIsosPhaseTest(helpers.PungiTestCase):
         phase.run()
 
         self.assertEqual(len(ThreadPool.return_value.add.call_args_list), 2)
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             ThreadPool.return_value.queue_put.call_args_list,
             [
                 mock.call((compose, cfg, compose.variants["Server"], "x86_64")),
@@ -674,8 +670,7 @@ class GetIsoContentsTest(helpers.PungiTestCase):
             "Server/repodata/repomd.xml": "/mnt/repodata/repomd.xml",
         }
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             ggp.call_args_list,
             [
                 mock.call(
@@ -748,8 +743,7 @@ class GetIsoContentsTest(helpers.PungiTestCase):
             "Server/repodata/repomd.xml": "/mnt/repodata/repomd.xml",
         }
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             ggp.call_args_list,
             [
                 mock.call(
@@ -818,8 +812,7 @@ class GetIsoContentsTest(helpers.PungiTestCase):
             "Server/repodata/repomd.xml": "/mnt/repodata/repomd.xml",
         }
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             ggp.call_args_list,
             [
                 mock.call(
@@ -913,8 +906,7 @@ class GetIsoContentsTest(helpers.PungiTestCase):
             ),
         }
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             ggp.call_args_list,
             [
                 mock.call(

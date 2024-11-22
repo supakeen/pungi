@@ -13,8 +13,6 @@ import unittest
 import http.server
 import threading
 
-import six
-
 from parameterized import parameterized
 
 from pungi.wrappers import scm
@@ -31,7 +29,7 @@ class SCMBaseTest(unittest.TestCase):
 
     def assertStructure(self, returned, expected):
         # Check we returned the correct files
-        six.assertCountEqual(self, returned, expected)
+        self.assertCountEqual(returned, expected)
 
         # Each file must exist
         for f in expected:
@@ -43,7 +41,7 @@ class SCMBaseTest(unittest.TestCase):
             for f in files:
                 p = os.path.relpath(os.path.join(root, f), self.destdir)
                 found.append(p)
-        six.assertCountEqual(self, expected, found)
+        self.assertCountEqual(expected, found)
 
 
 class FileSCMTestCase(SCMBaseTest):
@@ -601,7 +599,7 @@ class RpmSCMTestCase(SCMBaseTest):
         )
 
         self.assertStructure(retval, ["some-file-1.txt", "some-file-2.txt"])
-        six.assertCountEqual(self, self.exploded, self.rpms)
+        self.assertCountEqual(self.exploded, self.rpms)
 
     @mock.patch("pungi.wrappers.scm.explode_rpm_package")
     def test_get_files_from_glob_rpms(self, explode):
@@ -625,7 +623,7 @@ class RpmSCMTestCase(SCMBaseTest):
                 "some-file-4.txt",
             ],
         )
-        six.assertCountEqual(self, self.exploded, self.numbered)
+        self.assertCountEqual(self.exploded, self.numbered)
 
     @mock.patch("pungi.wrappers.scm.explode_rpm_package")
     def test_get_dir_from_two_rpms(self, explode):
@@ -636,7 +634,7 @@ class RpmSCMTestCase(SCMBaseTest):
         )
 
         self.assertStructure(retval, ["common/foo-1.txt", "common/foo-2.txt"])
-        six.assertCountEqual(self, self.exploded, self.rpms)
+        self.assertCountEqual(self.exploded, self.rpms)
 
     @mock.patch("pungi.wrappers.scm.explode_rpm_package")
     def test_get_dir_from_glob_rpms(self, explode):
@@ -654,7 +652,7 @@ class RpmSCMTestCase(SCMBaseTest):
         self.assertStructure(
             retval, ["foo-1.txt", "foo-2.txt", "foo-3.txt", "foo-4.txt"]
         )
-        six.assertCountEqual(self, self.exploded, self.numbered)
+        self.assertCountEqual(self.exploded, self.numbered)
 
 
 class CvsSCMTestCase(SCMBaseTest):

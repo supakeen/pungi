@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from unittest import mock
-import six
 
 import pungi.phases.repoclosure as repoclosure_phase
 from tests.helpers import DummyCompose, PungiTestCase, mk_boom
@@ -35,8 +34,7 @@ class TestRepoclosure(PungiTestCase):
         compose = DummyCompose(self.topdir, {"repoclosure_backend": "dnf"})
         repoclosure_phase.run_repoclosure(compose)
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             mock_grc.call_args_list,
             [
                 mock.call(
@@ -89,8 +87,7 @@ class TestRepoclosure(PungiTestCase):
         repoclosure_phase.run_repoclosure(compose)
 
         self.assertEqual(mock_grc.call_args_list, [])
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             effl.call_args_list,
             [
                 mock.call([f], _log("amd64", "Everything")),
@@ -129,8 +126,7 @@ class TestRepoclosure(PungiTestCase):
         )
         repoclosure_phase.run_repoclosure(compose)
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             mock_grc.call_args_list,
             [
                 mock.call(

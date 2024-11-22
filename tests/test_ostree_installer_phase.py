@@ -6,12 +6,12 @@ except ImportError:
     import mock
 
 import os
+import shlex
 
 from kobo.shortcuts import force_list
 
 from tests import helpers
 from pungi.phases import ostree_installer as ostree
-from six.moves import shlex_quote
 
 
 LOG_PATH = "logs/x86_64/Everything/ostree_installer-1"
@@ -147,7 +147,7 @@ class OstreeThreadTest(helpers.PungiTestCase):
         ]
 
         for s in force_list(sources):
-            lorax_cmd.append(shlex_quote("--source=%s" % s))
+            lorax_cmd.append(shlex.quote("--source=%s" % s))
 
         lorax_cmd.append("--variant=Everything")
         lorax_cmd.append("--nomacboot")

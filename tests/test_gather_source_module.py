@@ -6,7 +6,6 @@ try:
     from unittest import mock
 except ImportError:
     import mock
-import six
 
 from pungi.phases.gather.sources.source_module import GatherSourceModule
 from tests import helpers
@@ -54,8 +53,7 @@ class TestGatherSourceModule(helpers.PungiTestCase):
 
         source = GatherSourceModule(self.compose)
         packages, groups = source("x86_64", self.compose.variants["Server"])
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             [(rpm[0].nevra, rpm[1]) for rpm in packages],
             [("pkg-0:1.0.0-1.x86_64", None), ("pkg-0:1.0.0-1.i686", None)],
         )

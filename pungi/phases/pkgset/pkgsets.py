@@ -22,8 +22,8 @@ It automatically finds a signed copies according to *sigkey_ordering*.
 import itertools
 import json
 import os
+import pickle
 import time
-from six.moves import cPickle as pickle
 from functools import partial
 
 import kobo.log

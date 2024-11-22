@@ -24,11 +24,13 @@ import hashlib
 import errno
 import re
 import contextlib
+import shlex
 import traceback
 import tempfile
 import time
+import urllib.parse
+import urllib.request
 import functools
-from six.moves import urllib, range, shlex_quote
 
 import kobo.conf
 from kobo.shortcuts import run, force_list
@@ -193,14 +195,14 @@ def explode_rpm_package(pkg_path, target_dir):
     try:
         # rpm2archive writes to stdout only if reading from stdin, thus the redirect
         run(
-            "rpm2archive - <%s | tar xfz - && chmod -R a+rX ." % shlex_quote(pkg_path),
+            "rpm2archive - <%s | tar xfz - && chmod -R a+rX ." % shlex.quote(pkg_path),
             workdir=target_dir,
         )
     except RuntimeError:
         # Fall back to rpm2cpio in case rpm2archive failed (most likely due to
         # not being present on the system).
         run(
-            "rpm2cpio %s | cpio -iuvmd && chmod -R a+rX ." % shlex_quote(pkg_path),
+            "rpm2cpio %s | cpio -iuvmd && chmod -R a+rX ." % shlex.quote(pkg_path),
             workdir=target_dir,
         )
 

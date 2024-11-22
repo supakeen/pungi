@@ -7,7 +7,7 @@ except ImportError:
 from parameterized import parameterized
 
 import os
-from six.moves import StringIO
+from io import StringIO
 
 from tests import helpers
 from pungi import createiso

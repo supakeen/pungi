@@ -19,10 +19,9 @@ from __future__ import absolute_import
 import os
 import shutil
 import glob
-import six
+import shlex
 import threading
-from six.moves import shlex_quote
-from six.moves.urllib.request import urlretrieve
+from urllib.request import urlretrieve
 from fnmatch import fnmatch
 
 import kobo.log
@@ -285,8 +284,8 @@ class RpmScmWrapper(ScmBase):
                     run(
                         "cp -a %s %s/"
                         % (
-                            shlex_quote(os.path.join(tmp_dir, scm_dir)),
-                            shlex_quote(target_dir),
+                            shlex.quote(os.path.join(tmp_dir, scm_dir)),
+                            shlex.quote(target_dir),
                         )
                     )
 
@@ -398,7 +397,7 @@ def get_file_from_scm(scm_dict, target_path, compose=None):
         >>> get_file_from_scm(scm_dict, target_path)
         ['/tmp/path/share/variants.dtd']
     """
-    if isinstance(scm_dict, six.string_types):
+    if isinstance(scm_dict, str):
         scm_type = "file"
         scm_repo = None
         scm_file = os.path.abspath(scm_dict)
@@ -491,7 +490,7 @@ def get_dir_from_scm(scm_dict, target_path, compose=None):
         >>> get_dir_from_scm(scm_dict, target_path)
         ['/tmp/path/share/variants.dtd', '/tmp/path/share/rawhide-fedora.ks', ...]
     """
-    if isinstance(scm_dict, six.string_types):
+    if isinstance(scm_dict, str):
         scm_type = "file"
         scm_repo = None
         scm_dir = os.path.abspath(scm_dict)

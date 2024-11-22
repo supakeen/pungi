@@ -10,7 +10,6 @@ except ImportError:
 import json
 import os
 import shutil
-import six
 import tempfile
 import unittest
 
@@ -398,22 +397,17 @@ class ComposeTestCase(unittest.TestCase):
             sorted(v.uid for v in compose.variants["Server"].variants.values()),
             ["Server-Gluster", "Server-ResilientStorage", "Server-optional"],
         )
-        six.assertCountEqual(
-            self, compose.variants["Client"].arches, ["i386", "x86_64"]
-        )
+        self.assertCountEqual(compose.variants["Client"].arches, ["i386", "x86_64"])
         self.assertEqual(compose.variants["Crashy"].arches, ["ppc64le"])
         self.assertEqual(compose.variants["Live"].arches, ["x86_64"])
-        six.assertCountEqual(
-            self, compose.variants["Server"].arches, ["s390x", "x86_64"]
-        )
+        self.assertCountEqual(compose.variants["Server"].arches, ["s390x", "x86_64"])
         self.assertEqual(
             compose.variants["Server"].variants["Gluster"].arches, ["x86_64"]
         )
         self.assertEqual(
             compose.variants["Server"].variants["ResilientStorage"].arches, ["x86_64"]
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             compose.variants["Server"].variants["optional"].arches,
             ["s390x", "x86_64"],
         )
@@ -507,12 +501,8 @@ class ComposeTestCase(unittest.TestCase):
         self.assertEqual(
             sorted(v.uid for v in compose.variants.values()), ["Client", "Server"]
         )
-        six.assertCountEqual(
-            self, compose.variants["Client"].arches, ["i386", "x86_64"]
-        )
-        six.assertCountEqual(
-            self, compose.variants["Server"].arches, ["s390x", "x86_64"]
-        )
+        self.assertCountEqual(compose.variants["Client"].arches, ["i386", "x86_64"])
+        self.assertCountEqual(compose.variants["Server"].arches, ["s390x", "x86_64"])
         self.assertEqual(
             compose.variants["Server"].variants["Gluster"].arches, ["x86_64"]
         )
@@ -563,8 +553,7 @@ class ComposeTestCase(unittest.TestCase):
             ["Client", "Server", "Server-optional"],
         )
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             logger.info.call_args_list,
             [
                 mock.call("Excluding variant Live: filtered by configuration."),

@@ -8,7 +8,6 @@ try:
     from unittest import mock
 except ImportError:
     import mock
-import six
 
 from pungi.module_util import Modulemd
 from pungi.phases.createrepo import (
@@ -74,8 +73,7 @@ class TestCreaterepoPhase(PungiTestCase):
         everything = compose.variants["Everything"]
         client = compose.variants["Client"]
         self.assertEqual(len(pool.add.mock_calls), 5)
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pool.queue_put.mock_calls,
             [
                 mock.call((compose, "x86_64", server, "rpm")),
@@ -110,8 +108,7 @@ class TestCreaterepoPhase(PungiTestCase):
         server = compose.variants["Server"]
         everything = compose.variants["Everything"]
         self.assertEqual(len(pool.add.mock_calls), 5)
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pool.queue_put.mock_calls,
             [
                 mock.call((compose, "x86_64", server, "rpm")),
@@ -162,8 +159,7 @@ def make_mocked_modifyrepo_cmd(tc, module_artifacts):
         tc.assertEqual(len(module_streams), len(module_artifacts))
         for ms in module_streams:
             tc.assertIn(ms.get_stream_name(), module_artifacts)
-            six.assertCountEqual(
-                tc,
+            tc.assertCountEqual(
                 ms.get_rpm_artifacts(),
                 module_artifacts[ms.get_stream_name()],
             )
@@ -1359,7 +1355,7 @@ class TestGetProductIds(PungiTestCase):
                         "productid",
                     )
                 )
-        six.assertCountEqual(self, pids, expected)
+        self.assertCountEqual(pids, expected)
 
     @mock.patch("pungi.phases.createrepo.get_dir_from_scm")
     def test_not_configured(self, get_dir_from_scm):

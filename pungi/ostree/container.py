@@ -16,8 +16,7 @@
 
 import os
 import json
-import six
-from six.moves import shlex_quote
+import shlex
 
 
 from .base import OSTree
@@ -26,10 +25,10 @@ from .utils import tweak_treeconf
 
 def emit(cmd):
     """Print line of shell code into the stream."""
-    if isinstance(cmd, six.string_types):
+    if isinstance(cmd, str):
         print(cmd)
     else:
-        print(" ".join([shlex_quote(x) for x in cmd]))
+        print(" ".join([shlex.quote(x) for x in cmd]))
 
 
 class Container(OSTree):

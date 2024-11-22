@@ -7,8 +7,6 @@ except ImportError:
 
 import os
 
-import six
-
 from pungi.phases.livemedia_phase import LiveMediaPhase, LiveMediaThread
 from tests.helpers import DummyCompose, PungiTestCase, boom
 
@@ -582,8 +580,7 @@ class TestLiveMediaThread(PungiTestCase):
         self.assertTrue(os.path.isdir(self.topdir + "/compose/Server/x86_64/iso"))
         self.assertTrue(os.path.isdir(self.topdir + "/compose/Server/amd64/iso"))
         link = Linker.return_value.link
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             link.mock_calls,
             [
                 mock.call(

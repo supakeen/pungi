@@ -12,7 +12,6 @@ try:
     from unittest import mock
 except ImportError:
     import mock
-import six
 from kobo.rpmlib import parse_nvr
 
 import unittest
@@ -306,7 +305,7 @@ def touch(path, content=None, mode=None):
         os.makedirs(os.path.dirname(path))
     except OSError:
         pass
-    if not isinstance(content, six.binary_type):
+    if not isinstance(content, bytes):
         content = content.encode()
     with open(path, "wb") as f:
         f.write(content)

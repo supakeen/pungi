@@ -14,21 +14,21 @@
 # along with this program; if not, see <https://gnu.org/licenses/>.
 
 
+import configparser
 import contextlib
 import os
 import re
 import socket
+import shlex
 import shutil
 import time
 import threading
+import xmlrpc.client
 
 import requests
 
 import koji
 from kobo.shortcuts import run, force_list
-import six
-from six.moves import configparser, shlex_quote
-import six.moves.xmlrpc_client as xmlrpclib
 from flufl.lock import Lock
 from datetime import timedelta
 
@@ -73,7 +73,7 @@ class KojiWrapper(object):
 
     # This retry should be removed once https://pagure.io/koji/issue/3170 is
     # fixed and released.
-    @util.retry(wait_on=(xmlrpclib.ProtocolError, koji.GenericError))
+    @util.retry(wait_on=(xmlrpc.client.ProtocolError, koji.GenericError))
     def login(self):
         """Authenticate to the hub."""
         auth_type = self.koji_module.config.authtype
@@ -144,7 +144,7 @@ class KojiWrapper(object):
         cmd.append(arch)
 
         if isinstance(command, list):
-            command = " ".join([shlex_quote(i) for i in command])
+            command = " ".join([shlex.quote(i) for i in command])
 
         # HACK: remove rpmdb and yum cache
         command = (
@@ -152,7 +152,7 @@ class KojiWrapper(object):
         )
 
         if chown_paths:
-            paths = " ".join(shlex_quote(pth) for pth in chown_paths)
+            paths = " ".join(shlex.quote(pth) for pth in chown_paths)
             command += " ; EXIT_CODE=$?"
             # Make the files world readable
             command += " ; chmod -R a+r %s" % paths
@@ -358,7 +358,7 @@ class KojiWrapper(object):
             for option, value in opts.items():
                 if isinstance(value, list):
                     value = ",".join(value)
-                if not isinstance(value, six.string_types):
+                if not isinstance(value, str):
                     # Python 3 configparser will reject non-string values.
                     value = str(value)
                 cfg_parser.set(section, option, value)
@@ -764,11 +764,11 @@ class KojiWrapper(object):
 
         return results
 
-    @util.retry(wait_on=(xmlrpclib.ProtocolError, koji.GenericError))
+    @util.retry(wait_on=(xmlrpc.client.ProtocolError, koji.GenericError))
     def retrying_multicall_map(self, *args, **kwargs):
         """
         Retrying version of multicall_map. This tries to retry the Koji call
-        in case of koji.GenericError or xmlrpclib.ProtocolError.
+        in case of koji.GenericError or xmlrpc.client.ProtocolError.
 
         Please refer to koji_multicall_map for further specification of arguments.
         """

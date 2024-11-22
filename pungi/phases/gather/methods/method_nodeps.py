@@ -16,7 +16,6 @@
 import os
 from pprint import pformat
 import re
-import six
 
 import pungi.arch
 from pungi.util import pkg_is_rpm, pkg_is_srpm, pkg_is_debug
@@ -74,7 +73,7 @@ class GatherMethodNodeps(pungi.phases.gather.method.GatherMethodBase):
             if not pkg_is_rpm(pkg):
                 continue
             for gathered_pkg, pkg_arch in packages:
-                if isinstance(gathered_pkg, six.string_types) and not re.match(
+                if isinstance(gathered_pkg, str) and not re.match(
                     gathered_pkg.replace(".", "\\.")
                     .replace("+", "\\+")
                     .replace("*", ".*")

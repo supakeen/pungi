@@ -4,8 +4,6 @@ import unittest
 import tempfile
 from textwrap import dedent
 
-import six
-
 import os
 
 from pungi.wrappers import fus
@@ -133,8 +131,7 @@ class TestParseOutput(unittest.TestCase):
     def test_separates_arch(self):
         touch(self.file, "pkg-1.0-1.x86_64@repo-0\npkg-1.0-1.i686@repo-0\n")
         packages, modules = fus.parse_output(self.file)
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             packages,
             [("pkg-1.0-1", "x86_64", frozenset()), ("pkg-1.0-1", "i686", frozenset())],
         )

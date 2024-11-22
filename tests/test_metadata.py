@@ -4,8 +4,6 @@ except ImportError:
     import mock
 import os
 
-import six
-
 from tests import helpers
 
 from pungi import metadata
@@ -134,8 +132,7 @@ class MediaRepoTestCase(helpers.PungiTestCase):
         with open(self.path) as f:
             lines = f.read().strip().split("\n")
             self.assertEqual(lines[0], "[InstallMedia]")
-            six.assertCountEqual(
-                self,
+            self.assertCountEqual(
                 lines[1:],
                 [
                     "name=Test 1.0",
@@ -193,8 +190,7 @@ class TestPopulateExtraFiles(helpers.PungiTestCase):
 
         self.maxDiff = None
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             self.metadata.mock_calls,
             [
                 mock.call.add("Server", "x86_64", "Server/x86_64/os/foo", 3, FOO_MD5),
@@ -213,8 +209,7 @@ class TestPopulateExtraFiles(helpers.PungiTestCase):
             self.metadata, self.variant, "x86_64", self.topdir, ["foo", "bar"], ["md5"]
         )
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             self.metadata.mock_calls,
             [
                 mock.call.add("Server", "x86_64", "foo", 3, FOO_MD5),

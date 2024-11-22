@@ -12,7 +12,6 @@ import unittest
 import tempfile
 import shutil
 import subprocess
-import six
 
 from pungi import compose
 from pungi import util
@@ -255,7 +254,7 @@ class TestGetVariantData(unittest.TestCase):
     def test_get_make_list(self):
         conf = {"foo": {"^Client$": [1, 2], "^.*$": 3}}
         result = util.get_variant_data(conf, "foo", mock.Mock(uid="Client"))
-        six.assertCountEqual(self, result, [1, 2, 3])
+        self.assertCountEqual(result, [1, 2, 3])
 
     def test_not_matching_arch(self):
         conf = {"foo": {"^Client$": [1, 2]}}
@@ -1054,7 +1053,7 @@ class TestMoveAll(PungiTestCase):
         self.assertFalse(os.path.isfile(os.path.join(self.src, "target")))
 
 
-@mock.patch("six.moves.urllib.request.urlretrieve")
+@mock.patch("urllib.request.urlretrieve")
 class TestAsLocalFile(PungiTestCase):
     def test_local_file(self, urlretrieve):
         with util.as_local_file("/tmp/foo") as fn:

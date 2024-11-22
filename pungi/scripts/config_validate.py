@@ -8,8 +8,6 @@ import json
 import os
 import sys
 
-import six
-
 import pungi.checks
 import pungi.compose
 import pungi.paths
@@ -56,7 +54,7 @@ class ValidationCompose(pungi.compose.Compose):
 def read_variants(compose, config):
     with pungi.util.temp_dir() as tmp_dir:
         scm_dict = compose.conf["variants_file"]
-        if isinstance(scm_dict, six.string_types) and scm_dict[0] != "/":
+        if isinstance(scm_dict, str) and scm_dict[0] != "/":
             config_dir = os.path.dirname(config)
             scm_dict = os.path.join(config_dir, scm_dict)
         files = pungi.wrappers.scm.get_file_from_scm(scm_dict, tmp_dir)

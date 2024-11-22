@@ -9,8 +9,6 @@ except ImportError:
     import mock
 import os
 
-import six
-
 from pungi.phases.gather.methods import method_hybrid as hybrid
 from pungi.phases.pkgset.common import MaterializedPackageSet as PkgSet
 from tests import helpers
@@ -214,7 +212,7 @@ class TestMethodHybrid(helpers.PungiTestCase):
         ]
         expanded = m.expand_list(["foo*"])
 
-        six.assertCountEqual(self, [p.name for p in expanded], ["foo", "foo-en"])
+        self.assertCountEqual([p.name for p in expanded], ["foo", "foo-en"])
 
 
 class MockModule(object):
@@ -449,7 +447,7 @@ class TestRunSolver(HelperMixin, helpers.PungiTestCase):
             cache_dir="/cache",
         )
 
-        six.assertCountEqual(self, res[0], po.return_value[0])
+        self.assertCountEqual(res[0], po.return_value[0])
         self.assertEqual(res[1], set())
         self.assertEqual(po.call_args_list, [mock.call(self.logfile1)])
         self.assertEqual(
@@ -516,8 +514,7 @@ class TestRunSolver(HelperMixin, helpers.PungiTestCase):
             cache_dir="/cache",
         )
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             res[0],
             [
                 ("pkg-1.0-1", "x86_64", frozenset()),
@@ -589,7 +586,7 @@ class TestRunSolver(HelperMixin, helpers.PungiTestCase):
             cache_dir="/cache",
         )
 
-        six.assertCountEqual(self, res[0], final)
+        self.assertCountEqual(res[0], final)
         self.assertEqual(res[1], set())
         self.assertEqual(
             po.call_args_list, [mock.call(self.logfile1), mock.call(self.logfile2)]
@@ -679,8 +676,7 @@ class TestRunSolver(HelperMixin, helpers.PungiTestCase):
             cache_dir="/cache",
         )
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             res[0],
             [
                 ("pkg-devel-1.0-1", "x86_64", frozenset()),
@@ -800,8 +796,7 @@ class TestRunSolver(HelperMixin, helpers.PungiTestCase):
             cache_dir="/cache",
         )
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             res[0],
             [
                 ("pkg-devel-1.0-1", "x86_64", frozenset()),

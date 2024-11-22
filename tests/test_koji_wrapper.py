@@ -13,8 +13,6 @@ import tempfile
 import os
 import shutil
 
-import six
-
 from pungi.wrappers.kojiwrapper import KojiWrapper, get_buildroot_rpms
 
 from .helpers import FIXTURE_DIR
@@ -98,13 +96,12 @@ class KojiWrapperTest(KojiWrapperBaseTestCase):
         )
 
         self.assertEqual(cmd[:3], ["koji", "--profile=custom-koji", "image-build"])
-        six.assertCountEqual(self, cmd[3:], ["--config=" + self.tmpfile, "--wait"])
+        self.assertCountEqual(cmd[3:], ["--config=" + self.tmpfile, "--wait"])
 
         with open(self.tmpfile, "r") as f:
             lines = f.read().strip().split("\n")
         self.assertEqual(lines[0], "[image-build]")
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             lines[1:],
             [
                 "name = test-name",
@@ -291,10 +288,9 @@ class KojiWrapperTest(KojiWrapperBaseTestCase):
             ),
         )
         result = self.koji.get_image_paths(12387273)
-        six.assertCountEqual(self, result.keys(), ["i386", "x86_64"])
+        self.assertCountEqual(result.keys(), ["i386", "x86_64"])
         self.maxDiff = None
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             result["i386"],
             [
                 "/koji/task/12387276/tdl-i386.xml",
@@ -306,8 +302,7 @@ class KojiWrapperTest(KojiWrapperBaseTestCase):
                 "/koji/task/12387276/Fedora-Cloud-Base-23-20160103.i386.raw.xz",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             result["x86_64"],
             [
                 "/koji/task/12387277/tdl-x86_64.xml",
@@ -344,8 +339,8 @@ class KojiWrapperTest(KojiWrapperBaseTestCase):
 
         result = self.koji.get_image_paths(25643870, callback=failed_callback)
 
-        six.assertCountEqual(self, result.keys(), ["aarch64", "armhfp", "x86_64"])
-        six.assertCountEqual(self, failed, ["ppc64le", "s390x"])
+        self.assertCountEqual(result.keys(), ["aarch64", "armhfp", "x86_64"])
+        self.assertCountEqual(failed, ["ppc64le", "s390x"])
 
     def test_multicall_map(self):
         self.koji.koji_proxy = mock.Mock()
@@ -358,8 +353,7 @@ class KojiWrapperTest(KojiWrapperBaseTestCase):
             [{"x": 1}, {"x": 2}],
         )
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             self.koji.koji_proxy.getBuild.mock_calls,
             [mock.call("foo", x=1), mock.call("bar", x=2)],
         )
@@ -423,8 +417,7 @@ class LiveMediaTestCase(KojiWrapperBaseTestCase):
                 "--install-tree=/mnt/os",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             cmd[9:],
             [
                 "--repo=repo-1",
@@ -452,7 +445,7 @@ class RunrootKojiWrapperTest(KojiWrapperBaseTestCase):
         self.assertEqual(
             cmd[-1], "rm -f /var/lib/rpm/__db*; rm -rf /var/cache/yum/*; set -x; date"
         )
-        six.assertCountEqual(self, cmd[5:-3], [])
+        self.assertCountEqual(cmd[5:-3], [])
 
     def test_get_cmd_full(self):
         cmd = self.koji.get_runroot_cmd(
@@ -473,8 +466,7 @@ class RunrootKojiWrapperTest(KojiWrapperBaseTestCase):
             cmd[-1],
             "rm -f /var/lib/rpm/__db*; rm -rf /var/cache/yum/*; set -x; /bin/echo '&'",
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             cmd[4:-3],
             [
                 "--channel-override=chan",
@@ -509,8 +501,7 @@ class RunrootKojiWrapperTest(KojiWrapperBaseTestCase):
             cmd[-1],
             "rm -f /var/lib/rpm/__db*; rm -rf /var/cache/yum/*; set -x; /bin/echo '&' ; EXIT_CODE=$? ; chmod -R a+r '/output dir' /foo ; chown -R 1010 '/output dir' /foo ; exit $EXIT_CODE",  # noqa: E501
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             cmd[4:-3],
             [
                 "--channel-override=chan",
@@ -645,8 +636,7 @@ class RunBlockingCmdTest(KojiWrapperBaseTestCase):
         result = self.koji.run_blocking_cmd("cmd")
 
         self.assertDictEqual(result, {"retcode": 0, "output": output, "task_id": 1234})
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             run.mock_calls,
             [
                 mock.call(
@@ -672,8 +662,7 @@ class RunBlockingCmdTest(KojiWrapperBaseTestCase):
         result = self.koji.run_blocking_cmd("cmd")
 
         self.assertDictEqual(result, {"retcode": 0, "output": output, "task_id": 1234})
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             run.mock_calls,
             [
                 mock.call(
@@ -700,8 +689,7 @@ class RunBlockingCmdTest(KojiWrapperBaseTestCase):
         result = self.koji.run_blocking_cmd("cmd", log_file="logfile")
 
         self.assertDictEqual(result, {"retcode": 0, "output": output, "task_id": 1234})
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             run.mock_calls,
             [
                 mock.call(
@@ -724,8 +712,7 @@ class RunBlockingCmdTest(KojiWrapperBaseTestCase):
         result = self.koji.run_blocking_cmd("cmd")
 
         self.assertDictEqual(result, {"retcode": 1, "output": output, "task_id": 1234})
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             run.mock_calls,
             [
                 mock.call(
@@ -748,8 +735,7 @@ class RunBlockingCmdTest(KojiWrapperBaseTestCase):
         with self.assertRaises(RuntimeError) as ctx:
             self.koji.run_blocking_cmd("cmd")
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             run.mock_calls,
             [
                 mock.call(
@@ -1117,8 +1103,7 @@ class TestGetBuildrootRPMs(unittest.TestCase):
             ],
         )
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             rpms,
             [
                 "python3-kickstart-2.25-2.fc24.noarch",
@@ -1135,8 +1120,7 @@ class TestGetBuildrootRPMs(unittest.TestCase):
 
         rpms = get_buildroot_rpms(compose, None)
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             rpms,
             [
                 "cjkuni-uming-fonts-0.2.20080216.1-56.fc23.noarch",

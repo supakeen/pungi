@@ -6,8 +6,7 @@ except ImportError:
     import mock
 import os
 import shutil
-import six
-from six.moves.configparser import ConfigParser
+from configparser import ConfigParser
 
 from tests.helpers import PungiTestCase, FIXTURE_DIR, touch, mk_boom
 from pungi_utils import unified_isos
@@ -188,8 +187,7 @@ class TestLinkToTemp(PungiTestCase):
     def test_link_to_temp(self):
         self.isos.link_to_temp()
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             self.isos.treeinfo.keys(),
             [
                 "i386",
@@ -205,8 +203,7 @@ class TestLinkToTemp(PungiTestCase):
         self.assertEqual(self.isos.productid, get_productid_mapping(self.compose_path))
         self.assertEqual(self.isos.repos, get_repos_mapping(self.isos.temp_dir))
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             self.isos.linker.link.call_args_list,
             [
                 self._linkCall(
@@ -242,8 +239,7 @@ class TestLinkToTemp(PungiTestCase):
         with mock.patch("sys.stderr"):
             self.isos.link_to_temp()
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             self.isos.treeinfo.keys(),
             ["s390x", "src", "x86_64", "debug-s390x", "debug-x86_64"],
         )
@@ -260,8 +256,7 @@ class TestLinkToTemp(PungiTestCase):
 
         self.maxDiff = None
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             self.isos.linker.link.call_args_list,
             [
                 self._linkCall(
@@ -293,8 +288,7 @@ class TestLinkToTemp(PungiTestCase):
 
         self.isos.link_to_temp()
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             self.isos.treeinfo.keys(),
             [
                 "i386",
@@ -310,8 +304,7 @@ class TestLinkToTemp(PungiTestCase):
         self.assertEqual(self.isos.productid, get_productid_mapping(self.compose_path))
         self.assertEqual(self.isos.repos, get_repos_mapping(self.isos.temp_dir))
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             self.isos.linker.link.call_args_list,
             [
                 self._linkCall(
@@ -375,8 +368,7 @@ class TestCreaterepo(PungiTestCase):
         cr.return_value.get_createrepo_cmd.side_effect = self.mock_cr
         self.isos.createrepo()
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             run.call_args_list,
             [
                 mock.call(("src/Client", None), show_cmd=True),
@@ -433,8 +425,7 @@ class TestCreaterepo(PungiTestCase):
         cr.return_value.get_modifyrepo_cmd.side_effect = self.mock_mr
         self.isos.createrepo()
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             run.call_args_list,
             [
                 mock.call(("src/Client", None), show_cmd=True),
@@ -530,8 +521,7 @@ class TestDiscinfo(PungiTestCase):
     @mock.patch("pungi_utils.unified_isos.create_discinfo")
     def test_discinfo(self, create_discinfo):
         self.isos.discinfo()
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             create_discinfo.call_args_list,
             [
                 mock.call(
@@ -690,7 +680,7 @@ class TestCreateiso(PungiTestCase):
                     ),
                 ]
             )
-        six.assertCountEqual(self, self.isos.linker.link.call_args_list, expected)
+        self.assertCountEqual(self.isos.linker.link.call_args_list, expected)
 
     @mock.patch("pungi_utils.unified_isos.iso")
     @mock.patch("pungi_utils.unified_isos.run")
@@ -761,8 +751,7 @@ class TestUpdateChecksums(PungiTestCase):
     @mock.patch("pungi_utils.unified_isos.make_checksums")
     def test_update_checksums(self, mmc):
         self.isos.update_checksums()
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             mmc.call_args_list,
             [
                 mock.call(
@@ -779,8 +768,7 @@ class TestUpdateChecksums(PungiTestCase):
     def test_update_checksums_one_file(self, mmc):
         self.isos.conf["media_checksum_one_file"] = True
         self.isos.update_checksums()
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             mmc.call_args_list,
             [
                 mock.call(

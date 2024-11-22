@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from six.moves import cStringIO
+from io import StringIO
 
 from pungi.wrappers.variants import VariantsXmlParser
 
@@ -18,7 +18,7 @@ VARIANTS_WITH_WHITESPACE = """
 
 class TestVariantsXmlParser(unittest.TestCase):
     def test_whitespace_in_file(self):
-        input = cStringIO(VARIANTS_WITH_WHITESPACE)
+        input = StringIO(VARIANTS_WITH_WHITESPACE)
 
         with self.assertRaises(ValueError) as ctx:
             VariantsXmlParser(input)

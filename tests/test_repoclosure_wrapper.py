@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import six
 
 from pungi.wrappers import repoclosure as rc
 
@@ -26,8 +25,7 @@ class RepoclosureWrapperTestCase(helpers.BaseTestCase):
             backend="dnf", arch="x86_64", repos=repos, lookaside=lookaside
         )
         self.assertEqual(cmd[:2], ["dnf", "repoclosure"])
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             cmd[2:],
             [
                 "--arch=x86_64",
@@ -51,8 +49,7 @@ class RepoclosureWrapperTestCase(helpers.BaseTestCase):
             lookaside=lookaside,
         )
         self.assertEqual(cmd[:2], ["dnf", "repoclosure"])
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             cmd[2:],
             [
                 "--arch=x86_64",

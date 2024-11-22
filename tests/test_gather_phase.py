@@ -11,8 +11,6 @@ except ImportError:
 
 import unittest
 
-import six
-
 from pungi.phases import gather
 from pungi.phases.gather import _mk_pkg_map
 from pungi.phases.pkgset.common import MaterializedPackageSet
@@ -140,8 +138,7 @@ class TestGatherWrapper(helpers.PungiTestCase):
                 }
             },
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             write_packages.call_args_list,
             [
                 mock.call(
@@ -194,8 +191,7 @@ class TestGatherWrapper(helpers.PungiTestCase):
                 }
             },
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             write_packages.call_args_list,
             [
                 mock.call(
@@ -255,8 +251,7 @@ class TestGatherWrapper(helpers.PungiTestCase):
                 }
             },
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             write_packages.call_args_list,
             [
                 mock.call(
@@ -343,8 +338,7 @@ class TestGatherWrapper(helpers.PungiTestCase):
                 }
             },
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             write_packages.call_args_list,
             [
                 mock.call(
@@ -423,8 +417,7 @@ class TestGatherWrapper(helpers.PungiTestCase):
                 }
             },
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             write_packages.call_args_list,
             [
                 mock.call(
@@ -568,8 +561,7 @@ class TestGetSystemRelease(unittest.TestCase):
         )
 
         self.assertEqual(packages, set([("system-release-server", None)]))
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             filter_packages,
             set([("system-release-client", None), ("system-release", None)]),
         )
@@ -681,8 +673,7 @@ class TestWritePackages(helpers.PungiTestCase):
                 self.topdir, "work", "x86_64", "package_list", "Server.x86_64.rpm.conf"
             )
         ) as f:
-            six.assertCountEqual(
-                self,
+            self.assertCountEqual(
                 f.read().strip().split("\n"),
                 [
                     "/build/foo-1.0-1.x86_64.rpm",
@@ -696,8 +687,7 @@ class TestWritePackages(helpers.PungiTestCase):
                 self.topdir, "work", "x86_64", "package_list", "Server.x86_64.srpm.conf"
             )
         ) as f:
-            six.assertCountEqual(
-                self,
+            self.assertCountEqual(
                 f.read().strip().split("\n"),
                 ["/build/foo-1.0-1.src.rpm", "/build/bar-1.0-1.src.rpm"],
             )
@@ -812,8 +802,8 @@ class TestGetVariantPackages(helpers.PungiTestCase):
         packages, groups, filter_packages = gather.get_variant_packages(
             compose, "x86_64", compose.all_variants["Server-optional"], "comps"
         )
-        six.assertCountEqual(self, packages, ["server-pkg", "addon-pkg", "opt-pkg"])
-        six.assertCountEqual(self, groups, ["server-group", "addon-group", "opt-group"])
+        self.assertCountEqual(packages, ["server-pkg", "addon-pkg", "opt-pkg"])
+        self.assertCountEqual(groups, ["server-group", "addon-group", "opt-group"])
         self.assertEqual(filter_packages, set())
 
     @mock.patch("pungi.phases.gather.get_gather_source")
@@ -850,7 +840,7 @@ class TestGetVariantPackages(helpers.PungiTestCase):
         packages, groups, filter_packages = gather.get_variant_packages(
             compose, "x86_64", compose.all_variants["Server"], "comps"
         )
-        six.assertCountEqual(self, packages, [("pkg", None), ("foo", "x86_64")])
+        self.assertCountEqual(packages, [("pkg", None), ("foo", "x86_64")])
         self.assertEqual(groups, set())
         self.assertEqual(filter_packages, set())
 
@@ -1425,8 +1415,7 @@ class TestGetPrepopulate(helpers.PungiTestCase):
             "prepopulate.json",
             os.path.join(self.topdir, "work", "global", "prepopulate.json"),
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             gather.get_prepopulate_packages(
                 self.compose, "x86_64", self.compose.variants["Server"]
             ),
@@ -1438,8 +1427,7 @@ class TestGetPrepopulate(helpers.PungiTestCase):
             "prepopulate.json",
             os.path.join(self.topdir, "work", "global", "prepopulate.json"),
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             gather.get_prepopulate_packages(self.compose, "x86_64", None),
             ["foo-common.noarch", "foo.i686", "foo.x86_64", "bar.x86_64"],
         )
@@ -1449,8 +1437,7 @@ class TestGetPrepopulate(helpers.PungiTestCase):
             "prepopulate.json",
             os.path.join(self.topdir, "work", "global", "prepopulate.json"),
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             gather.get_prepopulate_packages(
                 self.compose, "x86_64", None, include_arch=False
             ),
@@ -1486,8 +1473,7 @@ class TestGatherPhase(helpers.PungiTestCase):
             gather_wrapper.call_args_list,
             [mock.call(compose, pkgset_phase.package_sets, pkgset_phase.path_prefix)],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             link_files.call_args_list,
             [
                 _mk_link_call("x86_64", "Server"),
@@ -1585,7 +1571,7 @@ class TestGetPackagesToGather(helpers.PungiTestCase):
 
         packages, groups = gather.get_packages_to_gather(self.compose)
 
-        six.assertCountEqual(self, packages, ["foo", "foo2.x86_64", "pkg"])
+        self.assertCountEqual(packages, ["foo", "foo2.x86_64", "pkg"])
         self.assertEqual(groups, ["core"])
 
     @mock.patch("pungi.phases.gather.get_gather_source")
@@ -1598,7 +1584,7 @@ class TestGetPackagesToGather(helpers.PungiTestCase):
             self.compose, include_arch=False
         )
 
-        six.assertCountEqual(self, packages, ["foo", "foo2", "pkg"])
+        self.assertCountEqual(packages, ["foo", "foo2", "pkg"])
         self.assertEqual(groups, ["core"])
 
     @mock.patch("pungi.phases.gather.get_gather_source")
@@ -1611,8 +1597,7 @@ class TestGetPackagesToGather(helpers.PungiTestCase):
             self.compose, include_prepopulated=True
         )
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             packages,
             [
                 "foo",
@@ -1636,9 +1621,7 @@ class TestGetPackagesToGather(helpers.PungiTestCase):
             self.compose, include_prepopulated=True, include_arch=False
         )
 
-        six.assertCountEqual(
-            self, packages, ["foo", "pkg", "foo-common", "foo2", "bar"]
-        )
+        self.assertCountEqual(packages, ["foo", "pkg", "foo-common", "foo2", "bar"])
         self.assertEqual(groups, ["core"])
 
     @mock.patch("pungi.phases.gather.get_gather_source")
@@ -1649,7 +1632,7 @@ class TestGetPackagesToGather(helpers.PungiTestCase):
 
         packages, groups = gather.get_packages_to_gather(self.compose, "x86_64")
 
-        six.assertCountEqual(self, packages, ["foo", "pkg", "foo2.x86_64"])
+        self.assertCountEqual(packages, ["foo", "pkg", "foo2.x86_64"])
         self.assertEqual(groups, ["core"])
 
 
@@ -1768,8 +1751,7 @@ class TestMakeLookasideRepo(helpers.PungiTestCase):
     def assertCorrect(self, repopath, path_prefix, MockCR, mock_run):
         with open(self.pkglist) as f:
             packages = f.read().splitlines()
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             packages,
             [
                 "pkg/pkg-1.0-1.x86_64.rpm",

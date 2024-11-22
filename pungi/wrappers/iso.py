@@ -15,9 +15,9 @@
 
 
 import os
+import shlex
 from fnmatch import fnmatch
 import contextlib
-from six.moves import shlex_quote
 
 from kobo.shortcuts import force_list, relative_path, run
 from pungi import util
@@ -270,13 +270,13 @@ def get_manifest_cmd(iso_name, xorriso=False, output_file=None):
             tr -d "'" |
             cut -c2- |
             sort >> %s""" % (
-            shlex_quote(iso_name),
-            shlex_quote(output_file),
+            shlex.quote(iso_name),
+            shlex.quote(output_file),
         )
     else:
         return "isoinfo -R -f -i %s | grep -v '/TRANS.TBL$' | sort >> %s" % (
-            shlex_quote(iso_name),
-            shlex_quote(output_file),
+            shlex.quote(iso_name),
+            shlex.quote(output_file),
         )
 
 

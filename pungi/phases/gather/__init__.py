@@ -17,13 +17,13 @@
 import glob
 import json
 import os
+import pickle
 import shutil
 import threading
 
 from kobo.rpmlib import parse_nvra
 from kobo.shortcuts import run
 from productmd.rpms import Rpms
-from six.moves import cPickle as pickle
 
 try:
     from queue import Queue

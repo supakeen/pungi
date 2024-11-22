@@ -16,12 +16,11 @@
 import contextlib
 import os
 import re
+import shlex
 import shutil
 import tarfile
 
 import requests
-import six
-from six.moves import shlex_quote
 import kobo.log
 from kobo.shortcuts import run
 
@@ -157,7 +156,7 @@ class Runroot(kobo.log.LoggingBase):
         formatted_cmd = command.format(**fmt_dict) if fmt_dict else command
         ssh_cmd = ["ssh", "-oBatchMode=yes", "-n", "-l", user, hostname, formatted_cmd]
         output = run(ssh_cmd, show_cmd=True, logfile=log_file)[1]
-        if six.PY3 and isinstance(output, bytes):
+        if isinstance(output, bytes):
             return output.decode()
         else:
             return output
@@ -184,7 +183,7 @@ class Runroot(kobo.log.LoggingBase):
         # If the output dir is defined, change the permissions of files generated
         # by the runroot task, so the Pungi user can access them.
         if chown_paths:
-            paths = " ".join(shlex_quote(pth) for pth in chown_paths)
+            paths = " ".join(shlex.quote(pth) for pth in chown_paths)
             command += " ; EXIT_CODE=$?"
             # Make the files world readable
             command += " ; chmod -R a+r %s" % paths

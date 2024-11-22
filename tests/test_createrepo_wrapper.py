@@ -2,8 +2,6 @@
 
 import unittest
 
-import six
-
 from pungi.wrappers.createrepo import CreaterepoWrapper
 
 
@@ -13,8 +11,8 @@ class CreateRepoWrapperTest(unittest.TestCase):
         cmd = repo.get_createrepo_cmd("/test/dir")
 
         self.assertEqual(cmd[:2], ["createrepo_c", "/test/dir"])
-        six.assertCountEqual(
-            self, cmd[2:], ["--update", "--database", "--unique-md-filenames"]
+        self.assertCountEqual(
+            cmd[2:], ["--update", "--database", "--unique-md-filenames"]
         )
 
     def test_get_createrepo_c_cmd_full(self):
@@ -50,8 +48,7 @@ class CreateRepoWrapperTest(unittest.TestCase):
         self.maxDiff = None
 
         self.assertEqual(cmd[:2], ["createrepo_c", "/test/dir"])
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             cmd[2:],
             [
                 "--baseurl=http://base.example.com",
@@ -89,8 +86,7 @@ class CreateRepoWrapperTest(unittest.TestCase):
         cmd = repo.get_createrepo_cmd("/test/dir")
 
         self.assertEqual(cmd[:2], ["createrepo", "/test/dir"])
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             cmd[2:],
             ["--update", "--database", "--unique-md-filenames", "--pretty"],
         )
@@ -126,8 +122,7 @@ class CreateRepoWrapperTest(unittest.TestCase):
         self.maxDiff = None
 
         self.assertEqual(cmd[:2], ["createrepo", "/test/dir"])
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             cmd[2:],
             [
                 "--baseurl=http://base.example.com",

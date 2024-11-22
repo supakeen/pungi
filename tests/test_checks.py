@@ -7,7 +7,7 @@ except ImportError:
 
 import unittest
 import os
-from six import StringIO
+from io import StringIO
 
 import kobo.conf
 

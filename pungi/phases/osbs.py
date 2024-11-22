@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import configparser
 import copy
 import fnmatch
 import json
@@ -7,7 +8,6 @@ import os
 from kobo.threads import ThreadPool, WorkerThread
 from kobo import shortcuts
 from productmd.rpms import Rpms
-from six.moves import configparser
 
 from .base import ConfigGuardedPhase, PhaseLoggerMixin
 from .. import util

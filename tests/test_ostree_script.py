@@ -8,7 +8,6 @@ try:
     from unittest import mock
 except ImportError:
     import mock
-import six
 import yaml
 
 from tests import helpers
@@ -53,8 +52,7 @@ class OstreeTreeScriptTest(helpers.PungiTestCase):
         )
 
     def assertCorrectCall(self, mock_run, extra_calls=[], extra_args=[]):
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             mock_run.call_args_list,
             [
                 mock.call(
@@ -396,8 +394,7 @@ class OstreeInstallerScriptTest(helpers.PungiTestCase):
         args.append("--add-arch-template-var=ostree_repo=http://www.example.com/ostree")
         ostree.main(args)
         self.maxDiff = None
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             run.mock_calls,
             [
                 mock.call(
@@ -460,8 +457,7 @@ class OstreeInstallerScriptTest(helpers.PungiTestCase):
         args.append("--extra-config=%s" % extra_config_file)
         ostree.main(args)
         self.maxDiff = None
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             run.mock_calls,
             [
                 mock.call(

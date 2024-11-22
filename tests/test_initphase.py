@@ -8,8 +8,6 @@ try:
 except ImportError:
     import mock
 
-import six
-
 import os
 
 from pungi.module_util import Modulemd
@@ -56,13 +54,11 @@ class TestInitPhase(PungiTestCase):
 
         self.assertEqual(write_global.mock_calls, [mock.call(compose)])
         self.assertEqual(write_prepopulate.mock_calls, [mock.call(compose)])
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             write_arch.mock_calls,
             [mock.call(compose, "x86_64"), mock.call(compose, "amd64")],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             create_comps.mock_calls,
             [
                 mock.call(compose, "x86_64", None),
@@ -75,8 +71,7 @@ class TestInitPhase(PungiTestCase):
                 mock.call(compose, "x86_64", compose.all_variants["Server-optional"]),
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             write_variant.mock_calls,
             [
                 mock.call(compose, "x86_64", compose.variants["Server"]),
@@ -117,13 +112,11 @@ class TestInitPhase(PungiTestCase):
             validate_comps.call_args_list, [mock.call(write_global.return_value)]
         )
         self.assertEqual(write_prepopulate.mock_calls, [mock.call(compose)])
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             write_arch.mock_calls,
             [mock.call(compose, "x86_64"), mock.call(compose, "amd64")],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             create_comps.mock_calls,
             [
                 mock.call(compose, "x86_64", None),
@@ -135,8 +128,7 @@ class TestInitPhase(PungiTestCase):
                 mock.call(compose, "amd64", compose.variants["Everything"]),
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             write_variant.mock_calls,
             [
                 mock.call(compose, "x86_64", compose.variants["Server"]),

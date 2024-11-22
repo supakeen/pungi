@@ -3,10 +3,9 @@
 from __future__ import print_function
 
 import os
-import six
+import shlex
 from collections import namedtuple
 from kobo.shortcuts import run
-from six.moves import shlex_quote
 
 from .wrappers import iso
 from .wrappers.jigdo import JigdoWrapper
@@ -41,13 +40,13 @@ def quote(str):
     expanded.
     """
     if str.startswith("$TEMPLATE"):
-        return "$TEMPLATE%s" % shlex_quote(str.replace("$TEMPLATE", "", 1))
-    return shlex_quote(str)
+        return "$TEMPLATE%s" % shlex.quote(str.replace("$TEMPLATE", "", 1))
+    return shlex.quote(str)
 
 
 def emit(f, cmd):
     """Print line of shell code into the stream."""
-    if isinstance(cmd, six.string_types):
+    if isinstance(cmd, str):
         print(cmd, file=f)
     else:
         print(" ".join([quote(x) for x in cmd]), file=f)

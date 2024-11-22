@@ -7,7 +7,6 @@ try:
 except ImportError:
     import mock
 import os
-import six
 import unittest
 
 from pungi.wrappers import iso
@@ -45,7 +44,7 @@ def fake_listdir(pattern, result=None, exc=None):
     # The point of this is to avoid issues on Python 2, where apparently
     # isdir() is using listdir(), so the mocking is breaking it.
     def worker(path):
-        if isinstance(path, six.string_types) and pattern in path:
+        if isinstance(path, str) and pattern in path:
             if exc:
                 raise exc
             return result

@@ -2,9 +2,9 @@
 
 import os
 from kobo.threads import ThreadPool, WorkerThread
+import shlex
 import shutil
 from productmd import images
-from six.moves import shlex_quote
 from kobo import shortcuts
 
 from .base import ConfigGuardedPhase, PhaseLoggerMixin
@@ -275,8 +275,8 @@ class OstreeInstallerThread(WorkerThread):
                 skip_branding=config.get("skip_branding"),
             )
             cmd = "rm -rf %s && %s" % (
-                shlex_quote(output_dir),
-                " ".join([shlex_quote(x) for x in lorax_cmd]),
+                shlex.quote(output_dir),
+                " ".join([shlex.quote(x) for x in lorax_cmd]),
             )
 
             runroot.run(

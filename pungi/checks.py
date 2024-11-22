@@ -42,7 +42,6 @@ import platform
 import re
 
 import jsonschema
-import six
 from kobo.shortcuts import force_list
 from pungi.phases import PHASES_NAMES
 from pungi.runroot import RUNROOT_TYPES
@@ -236,8 +235,8 @@ def validate(config, offline=False, schema=None):
             schema,
             {
                 "array": (tuple, list),
-                "regex": six.string_types,
-                "url": six.string_types,
+                "regex": str,
+                "url": str,
             },
         )
     errors = []
@@ -462,7 +461,7 @@ def _extend_with_default_and_alias(validator_class, offline=False):
             return isinstance(instance, (tuple, list))
 
         def is_string_type(checker, instance):
-            return isinstance(instance, six.string_types)
+            return isinstance(instance, str)
 
         kwargs["type_checker"] = validator_class.TYPE_CHECKER.redefine_many(
             {"array": is_array, "regex": is_string_type, "url": is_string_type}

@@ -4,12 +4,11 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import argparse
+import configparser
 import json
 import os
 import shutil
 import sys
-
-from six.moves import configparser
 
 import kobo.conf
 import pungi.checks

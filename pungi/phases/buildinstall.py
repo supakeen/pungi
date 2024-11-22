@@ -16,17 +16,17 @@
 
 import errno
 import os
+import pickle
 import time
+import shlex
 import shutil
 import re
-from six.moves import cPickle as pickle
 from copy import copy
 
 from kobo.threads import ThreadPool, WorkerThread
 from kobo.shortcuts import run, force_list
 import kobo.rpmlib
 from productmd.images import Image
-from six.moves import shlex_quote
 
 from pungi.arch import get_valid_arches
 from pungi.util import get_volid, get_arch_variant_data
@@ -207,8 +207,8 @@ class BuildinstallPhase(PhaseBase):
                 configuration_file=configuration_file,
             )
             return "rm -rf %s && %s" % (
-                shlex_quote(output_topdir),
-                " ".join([shlex_quote(x) for x in lorax_cmd]),
+                shlex.quote(output_topdir),
+                " ".join([shlex.quote(x) for x in lorax_cmd]),
             )
 
     def get_repos(self, arch):
@@ -413,8 +413,8 @@ def tweak_buildinstall(
     # copy src to temp
     # TODO: place temp on the same device as buildinstall dir so we can hardlink
     cmd = "cp -dRv --preserve=mode,links,timestamps --remove-destination %s/* %s/" % (
-        shlex_quote(src),
-        shlex_quote(tmp_dir),
+        shlex.quote(src),
+        shlex.quote(tmp_dir),
     )
     run(cmd)
 
@@ -452,12 +452,12 @@ def tweak_buildinstall(
                         run(cmd)
 
     # HACK: make buildinstall files world readable
-    run("chmod -R a+rX %s" % shlex_quote(tmp_dir))
+    run("chmod -R a+rX %s" % shlex.quote(tmp_dir))
 
     # copy temp to dst
     cmd = "cp -dRv --preserve=mode,links,timestamps --remove-destination %s/* %s/" % (
-        shlex_quote(tmp_dir),
-        shlex_quote(dst),
+        shlex.quote(tmp_dir),
+        shlex.quote(dst),
     )
     run(cmd)
 

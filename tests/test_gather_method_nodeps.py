@@ -6,8 +6,6 @@ except ImportError:
     import mock
 import os
 
-import six
-
 from pungi.phases.gather.methods import method_nodeps as nodeps
 from tests import helpers
 
@@ -24,8 +22,7 @@ class TestWritePungiConfig(helpers.PungiTestCase):
         packages = nodeps.expand_groups(
             self.compose, "x86_64", None, ["core", "text-internet"]
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             packages,
             [
                 ("dummy-bash", "x86_64"),

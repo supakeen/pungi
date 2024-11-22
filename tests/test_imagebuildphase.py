@@ -5,8 +5,6 @@ try:
 except ImportError:
     import mock
 
-import six
-
 import os
 
 from pungi.phases.image_build import ImageBuildPhase, CreateImageBuildThread
@@ -102,8 +100,7 @@ class TestImageBuildPhase(PungiTestCase):
             "link_type": "hardlink-or-copy",
             "scratch": False,
         }
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             phase.pool.queue_put.mock_calls,
             [
                 mock.call((compose, client_args, phase.buildinstall_phase)),
@@ -885,8 +882,7 @@ class TestCreateImageBuildThread(PungiTestCase):
             ],
         )
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             linker.mock_calls,
             [
                 mock.call.link(

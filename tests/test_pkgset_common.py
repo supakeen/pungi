@@ -6,7 +6,6 @@ try:
     from unittest import mock
 except ImportError:
     import mock
-import six
 
 from pungi.module_util import Modulemd
 from pungi.phases.pkgset import common
@@ -68,9 +67,7 @@ class TestMaterializedPkgsetCreate(helpers.PungiTestCase):
             self.compose, self.pkgset, self.prefix
         )
 
-        six.assertCountEqual(
-            self, result.package_sets.keys(), ["global", "amd64", "x86_64"]
-        )
+        self.assertCountEqual(result.package_sets.keys(), ["global", "amd64", "x86_64"])
         self.assertEqual(result["global"], self.pkgset)
         self.assertEqual(result["x86_64"], self.subsets["x86_64"])
         self.assertEqual(result["amd64"], self.subsets["amd64"])

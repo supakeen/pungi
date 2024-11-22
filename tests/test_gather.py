@@ -3,12 +3,10 @@
 import logging
 import os
 import shutil
-import six
 import sys
 import tempfile
 import unittest
-
-from six.moves import cStringIO
+from io import StringIO
 
 from pungi.wrappers.pungi import PungiWrapper
 
@@ -65,8 +63,7 @@ class DepsolvingBase(object):
 
         self.assertNotIn("dummy-kernel-3.1.0-1.i686.rpm", pkg_map["rpm"])
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-kernel-3.1.0-1.x86_64.rpm",  # Important
@@ -103,8 +100,7 @@ class DepsolvingBase(object):
 
         self.assertNotIn("dummy-kernel-3.1.0-1.i686.rpm", pkg_map["rpm"])
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-kernel-3.1.0-1.x86_64.rpm",  # Important
@@ -124,8 +120,7 @@ class DepsolvingBase(object):
 
         self.assertNotIn("dummy-bash-4.2.37-6.ppc.rpm", pkg_map["rpm"])
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -137,8 +132,7 @@ class DepsolvingBase(object):
                 "dummy-glibc-common-2.14-5.ppc64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -147,8 +141,7 @@ class DepsolvingBase(object):
                 "dummy-glibc-2.14-5.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-bash-debuginfo-4.2.37-6.ppc64.rpm",
@@ -166,8 +159,7 @@ class DepsolvingBase(object):
         ]
         pkg_map = self.go(packages, None, greedy="none", fulltree=True)
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-foo32-1-1.i686.rpm",  # Important
@@ -185,8 +177,7 @@ class DepsolvingBase(object):
         ]
         pkg_map = self.go(packages, None, greedy="none")
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -196,8 +187,7 @@ class DepsolvingBase(object):
                 "dummy-glibc-common-2.14-5.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -206,8 +196,7 @@ class DepsolvingBase(object):
                 "dummy-glibc-2.14-5.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-glibc-debuginfo-2.14-5.x86_64.rpm",
@@ -223,8 +212,7 @@ class DepsolvingBase(object):
         ]
         pkg_map = self.go(packages, None, greedy="none")
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -234,8 +222,7 @@ class DepsolvingBase(object):
                 "dummy-glibc-common-2.14-5.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -244,8 +231,7 @@ class DepsolvingBase(object):
                 "dummy-glibc-2.14-5.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-glibc-debuginfo-2.14-5.i686.rpm",
@@ -265,8 +251,7 @@ class DepsolvingBase(object):
         self.assertNotIn("dummy-bash-4.2.37-5.x86_64.rpm", pkg_map["rpm"])
         self.assertNotIn("dummy-bash-4.2.37-6.i686.rpm", pkg_map["rpm"])
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -276,8 +261,7 @@ class DepsolvingBase(object):
                 "dummy-glibc-common-2.14-5.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -286,8 +270,7 @@ class DepsolvingBase(object):
                 "dummy-glibc-2.14-5.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-bash-debuginfo-4.2.37-6.x86_64.rpm",
@@ -307,8 +290,7 @@ class DepsolvingBase(object):
         self.assertNotIn("dummy-bash-4.2.37-5.s390x.rpm", pkg_map["rpm"])
         self.assertNotIn("dummy-bash-4.2.37-6.s390.rpm", pkg_map["rpm"])
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -318,8 +300,7 @@ class DepsolvingBase(object):
                 "dummy-glibc-common-2.14-5.s390x.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -328,8 +309,7 @@ class DepsolvingBase(object):
                 "dummy-glibc-2.14-5.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-bash-debuginfo-4.2.37-6.s390x.rpm",
@@ -349,8 +329,7 @@ class DepsolvingBase(object):
         self.assertNotIn("dummy-bash-4.2.37-5.i686.rpm", pkg_map["rpm"])
         self.assertNotIn("dummy-bash-4.2.37-5.x86_64.rpm", pkg_map["rpm"])
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -364,8 +343,7 @@ class DepsolvingBase(object):
                 "dummy-glibc-common-2.14-5.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -374,8 +352,7 @@ class DepsolvingBase(object):
                 "dummy-glibc-2.14-5.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-bash-debuginfo-4.2.37-6.i686.rpm",
@@ -399,8 +376,7 @@ class DepsolvingBase(object):
         self.assertNotIn("dummy-bash-4.2.37-6.i686.rpm", pkg_map["rpm"])
         self.assertNotIn("dummy-bash-4.2.37-6.x86_64.rpm", pkg_map["rpm"])
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -410,8 +386,7 @@ class DepsolvingBase(object):
                 "dummy-glibc-common-2.14-5.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -420,8 +395,7 @@ class DepsolvingBase(object):
                 "dummy-glibc-2.14-5.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-bash-debuginfo-4.2.37-5.x86_64.rpm",
@@ -461,8 +435,7 @@ class DepsolvingBase(object):
 
         self.assertNotIn("dummy-release-notes-1.2-1.noarch.rpm", pkg_map["rpm"])
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-release-client-1.0.0-1.i686.rpm",  # Important
@@ -473,8 +446,7 @@ class DepsolvingBase(object):
                 "dummy-release-server-1.0.0-1.x86_64.rpm",  # Important
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-release-client-1.0.0-1.src.rpm",
@@ -494,8 +466,7 @@ class DepsolvingBase(object):
         self.assertNotIn("dummy-sendmail-8.14.5-12.i686.rpm", pkg_map["rpm"])
         self.assertNotIn("dummy-sendmail-8.14.5-12.x86_64.rpm", pkg_map["rpm"])
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -506,8 +477,7 @@ class DepsolvingBase(object):
                 "dummy-vacation-1.2.7.1-1.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -517,8 +487,7 @@ class DepsolvingBase(object):
                 "dummy-vacation-1.2.7.1-1.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-glibc-debuginfo-2.14-5.x86_64.rpm",
@@ -539,8 +508,7 @@ class DepsolvingBase(object):
         self.assertNotIn("dummy-postfix-2.9.2-2.x86_64.rpm", pkg_map["rpm"])
         self.assertNotIn("dummy-sendmail-8.14.5-12.i686.rpm", pkg_map["rpm"])
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -551,8 +519,7 @@ class DepsolvingBase(object):
                 "dummy-vacation-1.2.7.1-1.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -562,8 +529,7 @@ class DepsolvingBase(object):
                 "dummy-vacation-1.2.7.1-1.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-glibc-debuginfo-2.14-5.x86_64.rpm",
@@ -579,8 +545,7 @@ class DepsolvingBase(object):
         ]
         pkg_map = self.go(packages, None, greedy="all")
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -598,8 +563,7 @@ class DepsolvingBase(object):
                 "dummy-vacation-1.2.7.1-1.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -610,8 +574,7 @@ class DepsolvingBase(object):
                 "dummy-vacation-1.2.7.1-1.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-glibc-debuginfo-2.14-5.i686.rpm",
@@ -636,8 +599,7 @@ class DepsolvingBase(object):
         ]
         pkg_map = self.go(packages, None, greedy="all")
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -655,8 +617,7 @@ class DepsolvingBase(object):
                 "dummy-vacation-1.2.7.1-1.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -667,8 +628,7 @@ class DepsolvingBase(object):
                 "dummy-vacation-1.2.7.1-1.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-glibc-debuginfo-2.14-5.i686.rpm",
@@ -692,8 +652,7 @@ class DepsolvingBase(object):
         ]
         pkg_map = self.go(packages, None, greedy="all")
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -711,8 +670,7 @@ class DepsolvingBase(object):
                 "dummy-vacation-1.2.7.1-1.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -723,8 +681,7 @@ class DepsolvingBase(object):
                 "dummy-vacation-1.2.7.1-1.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-glibc-debuginfo-2.14-5.i686.rpm",
@@ -752,8 +709,7 @@ class DepsolvingBase(object):
         self.assertNotIn("dummy-krb5-workstation-1.10-5.i686.rpm", pkg_map["rpm"])
         self.assertNotIn("dummy-krb5-workstation-1.10-5.x86_64.rpm", pkg_map["rpm"])
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -764,8 +720,7 @@ class DepsolvingBase(object):
                 "Dummy-xulrunner-16.0.1-1.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -775,8 +730,7 @@ class DepsolvingBase(object):
                 "Dummy-xulrunner-16.0.1-1.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "Dummy-firefox-debuginfo-16.0.1-1.x86_64.rpm",
@@ -797,8 +751,7 @@ class DepsolvingBase(object):
         self.assertNotIn("dummy-krb5-workstation-1.10-5.i686.rpm", pkg_map["rpm"])
         self.assertNotIn("dummy-krb5-workstation-1.10-5.x86_64.rpm", pkg_map["rpm"])
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-bash-4.2.37-6.x86_64.rpm",
@@ -813,8 +766,7 @@ class DepsolvingBase(object):
                 "Dummy-xulrunner-16.0.1-1.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-bash-4.2.37-6.src.rpm",
@@ -826,8 +778,7 @@ class DepsolvingBase(object):
                 "Dummy-xulrunner-16.0.1-1.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-bash-debuginfo-4.2.37-6.x86_64.rpm",
@@ -851,8 +802,7 @@ class DepsolvingBase(object):
         self.assertNotIn("dummy-krb5-debuginfo-1.10-5.x86_64.rpm", pkg_map["debuginfo"])
         self.assertNotIn("dummy-krb5-1.10-5.src.rpm", pkg_map["srpm"])
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -863,8 +813,7 @@ class DepsolvingBase(object):
                 "Dummy-xulrunner-16.0.1-1.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -874,8 +823,7 @@ class DepsolvingBase(object):
                 "Dummy-xulrunner-16.0.1-1.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "Dummy-firefox-debuginfo-16.0.1-1.x86_64.rpm",
@@ -903,8 +851,7 @@ class DepsolvingBase(object):
         pkg_map = self.go(packages, None, lookaside=self.lookaside)
 
         self.assertEqual(self.broken_deps, {})
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-cockpit-docker-141-1.noarch.rpm",
@@ -947,8 +894,7 @@ class DepsolvingBase(object):
         self.assertNotIn("dummy-krb5-workstation-1.10-5.i686.rpm", pkg_map["rpm"])
         self.assertNotIn("dummy-krb5-workstation-1.10-5.x86_64.rpm", pkg_map["rpm"])
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -960,8 +906,7 @@ class DepsolvingBase(object):
                 "Dummy-xulrunner-16.0.1-1.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -971,8 +916,7 @@ class DepsolvingBase(object):
                 "Dummy-xulrunner-16.0.1-1.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "Dummy-firefox-debuginfo-16.0.1-1.x86_64.rpm",
@@ -994,8 +938,7 @@ class DepsolvingBase(object):
         self.assertNotIn("dummy-krb5-devel-1.10-5.i686.rpm", pkg_map["rpm"])
         self.assertNotIn("dummy-krb5-workstation-1.10-5.i686.rpm", pkg_map["rpm"])
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-bash-4.2.37-6.x86_64.rpm",
@@ -1013,8 +956,7 @@ class DepsolvingBase(object):
                 "Dummy-xulrunner-16.0.1-1.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-bash-4.2.37-6.src.rpm",
@@ -1026,8 +968,7 @@ class DepsolvingBase(object):
                 "Dummy-xulrunner-16.0.1-1.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-bash-debuginfo-4.2.37-6.x86_64.rpm",
@@ -1049,8 +990,7 @@ class DepsolvingBase(object):
         self.assertNotIn("dummy-krb5-devel-1.10-5.i686.rpm", pkg_map["rpm"])
         self.assertNotIn("dummy-krb5-workstation-1.10-5.i686.rpm", pkg_map["rpm"])
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -1064,8 +1004,7 @@ class DepsolvingBase(object):
                 "dummy-nscd-2.14-5.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -1074,8 +1013,7 @@ class DepsolvingBase(object):
                 "dummy-krb5-1.10-5.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-glibc-debuginfo-2.14-5.x86_64.rpm",
@@ -1093,8 +1031,7 @@ class DepsolvingBase(object):
         # 'dummy-bash' req already satisfied by bash.i686
         self.assertNotIn("dummy-bash-4.2.37-6.x86_64.rpm", pkg_map["rpm"])
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -1107,8 +1044,7 @@ class DepsolvingBase(object):
                 "dummy-nscd-2.14-5.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -1117,8 +1053,7 @@ class DepsolvingBase(object):
                 "dummy-glibc-2.14-5.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-bash-debuginfo-4.2.37-6.i686.rpm",
@@ -1136,8 +1071,7 @@ class DepsolvingBase(object):
         ]
         pkg_map = self.go(packages, None, multilib_blacklist=["dummy-glibc*"])
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -1146,8 +1080,7 @@ class DepsolvingBase(object):
                 "dummy-glibc-common-2.14-5.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -1155,8 +1088,7 @@ class DepsolvingBase(object):
                 "dummy-glibc-2.14-5.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-glibc-debuginfo-2.14-5.x86_64.rpm",
@@ -1176,8 +1108,7 @@ class DepsolvingBase(object):
         self.assertNotIn("dummy-bash-4.2.37-6.x86_64.rpm", pkg_map["rpm"])
         self.assertNotIn("dummy-bash-doc-4.2.37-6.noarch.rpm", pkg_map["rpm"])
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -1189,8 +1120,7 @@ class DepsolvingBase(object):
                 "dummy-nscd-2.14-5.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -1199,8 +1129,7 @@ class DepsolvingBase(object):
                 "dummy-glibc-2.14-5.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-bash-debuginfo-4.2.37-6.i686.rpm",
@@ -1221,8 +1150,7 @@ class DepsolvingBase(object):
 
         self.assertNotIn("dummy-bash-4.2.37-6.src.rpm", pkg_map["srpm"])
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -1232,8 +1160,7 @@ class DepsolvingBase(object):
                 "dummy-glibc-common-2.14-5.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -1241,8 +1168,7 @@ class DepsolvingBase(object):
                 "dummy-glibc-2.14-5.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-bash-debuginfo-4.2.37-6.i686.rpm",
@@ -1260,8 +1186,7 @@ class DepsolvingBase(object):
         ]
         pkg_map = self.go(packages, None, greedy="all", fulltree=True)
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -1278,8 +1203,7 @@ class DepsolvingBase(object):
                 "dummy-nscd-2.14-5.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -1288,8 +1212,7 @@ class DepsolvingBase(object):
                 "dummy-glibc-2.14-5.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-bash-debuginfo-4.2.37-6.i686.rpm",
@@ -1312,8 +1235,7 @@ class DepsolvingBase(object):
 
         self.assertNotIn("dummy-bash-4.2.37-6.x86_64.rpm", pkg_map["rpm"])
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -1326,8 +1248,7 @@ class DepsolvingBase(object):
                 "dummy-glibc-common-2.14-5.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -1336,8 +1257,7 @@ class DepsolvingBase(object):
                 "dummy-glibc-2.14-5.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-bash-debuginfo-4.2.37-6.i686.rpm",
@@ -1358,8 +1278,7 @@ class DepsolvingBase(object):
 
         self.assertNotIn("dummy-bash-4.2.37-6.i686.rpm", pkg_map["rpm"])
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -1375,8 +1294,7 @@ class DepsolvingBase(object):
                 "dummy-nscd-2.14-5.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -1385,8 +1303,7 @@ class DepsolvingBase(object):
                 "dummy-glibc-2.14-5.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-bash-debuginfo-4.2.37-6.x86_64.rpm",
@@ -1409,8 +1326,7 @@ class DepsolvingBase(object):
         self.assertNotIn("dummy-bash-4.2.37-6.i686.rpm", pkg_map["rpm"])
         self.assertNotIn("dummy-bash-4.2.37-6.x86_64.rpm", pkg_map["rpm"])
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-filesystem-4.2.37-6.i686.rpm",
@@ -1427,8 +1343,7 @@ class DepsolvingBase(object):
         ]
         pkg_map = self.go(packages, None, greedy="none", fulltree=True)
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-kmod-ipw3945-1.2.0-4.20.x86_64.rpm",  # Important
@@ -1452,8 +1367,7 @@ class DepsolvingBase(object):
             multilib_methods=["devel", "runtime"],
         )
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -1467,8 +1381,7 @@ class DepsolvingBase(object):
                 "dummy-lvm2-libs-2.02.84-4.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -1477,8 +1390,7 @@ class DepsolvingBase(object):
                 "dummy-lvm2-2.02.84-4.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-glibc-debuginfo-2.14-5.x86_64.rpm",
@@ -1496,16 +1408,14 @@ class DepsolvingBase(object):
         ]
         pkg_map = self.go(packages, None, greedy="none", fulltree=False, arch="ppc64")
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-freeipa-server-2.2.0-1.ppc64.rpm",  # Important
                 "dummy-selinux-policy-mls-3.10.0-121.noarch.rpm",  # Important
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-freeipa-2.2.0-1.src.rpm",
@@ -1520,8 +1430,7 @@ class DepsolvingBase(object):
         ]
         pkg_map = self.go(packages, None, greedy="build", fulltree=False, arch="ppc64")
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-freeipa-server-2.2.0-1.ppc64.rpm",  # Important
@@ -1530,8 +1439,7 @@ class DepsolvingBase(object):
                 "dummy-selinux-policy-targeted-3.10.0-121.noarch.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-freeipa-2.2.0-1.src.rpm",
@@ -1551,16 +1459,14 @@ class DepsolvingBase(object):
             "dummy-selinux-policy-mls-3.10.0-121.noarch.rpm", pkg_map["rpm"]
         )
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-freeipa-server-2.2.0-1.ppc64.rpm",  # Important
                 "dummy-selinux-policy-targeted-3.10.0-121.noarch.rpm",  # Important
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-freeipa-2.2.0-1.src.rpm",
@@ -1573,8 +1479,7 @@ class DepsolvingBase(object):
         packages = ["dummy-selinux-policy-doc"]
         pkg_map = self.go(packages, None, fulltree=True)
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-selinux-policy-doc-3.10.0-121.noarch.rpm",
@@ -1592,8 +1497,7 @@ class DepsolvingBase(object):
         ]
         pkg_map = self.go(packages, None)
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-AdobeReader_enu-9.5.1-1.i486.rpm",  # Important
@@ -1603,8 +1507,7 @@ class DepsolvingBase(object):
                 "dummy-glibc-2.14-5.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-AdobeReader_enu-9.5.1-1.nosrc.rpm",
@@ -1613,8 +1516,7 @@ class DepsolvingBase(object):
                 "dummy-glibc-2.14-5.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-glibc-debuginfo-2.14-5.x86_64.rpm",
@@ -1631,8 +1533,7 @@ class DepsolvingBase(object):
         self.assertNotIn("dummy-imsettings-gnome-1.2.9-1.x86_64.rpm", pkg_map["rpm"])
         # prefers qt over gnome (shorter name)
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-imsettings-1.2.9-1.x86_64.rpm",  # Important
@@ -1654,8 +1555,7 @@ class DepsolvingBase(object):
         self.assertNotIn("dummy-imsettings-qt-1.2.9-1.x86_64.rpm", pkg_map["rpm"])
         # prefers gnome over qt (condrequires in @basic-desktop)
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-imsettings-1.2.9-1.x86_64.rpm",  # Important
@@ -1693,8 +1593,7 @@ class DepsolvingBase(object):
         )
 
         # prefers gnome over qt (condrequires in @basic-desktop)
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-imsettings-1.2.9-1.x86_64.rpm",  # Important
@@ -1717,8 +1616,7 @@ class DepsolvingBase(object):
 
         self.assertEqual(pkg_map["rpm"], ["dummy-bash-4.2.37-6.x86_64.rpm"])
         self.assertEqual(pkg_map["srpm"], ["dummy-bash-4.2.37-6.src.rpm"])
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-bash-debuginfo-4.2.37-6.x86_64.rpm",
@@ -1736,8 +1634,7 @@ class DepsolvingBase(object):
         self.assertNotIn("dummy-bash-4.2.37-5.x86_64.rpm", pkg_map["rpm"])
         self.assertNotIn("dummy-bash-4.2.37-6.i686.rpm", pkg_map["rpm"])
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-bash-4.2.37-6.x86_64.rpm",  # Important
@@ -1745,8 +1642,7 @@ class DepsolvingBase(object):
             ],
         )
         self.assertEqual(pkg_map["srpm"], ["dummy-bash-4.2.37-6.src.rpm"])
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-bash-debuginfo-4.2.37-6.x86_64.rpm",
@@ -1776,8 +1672,7 @@ class DepsolvingBase(object):
         pkg_map = self.go(packages, None, greedy="none", nodeps=True, fulltree=True)
 
         # neither dummy-bash or dummy-basesystem is pulled in
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-glibc-2.14-5.x86_64.rpm",
@@ -1786,8 +1681,7 @@ class DepsolvingBase(object):
             ],
         )
         self.assertEqual(pkg_map["srpm"], ["dummy-glibc-2.14-5.src.rpm"])
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-glibc-debuginfo-2.14-5.x86_64.rpm",
@@ -1801,8 +1695,7 @@ class DepsolvingBase(object):
         ]
         pkg_map = self.go(packages, None, greedy="none", fulltree=False, arch="x86_64")
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             ["dummy-atlas-3.8.4-7.x86_64.rpm", "dummy-atlas-devel-3.8.4-7.x86_64.rpm"],
         )
@@ -1816,8 +1709,7 @@ class DepsolvingBase(object):
         ]
         pkg_map = self.go(packages, None, greedy="build", fulltree=False, arch="x86_64")
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-atlas-3.8.4-7.x86_64.rpm",
@@ -1841,8 +1733,7 @@ class DepsolvingBase(object):
             arch="x86_64",
         )
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-atlas-3.8.4-7.x86_64.rpm",
@@ -1867,8 +1758,7 @@ class DepsolvingBase(object):
             arch="x86_64",
         )
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-atlas-3.8.4-7.x86_64.rpm",
@@ -1885,8 +1775,7 @@ class DepsolvingBase(object):
         ]
         pkg_map = self.go(packages, None, greedy="all", fulltree=False, arch="x86_64")
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-atlas-3.8.4-7.i686.rpm",
@@ -1909,8 +1798,7 @@ class DepsolvingBase(object):
         ]
         pkg_map = self.go(packages, None, greedy="build", fulltree=False, arch="x86_64")
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-skype-4.2.0.13-1.i586.rpm",
@@ -1921,8 +1809,7 @@ class DepsolvingBase(object):
             ],
         )
         # no SRPM for skype
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -1930,8 +1817,7 @@ class DepsolvingBase(object):
                 "dummy-filesystem-4.2.37-6.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-glibc-debuginfo-common-2.14-5.i686.rpm",
@@ -1952,8 +1838,7 @@ class DepsolvingBase(object):
 
         pkg_map = self.go(packages, None, prepopulate=prepopulate)
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -1966,8 +1851,7 @@ class DepsolvingBase(object):
                 "dummy-lvm2-libs-2.02.84-4.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -1977,8 +1861,7 @@ class DepsolvingBase(object):
                 "dummy-lvm2-2.02.84-4.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-bash-debuginfo-4.2.37-6.i686.rpm",
@@ -1997,8 +1880,7 @@ class DepsolvingBase(object):
         ]
         pkg_map = self.go(packages, None)
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-release-notes-1.2-1.noarch.rpm",
@@ -2006,8 +1888,7 @@ class DepsolvingBase(object):
                 "dummy-release-notes-en-US-1.2-1.noarch.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-release-notes-1.2-1.src.rpm",
@@ -2025,8 +1906,7 @@ class DepsolvingBase(object):
 
         pkg_map = self.go(packages, None, multilib_whitelist=["dummy-glibc"])
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-filesystem-4.2.37-6.x86_64.rpm",
@@ -2036,8 +1916,7 @@ class DepsolvingBase(object):
                 "dummy-basesystem-10.0-6.noarch.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -2045,8 +1924,7 @@ class DepsolvingBase(object):
                 "dummy-filesystem-4.2.37-6.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-glibc-debuginfo-2.14-5.i686.rpm",
@@ -2080,16 +1958,14 @@ class DepsolvingBase(object):
         ]
         pkg_map = self.go(packages, None)
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-release-notes-cs-CZ-1.2-1.noarch.rpm",
                 "dummy-release-notes-en-US-1.2-1.noarch.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-release-notes-cs-CZ-1.2-1.src.rpm",
@@ -2102,8 +1978,7 @@ class DepsolvingBase(object):
         packages = ["dummy-perl"]
         pkg_map = self.go(packages, None)
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-perl-1.0.0-1.x86_64.rpm",
@@ -2185,7 +2060,7 @@ class DNFDepsolvingTestCase(DepsolvingBase, unittest.TestCase):
         self.g.logger.handlers = [
             h for h in self.g.logger.handlers if h.name != "capture-logs"
         ]
-        log_output = cStringIO()
+        log_output = StringIO()
         handler = logging.StreamHandler(log_output)
         handler.name = "capture-logs"
         handler.setLevel(logging.WARNING)
@@ -2267,14 +2142,12 @@ class DNFDepsolvingTestCase(DepsolvingBase, unittest.TestCase):
 
         pkg_map = self.go(packages, None)
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             ["libuser-1-1.i686.rpm", "python-libuser-1-1.x86_64.rpm"],
         )
         self.assertEqual(pkg_map["srpm"], ["libuser-1-1.src.rpm"])
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "libuser-debuginfo-1-1.i686.rpm",
@@ -2288,8 +2161,7 @@ class DNFDepsolvingTestCase(DepsolvingBase, unittest.TestCase):
         ]
         pkg_map = self.go(packages, None, greedy="build", fulltree=False, arch="x86_64")
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-skype-4.2.0.13-1.i586.rpm",
@@ -2300,8 +2172,7 @@ class DNFDepsolvingTestCase(DepsolvingBase, unittest.TestCase):
             ],
         )
         # no SRPM for skype
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -2309,8 +2180,7 @@ class DNFDepsolvingTestCase(DepsolvingBase, unittest.TestCase):
                 "dummy-filesystem-4.2.37-6.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-glibc-debuginfo-common-2.14-5.i686.rpm",
@@ -2326,8 +2196,7 @@ class DNFDepsolvingTestCase(DepsolvingBase, unittest.TestCase):
         ]
         pkg_map = self.go(packages, None, greedy="none")
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -2337,8 +2206,7 @@ class DNFDepsolvingTestCase(DepsolvingBase, unittest.TestCase):
                 "dummy-glibc-common-2.14-5.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -2347,8 +2215,7 @@ class DNFDepsolvingTestCase(DepsolvingBase, unittest.TestCase):
                 "dummy-glibc-2.14-5.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-glibc-debuginfo-2.14-5.i686.rpm",
@@ -2365,8 +2232,7 @@ class DNFDepsolvingTestCase(DepsolvingBase, unittest.TestCase):
         pkg_map = self.go(packages, None, greedy="none", nodeps=True, fulltree=True)
 
         # neither dummy-bash or dummy-basesystem is pulled in
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-glibc-2.14-5.x86_64.rpm",
@@ -2388,8 +2254,7 @@ class DNFDepsolvingTestCase(DepsolvingBase, unittest.TestCase):
 
         self.assertNotIn("dummy-bash-4.2.37-6.src.rpm", pkg_map["srpm"])
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -2399,8 +2264,7 @@ class DNFDepsolvingTestCase(DepsolvingBase, unittest.TestCase):
                 "dummy-glibc-common-2.14-5.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -2408,8 +2272,7 @@ class DNFDepsolvingTestCase(DepsolvingBase, unittest.TestCase):
                 "dummy-glibc-2.14-5.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-bash-debuginfo-4.2.37-6.i686.rpm",
@@ -2426,8 +2289,7 @@ class DNFDepsolvingTestCase(DepsolvingBase, unittest.TestCase):
         ]
         pkg_map = self.go(packages, None, greedy="none", fulltree=True)
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-kmod-ipw3945-1.2.0-4.20.x86_64.rpm",  # Important
@@ -2449,8 +2311,7 @@ class DNFDepsolvingTestCase(DepsolvingBase, unittest.TestCase):
             multilib_methods=["devel", "runtime"],
         )
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -2464,8 +2325,7 @@ class DNFDepsolvingTestCase(DepsolvingBase, unittest.TestCase):
                 "dummy-lvm2-libs-2.02.84-4.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -2474,8 +2334,7 @@ class DNFDepsolvingTestCase(DepsolvingBase, unittest.TestCase):
                 "dummy-lvm2-2.02.84-4.src.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-glibc-debuginfo-2.14-5.x86_64.rpm",
@@ -2490,8 +2349,7 @@ class DNFDepsolvingTestCase(DepsolvingBase, unittest.TestCase):
         packages = ["dummy-bash"]
         pkg_map = self.go(packages, None, exclude_source=True)
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -2501,9 +2359,8 @@ class DNFDepsolvingTestCase(DepsolvingBase, unittest.TestCase):
                 "dummy-glibc-common-2.14-5.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(self, pkg_map["srpm"], [])
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(pkg_map["srpm"], [])
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             [
                 "dummy-bash-debuginfo-4.2.37-6.x86_64.rpm",
@@ -2517,8 +2374,7 @@ class DNFDepsolvingTestCase(DepsolvingBase, unittest.TestCase):
         packages = ["dummy-bash"]
         pkg_map = self.go(packages, None, exclude_debug=True)
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["rpm"],
             [
                 "dummy-basesystem-10.0-6.noarch.rpm",
@@ -2528,8 +2384,7 @@ class DNFDepsolvingTestCase(DepsolvingBase, unittest.TestCase):
                 "dummy-glibc-common-2.14-5.x86_64.rpm",
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pkg_map["srpm"],
             [
                 "dummy-basesystem-10.0-6.src.rpm",
@@ -2538,15 +2393,14 @@ class DNFDepsolvingTestCase(DepsolvingBase, unittest.TestCase):
                 "dummy-glibc-2.14-5.src.rpm",
             ],
         )
-        six.assertCountEqual(self, pkg_map["debuginfo"], [])
+        self.assertCountEqual(pkg_map["debuginfo"], [])
 
     def test_explicit_debug(self):
         pkg_map = self.go(["dummy-bash-debuginfo"], None)
 
-        six.assertCountEqual(self, pkg_map["rpm"], [])
-        six.assertCountEqual(self, pkg_map["srpm"], [])
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(pkg_map["rpm"], [])
+        self.assertCountEqual(pkg_map["srpm"], [])
+        self.assertCountEqual(
             pkg_map["debuginfo"],
             ["dummy-bash-debuginfo-4.2.37-6.x86_64.rpm"],
         )

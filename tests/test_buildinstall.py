@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import unittest
-
 try:
     from unittest import mock
 except ImportError:
     import mock
-import six
 from copy import copy
-from six.moves import StringIO
+from io import StringIO
 
 import os
 
@@ -119,8 +116,7 @@ class TestBuildinstallPhase(PungiTestCase):
         # Server.x86_64, Client.amd64, Server.x86_64
         pool = poolCls.return_value
         self.assertEqual(3, len(pool.queue_put.mock_calls))
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             [call[0][0][3] for call in pool.queue_put.call_args_list],
             [
                 "rm -rf %s/work/amd64/buildinstall/Client && lorax ..." % self.topdir,
@@ -130,8 +126,7 @@ class TestBuildinstallPhase(PungiTestCase):
         )
 
         # Obtained correct lorax commands.
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             loraxCls.return_value.get_lorax_cmd.mock_calls,
             [
                 mock.call(
@@ -223,8 +218,7 @@ class TestBuildinstallPhase(PungiTestCase):
                 ),
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             get_volid.mock_calls,
             [
                 mock.call(
@@ -363,14 +357,12 @@ class TestBuildinstallPhase(PungiTestCase):
         # Server.x86_64, Client.amd64, Server.x86_64
         pool = poolCls.return_value
         self.assertEqual(3, len(pool.queue_put.mock_calls))
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             [call[0][0][3] for call in pool.queue_put.call_args_list],
             expected_args,
         )
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             get_volid.mock_calls,
             [
                 mock.call(
@@ -522,8 +514,7 @@ class TestBuildinstallPhase(PungiTestCase):
         # Server.x86_64, Client.amd64, Server.x86_64
         pool = poolCls.return_value
         self.assertEqual(3, len(pool.queue_put.mock_calls))
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             [call[0][0][3] for call in pool.queue_put.call_args_list],
             [
                 "rm -rf %s/work/amd64/buildinstall/Client && lorax ..." % self.topdir,
@@ -533,8 +524,7 @@ class TestBuildinstallPhase(PungiTestCase):
         )
 
         # Obtained correct lorax commands.
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             loraxCls.return_value.get_lorax_cmd.mock_calls,
             [
                 mock.call(
@@ -629,8 +619,7 @@ class TestBuildinstallPhase(PungiTestCase):
                 ),
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             get_volid.mock_calls,
             [
                 mock.call(
@@ -657,8 +646,7 @@ class TestBuildinstallPhase(PungiTestCase):
         There should be one get_file call. This is because the configuration_file
         option was used only once in the above configuration.
         """
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             get_file.mock_calls,
             [
                 mock.call(
@@ -705,8 +693,7 @@ class TestBuildinstallPhase(PungiTestCase):
         # Server.x86_64, Client.amd64, Server.x86_64
         pool = poolCls.return_value
         self.assertEqual(3, len(pool.queue_put.mock_calls))
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             [call[0][0][3] for call in pool.queue_put.call_args_list],
             [
                 "rm -rf %s/work/amd64/buildinstall/Client && lorax ..." % self.topdir,
@@ -716,8 +703,7 @@ class TestBuildinstallPhase(PungiTestCase):
         )
 
         # Obtained correct lorax commands.
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             loraxCls.return_value.get_lorax_cmd.mock_calls,
             [
                 mock.call(
@@ -806,8 +792,7 @@ class TestBuildinstallPhase(PungiTestCase):
                 ),
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             get_volid.mock_calls,
             [
                 mock.call(
@@ -864,8 +849,7 @@ class TestBuildinstallPhase(PungiTestCase):
         # Server.x86_64, Client.amd64, Server.x86_64
         pool = poolCls.return_value
         self.assertEqual(3, len(pool.queue_put.mock_calls))
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             [call[0][0][3] for call in pool.queue_put.call_args_list],
             [
                 "rm -rf %s/amd64/Client && lorax ..." % buildinstall_topdir,
@@ -875,8 +859,7 @@ class TestBuildinstallPhase(PungiTestCase):
         )
 
         # Obtained correct lorax commands.
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             loraxCls.return_value.get_lorax_cmd.mock_calls,
             [
                 mock.call(
@@ -965,8 +948,7 @@ class TestBuildinstallPhase(PungiTestCase):
                 ),
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             get_volid.mock_calls,
             [
                 mock.call(
@@ -1025,8 +1007,7 @@ class TestBuildinstallPhase(PungiTestCase):
         phase.run()
 
         self.maxDiff = None
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             loraxCls.return_value.get_lorax_cmd.mock_calls,
             [
                 mock.call(
@@ -1204,8 +1185,8 @@ class BuildinstallThreadTestCase(PungiTestCase):
             self.topdir + "/logs/x86_64/buildinstall-Server-RPMs.x86_64.log"
         ) as f:
             rpms = f.read().strip().split("\n")
-        six.assertCountEqual(self, rpms, ["bash", "zsh"])
-        six.assertCountEqual(self, self.pool.finished_tasks, [("Server", "x86_64")])
+        self.assertCountEqual(rpms, ["bash", "zsh"])
+        self.assertCountEqual(self.pool.finished_tasks, [("Server", "x86_64")])
 
         self.assertEqual(
             mock_tweak.call_args_list,
@@ -1299,8 +1280,8 @@ class BuildinstallThreadTestCase(PungiTestCase):
             self.topdir + "/logs/x86_64/buildinstall-Server-RPMs.x86_64.log"
         ) as f:
             rpms = f.read().strip().split("\n")
-        six.assertCountEqual(self, rpms, ["bash", "zsh"])
-        six.assertCountEqual(self, self.pool.finished_tasks, [("Server", "x86_64")])
+        self.assertCountEqual(rpms, ["bash", "zsh"])
+        self.assertCountEqual(self.pool.finished_tasks, [("Server", "x86_64")])
 
         self.assertEqual(
             mock_tweak.call_args_list,
@@ -1380,7 +1361,6 @@ class BuildinstallThreadTestCase(PungiTestCase):
         )
         self.assertEqual(self.pool.finished_tasks, set())
 
-    @unittest.skipUnless(six.PY3, "PY2 StringIO does not work with 'with' statement")
     @mock.patch("pungi.wrappers.kojiwrapper.KojiWrapper")
     @mock.patch("pungi.wrappers.kojiwrapper.get_buildroot_rpms")
     @mock.patch("pungi.phases.buildinstall.run")
@@ -1567,14 +1547,13 @@ class BuildinstallThreadTestCase(PungiTestCase):
             self.topdir + "/logs/x86_64/buildinstall-Server-RPMs.x86_64.log"
         ) as f:
             rpms = f.read().strip().split("\n")
-        six.assertCountEqual(self, rpms, ["bash", "zsh"])
-        six.assertCountEqual(self, self.pool.finished_tasks, [("Server", "x86_64")])
+        self.assertCountEqual(rpms, ["bash", "zsh"])
+        self.assertCountEqual(self.pool.finished_tasks, [("Server", "x86_64")])
 
         buildinstall_topdir = os.path.join(
             "/buildinstall_topdir", "buildinstall-" + os.path.basename(self.topdir)
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             copy_all.mock_calls,
             [
                 mock.call(

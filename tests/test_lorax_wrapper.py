@@ -2,8 +2,6 @@
 
 import unittest
 
-import six
-
 from pungi.wrappers.lorax import LoraxWrapper
 
 
@@ -17,8 +15,7 @@ class LoraxWrapperTest(unittest.TestCase):
         )
 
         self.assertEqual(cmd[0], "lorax")
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             cmd[1:],
             [
                 "--product=product",
@@ -56,8 +53,7 @@ class LoraxWrapperTest(unittest.TestCase):
         )
 
         self.assertEqual(cmd[0], "lorax")
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             cmd[1:],
             [
                 "--product=product",

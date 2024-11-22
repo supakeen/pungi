@@ -8,8 +8,6 @@ import os
 
 from productmd.extra_files import ExtraFiles
 
-import six
-
 from pungi.phases import extra_files
 from tests import helpers
 
@@ -34,8 +32,7 @@ class TestExtraFilePhase(helpers.PungiTestCase):
         phase = extra_files.ExtraFilesPhase(compose, pkgset_phase)
         phase.run()
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             copy_extra_files.call_args_list,
             [
                 mock.call(

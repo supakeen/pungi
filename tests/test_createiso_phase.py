@@ -8,7 +8,6 @@ try:
     from unittest import mock
 except ImportError:
     import mock
-import six
 
 import productmd
 import os
@@ -49,8 +48,7 @@ class CreateisoPhaseTest(helpers.PungiTestCase):
 
         self.assertEqual(len(pool.add.call_args_list), 0)
         self.assertEqual(pool.queue_put.call_args_list, [])
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             phase.logger.warning.call_args_list,
             [
                 mock.call("No RPMs found for Everything.x86_64, skipping ISO"),
@@ -197,8 +195,7 @@ class CreateisoPhaseTest(helpers.PungiTestCase):
         phase.logger = mock.Mock()
         phase.run()
 
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             prepare_iso.call_args_list,
             [
                 mock.call(
@@ -219,8 +216,7 @@ class CreateisoPhaseTest(helpers.PungiTestCase):
                 ),
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             split_iso.call_args_list,
             [
                 mock.call(
@@ -241,8 +237,7 @@ class CreateisoPhaseTest(helpers.PungiTestCase):
         )
         self.assertEqual(len(pool.add.call_args_list), 2)
         self.maxDiff = None
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             [x[0][0] for x in write_script.call_args_list],
             [
                 CreateIsoOpts(
@@ -277,8 +272,7 @@ class CreateisoPhaseTest(helpers.PungiTestCase):
                 ),
             ],
         )
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             pool.queue_put.call_args_list,
             [
                 mock.call(

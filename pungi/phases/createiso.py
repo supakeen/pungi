@@ -17,6 +17,7 @@
 import itertools
 import os
 import random
+import shlex
 import shutil
 import stat
 import json
@@ -25,7 +26,6 @@ import productmd.treeinfo
 from productmd.images import Image
 from kobo.threads import ThreadPool, WorkerThread
 from kobo.shortcuts import run, relative_path, compute_file_checksums
-from six.moves import shlex_quote
 
 from pungi.wrappers import iso
 from pungi.wrappers.createrepo import CreaterepoWrapper
@@ -782,7 +782,7 @@ def prepare_iso(
 
         if file_list_content:
             # write modified repodata only if there are packages available
-            run("cp -a %s/repodata %s/" % (shlex_quote(tree_dir), shlex_quote(iso_dir)))
+            run("cp -a %s/repodata %s/" % (shlex.quote(tree_dir), shlex.quote(iso_dir)))
             with open(file_list, "w") as f:
                 f.write("\n".join(file_list_content))
             cmd = repo.get_createrepo_cmd(
