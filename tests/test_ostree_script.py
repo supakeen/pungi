@@ -3,12 +3,8 @@
 
 import json
 import os
-
-try:
-    from unittest import mock
-except ImportError:
-    import mock
 import yaml
+from unittest import mock
 
 from tests import helpers
 from pungi import ostree

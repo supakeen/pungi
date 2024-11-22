@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from unittest import mock
-except ImportError:
-    import mock
 import os
 import shutil
 from configparser import ConfigParser
+from unittest import mock
 
 from tests.helpers import PungiTestCase, FIXTURE_DIR, touch, mk_boom
 from pungi_utils import unified_isos

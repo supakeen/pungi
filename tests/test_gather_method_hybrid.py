@@ -2,11 +2,7 @@
 
 from collections import namedtuple
 import copy
-
-try:
-    from unittest import mock
-except ImportError:
-    import mock
+from unittest import mock
 import os
 
 from pungi.phases.gather.methods import method_hybrid as hybrid

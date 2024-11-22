@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
 
-
-try:
-    from unittest import mock
-except ImportError:
-    import mock
 import errno
 import os
 import stat
+from unittest import mock
 
 from pungi import linker
 from tests import helpers

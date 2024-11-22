@@ -1,14 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import json
-
-try:
-    from unittest import mock
-except ImportError:
-    import mock
-
 import unittest
 import tempfile
+from unittest import mock
 
 import os
 import shutil

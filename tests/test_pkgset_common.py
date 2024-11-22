@@ -1,11 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-
-try:
-    from unittest import mock
-except ImportError:
-    import mock
+from unittest import mock
 
 from pungi.module_util import Modulemd
 from pungi.phases.pkgset import common

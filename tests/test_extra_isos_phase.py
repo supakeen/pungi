@@ -1,13 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import logging
-
-try:
-    from unittest import mock
-except ImportError:
-    import mock
-
 import os
+from unittest import mock
 
 from tests import helpers
 from pungi.createiso import CreateIsoOpts

@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from unittest import mock
-except ImportError:
-    import mock
-
+from unittest import mock
 import os
 
 from pungi.phases.livemedia_phase import LiveMediaPhase, LiveMediaThread

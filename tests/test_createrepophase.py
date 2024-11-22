@@ -3,11 +3,7 @@
 import glob
 import os
 import unittest
-
-try:
-    from unittest import mock
-except ImportError:
-    import mock
+from unittest import mock
 
 from pungi.module_util import Modulemd
 from pungi.phases.createrepo import (

@@ -1,11 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-
-try:
-    from unittest import mock
-except ImportError:
-    import mock
+from unittest import mock
 
 from pungi import media_split
 

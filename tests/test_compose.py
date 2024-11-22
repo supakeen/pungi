@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import logging
-
-try:
-    from unittest import mock
-except ImportError:
-    import mock
-
 import json
 import os
 import shutil
 import tempfile
 import unittest
+from unittest import mock
 
 from requests.exceptions import HTTPError
 

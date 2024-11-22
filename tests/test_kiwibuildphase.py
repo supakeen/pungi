@@ -1,9 +1,5 @@
 import os
-
-try:
-    from unittest import mock
-except ImportError:
-    import mock
+from unittest import mock
 
 from pungi.phases.kiwibuild import KiwiBuildPhase, RunKiwiBuildThread
 from tests.helpers import DummyCompose, PungiTestCase

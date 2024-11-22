@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from unittest import mock
-except ImportError:
-    import mock
-from parameterized import parameterized
-
 import os
 from io import StringIO
+from unittest import mock
+
+from parameterized import parameterized
 
 from tests import helpers
 from pungi import createiso

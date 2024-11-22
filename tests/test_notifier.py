@@ -2,13 +2,8 @@
 
 from datetime import datetime
 import json
-
-try:
-    from unittest import mock
-except ImportError:
-    import mock
-
 import unittest
+from unittest import mock
 
 from pungi.notifier import PungiNotifier
 

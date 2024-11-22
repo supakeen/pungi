@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from unittest import mock
-except ImportError:
-    import mock
-
 import unittest
 import os
 from io import StringIO
+from unittest import mock
 
 import kobo.conf
 

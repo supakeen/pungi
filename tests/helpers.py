@@ -7,11 +7,7 @@ import os
 import shutil
 import tempfile
 from collections import defaultdict
-
-try:
-    from unittest import mock
-except ImportError:
-    import mock
+from unittest import mock
 from kobo.rpmlib import parse_nvr
 
 import unittest

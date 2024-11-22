@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from unittest import mock
-except ImportError:
-    import mock
-
 import unittest
 import random
 import time
+from unittest import mock
 
 from pungi.phases import weaver
 from tests.helpers import DummyCompose, boom

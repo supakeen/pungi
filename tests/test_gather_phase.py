@@ -3,13 +3,8 @@
 import copy
 import json
 import os
-
-try:
-    from unittest import mock
-except ImportError:
-    import mock
-
 import unittest
+from unittest import mock
 
 from pungi.phases import gather
 from pungi.phases.gather import _mk_pkg_map
