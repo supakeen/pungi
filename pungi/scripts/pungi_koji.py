@@ -485,45 +485,48 @@ def run_compose(
     ostree_phase = pungi.phases.WeaverPhase(compose, ostree_schema)
     essentials_phase.start()
     ostree_phase.start()
-    essentials_phase.stop()
+    try:
+        essentials_phase.stop()
 
-    # write treeinfo before ISOs are created
-    for variant in compose.get_variants():
-        for arch in variant.arches + ["src"]:
-            pungi.metadata.write_tree_info(
-                compose, arch, variant, bi=buildinstall_phase
-            )
+        # write treeinfo before ISOs are created
+        for variant in compose.get_variants():
+            for arch in variant.arches + ["src"]:
+                pungi.metadata.write_tree_info(
+                    compose, arch, variant, bi=buildinstall_phase
+                )
 
-    # write .discinfo and media.repo before ISOs are created
-    for variant in compose.get_variants():
-        if variant.type == "addon" or variant.is_empty:
-            continue
-        for arch in variant.arches + ["src"]:
-            timestamp = pungi.metadata.write_discinfo(compose, arch, variant)
-            pungi.metadata.write_media_repo(compose, arch, variant, timestamp)
+        # write .discinfo and media.repo before ISOs are created
+        for variant in compose.get_variants():
+            if variant.type == "addon" or variant.is_empty:
+                continue
+            for arch in variant.arches + ["src"]:
+                timestamp = pungi.metadata.write_discinfo(compose, arch, variant)
+                pungi.metadata.write_media_repo(compose, arch, variant, timestamp)
 
-    # Run phases for image artifacts in parallel
-    compose_images_schema = (
-        createiso_phase,
-        extra_isos_phase,
-        image_build_phase,
-        livemedia_phase,
-        osbuild_phase,
-        kiwibuild_phase,
-    )
-    compose_images_phase = pungi.phases.WeaverPhase(compose, compose_images_schema)
-    extra_phase_schema = (
-        (compose_images_phase, image_container_phase),
-        osbs_phase,
-        repoclosure_phase,
-    )
-    extra_phase = pungi.phases.WeaverPhase(compose, extra_phase_schema)
+        # Run phases for image artifacts in parallel
+        compose_images_schema = (
+            createiso_phase,
+            extra_isos_phase,
+            image_build_phase,
+            livemedia_phase,
+            osbuild_phase,
+            kiwibuild_phase,
+        )
+        compose_images_phase = pungi.phases.WeaverPhase(compose, compose_images_schema)
+        extra_phase_schema = (
+            (compose_images_phase, image_container_phase),
+            osbs_phase,
+            repoclosure_phase,
+        )
+        extra_phase = pungi.phases.WeaverPhase(compose, extra_phase_schema)
 
-    extra_phase.start()
-    extra_phase.stop()
-    # wait for ostree phase here too - it can happily run in parallel
-    # with all of the other stuff
-    ostree_phase.stop()
+        extra_phase.start()
+        extra_phase.stop()
+    finally:
+        # wait for ostree phase here too - it can happily run in parallel with
+        # all of the other stuff, but we must ensure it always gets stopped
+        ostree_phase.stop()
+
     # now we do checksums as all images are done
     image_checksum_phase.start()
     image_checksum_phase.stop()
