@@ -1,7 +1,6 @@
 # Some packages must be installed via dnf/yum first, see doc/contributing.rst
 dogpile.cache
-flufl.lock ; python_version >= '3.0'
-flufl.lock < 3.0 ; python_version <= '2.7'
+flufl.lock
 jsonschema
 kobo
 koji
@@ -12,4 +11,3 @@ ordered_set
 productmd
 pykickstart
 python-multilib
-urlgrabber ; python_version < '3.0'
