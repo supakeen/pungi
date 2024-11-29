@@ -59,6 +59,5 @@ setup(
         "productmd>=1.43",
         "dogpile.cache",
     ],
-    extras_require={':python_version=="2.7"': ["enum34", "lockfile"]},
     tests_require=["pytest", "pytest-cov"],
 )
