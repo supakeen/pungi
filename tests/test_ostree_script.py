@@ -3,6 +3,7 @@
 
 import json
 import os
+import subprocess
 import yaml
 from unittest import mock
 
@@ -47,9 +48,9 @@ class OstreeTreeScriptTest(helpers.PungiTestCase):
             "[fedora-23]\nbaseurl=why-not-zoidberg?",
         )
 
-    def assertCorrectCall(self, mock_run, extra_calls=[], extra_args=[]):
+    def assertCorrectPopenCall(self, mock_popen, extra_calls=[], extra_args=[]):
         self.assertCountEqual(
-            mock_run.call_args_list,
+            mock_popen.call_args_list,
             [
                 mock.call(
                     [
@@ -64,17 +65,26 @@ class OstreeTreeScriptTest(helpers.PungiTestCase):
                     ]
                     + extra_args
                     + [self.topdir + "/fedora-atomic-docker-host.json"],
-                    logfile=self.topdir + "/logs/Atomic/create-ostree-repo.log",
-                    show_cmd=True,
-                    stdout=True,
+                    shell=True,
+                    stdout=mock.ANY,
+                    stderr=subprocess.STDOUT,
                     universal_newlines=True,
                 )
             ]
             + extra_calls,
         )
 
-    @mock.patch("kobo.shortcuts.run")
-    def test_full_run(self, run):
+    def test_binary_output(self):
+        os.environ.update({"PATH": f"{self.topdir}:{os.environ['PATH']}"})
+        fake_script = os.path.join(self.topdir, "rpm-ostree")
+        with open(fake_script, "w") as f:
+            f.write("#!/bin/sh\n")
+            f.write("cat /bin/sh\n")
+            f.write("exit 0\n")
+        os.chmod(fake_script, 0o744)
+
+        # It should not crash when rpm-ostree outputs binary data.
+        # https://pagure.io/releng/issue/12474
         ostree.main(
             [
                 "tree",
@@ -84,10 +94,23 @@ class OstreeTreeScriptTest(helpers.PungiTestCase):
             ]
         )
 
-        self.assertCorrectCall(run)
+    @mock.patch("pungi.ostree.tree.subprocess.Popen")
+    def test_full_run(self, mock_popen):
+        mock_popen.return_value.wait.return_value = 0
+        ostree.main(
+            [
+                "tree",
+                "--repo=%s" % self.repo,
+                "--log-dir=%s" % os.path.join(self.topdir, "logs", "Atomic"),
+                "--treefile=%s/fedora-atomic-docker-host.json" % self.topdir,
+            ]
+        )
 
-    @mock.patch("kobo.shortcuts.run")
-    def test_run_on_existing_empty_dir(self, run):
+        self.assertCorrectPopenCall(mock_popen)
+
+    @mock.patch("pungi.ostree.tree.subprocess.Popen")
+    def test_run_on_existing_empty_dir(self, mock_popen):
+        mock_popen.return_value.wait.return_value = 0
         os.mkdir(self.repo)
 
         ostree.main(
@@ -99,10 +122,11 @@ class OstreeTreeScriptTest(helpers.PungiTestCase):
             ]
         )
 
-        self.assertCorrectCall(run)
+        self.assertCorrectPopenCall(mock_popen)
 
-    @mock.patch("kobo.shortcuts.run")
-    def test_run_on_initialized_repo(self, run):
+    @mock.patch("pungi.ostree.tree.subprocess.Popen")
+    def test_run_on_initialized_repo(self, mock_popen):
+        mock_popen.return_value.wait.return_value = 0
         helpers.touch(os.path.join(self.repo, "initialized"))
 
         ostree.main(
@@ -114,10 +138,12 @@ class OstreeTreeScriptTest(helpers.PungiTestCase):
             ]
         )
 
-        self.assertCorrectCall(run)
+        self.assertCorrectPopenCall(mock_popen)
 
+    @mock.patch("pungi.ostree.tree.subprocess.Popen")
     @mock.patch("kobo.shortcuts.run")
-    def test_update_summary(self, run):
+    def test_update_summary(self, mock_run, mock_popen):
+        mock_popen.return_value.wait.return_value = 0
         ostree.main(
             [
                 "tree",
@@ -128,9 +154,12 @@ class OstreeTreeScriptTest(helpers.PungiTestCase):
             ]
         )
 
-        self.assertCorrectCall(
-            run,
-            extra_calls=[
+        self.assertCorrectPopenCall(
+            mock_popen,
+        )
+        self.assertCountEqual(
+            mock_run.call_args_list,
+            [
                 mock.call(
                     ["ostree", "summary", "-u", "--repo=%s" % self.repo],
                     logfile=self.topdir + "/logs/Atomic/ostree-summary.log",
@@ -141,8 +170,10 @@ class OstreeTreeScriptTest(helpers.PungiTestCase):
             ],
         )
 
-    @mock.patch("kobo.shortcuts.run")
-    def test_versioning_metadata(self, run):
+    @mock.patch("pungi.ostree.tree.subprocess.Popen")
+    def test_versioning_metadata(self, mock_popen):
+        mock_popen.return_value.wait.return_value = 0
+
         ostree.main(
             [
                 "tree",
@@ -153,10 +184,13 @@ class OstreeTreeScriptTest(helpers.PungiTestCase):
             ]
         )
 
-        self.assertCorrectCall(run, extra_args=["--add-metadata-string=version=24"])
+        self.assertCorrectPopenCall(
+            mock_popen, extra_args=["--add-metadata-string=version=24"]
+        )
 
-    @mock.patch("kobo.shortcuts.run")
-    def test_ostree_ref(self, run):
+    @mock.patch("pungi.ostree.tree.subprocess.Popen")
+    def test_ostree_ref(self, mock_popen):
+        mock_popen.return_value.wait.return_value = 0
         self._make_dummy_config_dir(self.topdir)
         treefile = os.path.join(self.topdir, "fedora-atomic-docker-host.json")
 
@@ -186,8 +220,9 @@ class OstreeTreeScriptTest(helpers.PungiTestCase):
         # repos should stay unchanged
         self.assertEqual(original_repos, new_repos)
 
-    @mock.patch("kobo.shortcuts.run")
-    def test_run_with_yaml_file(self, run):
+    @mock.patch("pungi.ostree.tree.subprocess.Popen")
+    def test_run_with_yaml_file(self, mock_popen):
+        mock_popen.return_value.wait.return_value = 0
         self._make_dummy_config_dir(self.topdir)
         treefile = os.path.join(self.topdir, "fedora-atomic-docker-host.yaml")
 
@@ -219,8 +254,9 @@ class OstreeTreeScriptTest(helpers.PungiTestCase):
         # repos should stay unchanged
         self.assertEqual(original_repos, new_repos)
 
-    @mock.patch("kobo.shortcuts.run")
-    def test_force_new_commit(self, run):
+    @mock.patch("pungi.ostree.tree.subprocess.Popen")
+    def test_force_new_commit(self, mock_popen):
+        mock_popen.return_value.wait.return_value = 0
         helpers.touch(os.path.join(self.repo, "initialized"))
 
         ostree.main(
@@ -233,10 +269,11 @@ class OstreeTreeScriptTest(helpers.PungiTestCase):
             ]
         )
 
-        self.assertCorrectCall(run, extra_args=["--force-nocache"])
+        self.assertCorrectPopenCall(mock_popen, extra_args=["--force-nocache"])
 
-    @mock.patch("kobo.shortcuts.run")
-    def test_unified_core(self, run):
+    @mock.patch("pungi.ostree.tree.subprocess.Popen")
+    def test_unified_core(self, mock_popen):
+        mock_popen.return_value.wait.return_value = 0
         helpers.touch(os.path.join(self.repo, "initialized"))
 
         ostree.main(
@@ -249,10 +286,11 @@ class OstreeTreeScriptTest(helpers.PungiTestCase):
             ]
         )
 
-        self.assertCorrectCall(run, extra_args=["--unified-core"])
+        self.assertCorrectPopenCall(mock_popen, extra_args=["--unified-core"])
 
-    @mock.patch("kobo.shortcuts.run")
-    def test_extra_config_with_extra_repos(self, run):
+    @mock.patch("pungi.ostree.tree.subprocess.Popen")
+    def test_extra_config_with_extra_repos(self, mock_popen):
+        mock_popen.return_value.wait.return_value = 0
         configdir = os.path.join(self.topdir, "config")
         self._make_dummy_config_dir(configdir)
         treefile = os.path.join(configdir, "fedora-atomic-docker-host.json")
@@ -310,8 +348,9 @@ class OstreeTreeScriptTest(helpers.PungiTestCase):
         for name in ("repo-0", "repo-1", "repo-2"):
             self.assertIn(name, repos)
 
-    @mock.patch("kobo.shortcuts.run")
-    def test_extra_config_with_keep_original_sources(self, run):
+    @mock.patch("pungi.ostree.tree.subprocess.Popen")
+    def test_extra_config_with_keep_original_sources(self, mock_popen):
+        mock_popen.return_value.wait.return_value = 0
         configdir = os.path.join(self.topdir, "config")
         self._make_dummy_config_dir(configdir)
         treefile = os.path.join(configdir, "fedora-atomic-docker-host.json")
