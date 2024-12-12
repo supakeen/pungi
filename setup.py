@@ -56,7 +56,7 @@ setup(
         "jsonschema",
         "kobo",
         "lxml",
-        "productmd>=1.23",
+        "productmd>=1.43",
         "dogpile.cache",
     ],
     extras_require={':python_version=="2.7"': ["enum34", "lockfile"]},

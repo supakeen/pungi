@@ -25,6 +25,7 @@ KIWIEXTENSIONS = [
     ("fex", ["squashfs.xz"], "squashfs.xz"),
     ("fex", ["squashfs.gz"], "squashfs.gz"),
     ("fex", ["squashfs"], "squashfs"),
+    ("container", ["oci.tar.xz"], "tar.xz"),
 ]
 
 
@@ -242,13 +243,15 @@ class RunKiwiBuildThread(WorkerThread):
 
 
 def _find_type_and_format(path):
+    # these are our kiwi-exclusive mappings for images whose extensions
+    # aren't quite the same as imagefactory. they come first as we
+    # want our oci.tar.xz mapping to win over the tar.xz one in
+    # EXTENSIONS
+    for type_, suffixes, format_ in KIWIEXTENSIONS:
+        if any(path.endswith(suffix) for suffix in suffixes):
+            return type_, format_
     for type_, suffixes in EXTENSIONS.items():
         for suffix in suffixes:
             if path.endswith(suffix):
                 return type_, suffix
-    # these are our kiwi-exclusive mappings for images whose extensions
-    # aren't quite the same as imagefactory
-    for type_, suffixes, format_ in KIWIEXTENSIONS:
-        if any(path.endswith(suffix) for suffix in suffixes):
-            return type_, format_
     return None, None

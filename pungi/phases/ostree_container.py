@@ -164,9 +164,9 @@ class OSTreeContainerThread(WorkerThread):
         # Update image manifest
         img = Image(compose.im)
 
-        # Get the manifest type from the config if supplied, otherwise we
-        # determine the manifest type based on the koji output
-        img.type = "ociarchive"
+        # these are hardcoded as they should always be correct, we
+        # could potentially allow overriding them via config though
+        img.type = "bootable-container"
         img.format = "ociarchive"
         img.path = os.path.relpath(fullpath, compose.paths.compose.topdir())
         img.mtime = util.get_mtime(fullpath)
