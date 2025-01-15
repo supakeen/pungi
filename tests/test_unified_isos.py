@@ -610,7 +610,7 @@ class TestCreateiso(PungiTestCase):
         self.assertEqual(
             run.mock_calls,
             [
-                mock.call(self.mkisofs_cmd, universal_newlines=True),
+                mock.call(self.mkisofs_cmd, text=True, errors="replace"),
                 mock.call(iso.get_implantisomd5_cmd.return_value),
                 mock.call(iso.get_manifest_cmd.return_value),
             ]

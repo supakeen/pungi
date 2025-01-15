@@ -294,7 +294,8 @@ class KojiWrapper(object):
                 show_cmd=True,
                 env=env,
                 buffer_size=-1,
-                universal_newlines=True,
+                text=True,
+                errors="replace",
             )
 
         # Look for first line that contains only a number. This is the ID of
@@ -430,7 +431,7 @@ class KojiWrapper(object):
 
         while True:
             retcode, output = run(
-                cmd, can_fail=True, logfile=logfile, universal_newlines=True
+                cmd, can_fail=True, logfile=logfile, text=True, errors="replace"
             )
 
             if retcode == 0 or not (
@@ -463,7 +464,8 @@ class KojiWrapper(object):
                 logfile=log_file,
                 env=env,
                 buffer_size=-1,
-                universal_newlines=True,
+                text=True,
+                errors="replace",
             )
 
         match = re.search(r"Created task: (\d+)", output)
@@ -808,7 +810,8 @@ def get_buildroot_rpms(compose, task_id):
         # local
         retcode, output = run(
             "rpm -qa --qf='%{name}-%{version}-%{release}.%{arch}\n'",
-            universal_newlines=True,
+            text=True,
+            errors="replace",
         )
         for i in output.splitlines():
             if not i:

@@ -104,7 +104,8 @@ class PungiNotifier(object):
             workdir=workdir,
             return_stdout=False,
             show_cmd=True,
-            universal_newlines=True,
+            text=True,
+            errors="replace",
             logfile=logfile,
         )
         if ret != 0:

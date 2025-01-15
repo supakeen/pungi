@@ -139,7 +139,7 @@ class OSTreeContainerThread(WorkerThread):
             "--version=%s" % version,
         ]
 
-        _, runroot_script = shortcuts.run(cmd, universal_newlines=True)
+        _, runroot_script = shortcuts.run(cmd, text=True, errors="replace")
 
         default_packages = ["ostree", "rpm-ostree", "selinux-policy-targeted"]
         additional_packages = config.get("runroot_packages", [])

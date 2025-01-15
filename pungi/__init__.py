@@ -16,7 +16,8 @@ def get_full_version():
         proc = subprocess.Popen(
             ["git", "--git-dir=%s/.git" % location, "describe", "--tags"],
             stdout=subprocess.PIPE,
-            universal_newlines=True,
+            text=True,
+            errors="replace",
         )
         output, _ = proc.communicate()
         return re.sub(r"-1.fc\d\d?", "", output.strip().replace("pungi-", ""))
@@ -24,7 +25,7 @@ def get_full_version():
         import subprocess
 
         proc = subprocess.Popen(
-            ["rpm", "-q", "pungi"], stdout=subprocess.PIPE, universal_newlines=True
+            ["rpm", "-q", "pungi"], stdout=subprocess.PIPE, text=True, errors="replace"
         )
         (output, err) = proc.communicate()
         if not err:

@@ -63,7 +63,8 @@ class TestIsoUtils(unittest.TestCase):
             [
                 mock.call(
                     ["/usr/bin/checkisomd5", "--md5sumonly", "dummy.iso"],
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 )
             ],
         )
@@ -79,7 +80,8 @@ class TestIsoUtils(unittest.TestCase):
             [
                 mock.call(
                     ["/usr/bin/checkisomd5", "--md5sumonly", "dummy.iso"],
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 )
             ],
         )

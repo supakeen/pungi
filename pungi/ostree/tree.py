@@ -64,7 +64,8 @@ class Tree(OSTree):
                 show_cmd=True,
                 stdout=True,
                 logfile=log_file,
-                universal_newlines=True,
+                text=True,
+                errors="replace",
             )
         finally:
             os.umask(oldumask)
@@ -77,7 +78,8 @@ class Tree(OSTree):
             show_cmd=True,
             stdout=True,
             logfile=log_file,
-            universal_newlines=True,
+            text=True,
+            errors="replace",
         )
 
     def _update_ref(self):

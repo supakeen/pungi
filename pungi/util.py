@@ -652,7 +652,11 @@ def run_unmount_cmd(cmd, max_retries=10, path=None, logger=None):
     """
     for i in range(max_retries):
         proc = subprocess.Popen(
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            errors="replace",
         )
         out, err = proc.communicate()
         if proc.returncode == 0:
@@ -674,7 +678,8 @@ def run_unmount_cmd(cmd, max_retries=10, path=None, logger=None):
                     c,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 )
                 out, _ = proc.communicate()
                 logger.debug(
@@ -879,7 +884,7 @@ def git_ls_remote(baseurl, ref, credential_helper=None):
     if credential_helper:
         cmd.extend(["-c", "credential.useHttpPath=true"])
         cmd.extend(["-c", "credential.helper=%s" % credential_helper])
-    return run(cmd + ["ls-remote", baseurl, ref], universal_newlines=True)
+    return run(cmd + ["ls-remote", baseurl, ref], text=True, errors="replace")
 
 
 def get_tz_offset():

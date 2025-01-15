@@ -227,7 +227,7 @@ def get_checkisomd5_cmd(iso_path, just_print=False):
 
 def get_checkisomd5_data(iso_path, logger=None):
     cmd = get_checkisomd5_cmd(iso_path, just_print=True)
-    retcode, output = run(cmd, universal_newlines=True)
+    retcode, output = run(cmd, text=True, errors="replace")
     items = [line.strip().rsplit(":", 1) for line in output.splitlines()]
     items = dict([(k, v.strip()) for k, v in items])
     md5 = items.get(iso_path, "")
@@ -283,13 +283,13 @@ def get_manifest_cmd(iso_name, xorriso=False, output_file=None):
 def get_volume_id(path, xorriso=False):
     if xorriso:
         cmd = ["xorriso", "-indev", path]
-        retcode, output = run(cmd, universal_newlines=True)
+        retcode, output = run(cmd, text=True, errors="replace")
         for line in output.splitlines():
             if line.startswith("Volume id"):
                 return line.split("'")[1]
     else:
         cmd = ["isoinfo", "-d", "-i", path]
-        retcode, output = run(cmd, universal_newlines=True)
+        retcode, output = run(cmd, text=True, errors="replace")
 
         for line in output.splitlines():
             line = line.strip()
@@ -500,7 +500,7 @@ def mount(image, logger=None, use_guestmount=True):
         else:
             env = {}
             cmd = ["mount", "-o", "loop", image, mount_dir]
-        ret, out = run(cmd, env=env, can_fail=True, universal_newlines=True)
+        ret, out = run(cmd, env=env, can_fail=True, text=True, errors="replace")
         if ret != 0:
             # The mount command failed, something is wrong.
             # Log the output and raise an exception.

@@ -394,7 +394,8 @@ class UnifiedISO(object):
                 iso.get_mkisofs_cmd(
                     iso_path, [source_dir], volid=volid, exclude=["./lost+found"]
                 ),
-                universal_newlines=True,
+                text=True,
+                errors="replace",
             )
 
             # implant MD5

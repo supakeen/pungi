@@ -56,7 +56,8 @@ class ScmBase(kobo.log.LoggingBase):
                 workdir=cwd,
                 can_fail=True,
                 stdin_data="",
-                universal_newlines=True,
+                text=True,
+                errors="replace",
             )
             if retcode != 0:
                 self.log_error("Output was: %r" % output)

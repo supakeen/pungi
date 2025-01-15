@@ -67,7 +67,8 @@ class OstreeTreeScriptTest(helpers.PungiTestCase):
                     logfile=self.topdir + "/logs/Atomic/create-ostree-repo.log",
                     show_cmd=True,
                     stdout=True,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 )
             ]
             + extra_calls,
@@ -136,7 +137,8 @@ class OstreeTreeScriptTest(helpers.PungiTestCase):
                     logfile=self.topdir + "/logs/Atomic/ostree-summary.log",
                     show_cmd=True,
                     stdout=True,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 )
             ],
         )

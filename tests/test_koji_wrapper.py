@@ -529,7 +529,8 @@ class RunrootKojiWrapperTest(KojiWrapperBaseTestCase):
                     buffer_size=-1,
                     logfile=None,
                     show_cmd=True,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 )
             ],
         )
@@ -558,7 +559,8 @@ class RunrootKojiWrapperTest(KojiWrapperBaseTestCase):
                     buffer_size=-1,
                     logfile=None,
                     show_cmd=True,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 )
             ],
         )
@@ -582,7 +584,8 @@ class RunrootKojiWrapperTest(KojiWrapperBaseTestCase):
                     buffer_size=-1,
                     logfile=None,
                     show_cmd=True,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 )
             ],
         )
@@ -615,7 +618,8 @@ class RunrootKojiWrapperTest(KojiWrapperBaseTestCase):
                     buffer_size=-1,
                     logfile=None,
                     show_cmd=True,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 )
             ],
         )
@@ -641,7 +645,8 @@ class RunBlockingCmdTest(KojiWrapperBaseTestCase):
                     show_cmd=True,
                     env={"FOO": "BAR", "PYTHONUNBUFFERED": "1"},
                     buffer_size=-1,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 )
             ],
         )
@@ -671,7 +676,8 @@ class RunBlockingCmdTest(KojiWrapperBaseTestCase):
                         "PYTHONUNBUFFERED": "1",
                     },
                     buffer_size=-1,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 )
             ],
         )
@@ -694,7 +700,8 @@ class RunBlockingCmdTest(KojiWrapperBaseTestCase):
                     logfile="logfile",
                     env={"FOO": "BAR", "PYTHONUNBUFFERED": "1"},
                     buffer_size=-1,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 )
             ],
         )
@@ -717,7 +724,8 @@ class RunBlockingCmdTest(KojiWrapperBaseTestCase):
                     logfile=None,
                     env={"FOO": "BAR", "PYTHONUNBUFFERED": "1"},
                     buffer_size=-1,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 )
             ],
         )
@@ -740,7 +748,8 @@ class RunBlockingCmdTest(KojiWrapperBaseTestCase):
                     logfile=None,
                     env={"FOO": "BAR", "PYTHONUNBUFFERED": "1"},
                     buffer_size=-1,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 )
             ],
         )
@@ -765,13 +774,15 @@ class RunBlockingCmdTest(KojiWrapperBaseTestCase):
                     logfile=None,
                     env={"FOO": "BAR", "PYTHONUNBUFFERED": "1"},
                     buffer_size=-1,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 ),
                 mock.call(
                     ["koji", "--profile=custom-koji", "watch-task", "1234"],
                     can_fail=True,
                     logfile=None,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 ),
             ],
         )
@@ -795,13 +806,15 @@ class RunBlockingCmdTest(KojiWrapperBaseTestCase):
                     logfile=None,
                     env={"FOO": "BAR", "PYTHONUNBUFFERED": "1"},
                     buffer_size=-1,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 ),
                 mock.call(
                     ["koji", "--profile=custom-koji", "watch-task", "1234"],
                     can_fail=True,
                     logfile=None,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 ),
             ],
         )
@@ -826,25 +839,29 @@ class RunBlockingCmdTest(KojiWrapperBaseTestCase):
                     logfile=None,
                     env={"FOO": "BAR", "PYTHONUNBUFFERED": "1"},
                     buffer_size=-1,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 ),
                 mock.call(
                     ["koji", "--profile=custom-koji", "watch-task", "1234"],
                     can_fail=True,
                     logfile=None,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 ),
                 mock.call(
                     ["koji", "--profile=custom-koji", "watch-task", "1234"],
                     can_fail=True,
                     logfile=None,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 ),
                 mock.call(
                     ["koji", "--profile=custom-koji", "watch-task", "1234"],
                     can_fail=True,
                     logfile=None,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 ),
             ],
         )
@@ -870,19 +887,22 @@ class RunBlockingCmdTest(KojiWrapperBaseTestCase):
                     logfile=None,
                     env={"FOO": "BAR", "PYTHONUNBUFFERED": "1"},
                     buffer_size=-1,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 ),
                 mock.call(
                     ["koji", "--profile=custom-koji", "watch-task", "1234"],
                     can_fail=True,
                     logfile=None,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 ),
                 mock.call(
                     ["koji", "--profile=custom-koji", "watch-task", "1234"],
                     can_fail=True,
                     logfile=None,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 ),
             ],
         )
@@ -907,13 +927,15 @@ class RunBlockingCmdTest(KojiWrapperBaseTestCase):
                     logfile=None,
                     env={"FOO": "BAR", "PYTHONUNBUFFERED": "1"},
                     buffer_size=-1,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 ),
                 mock.call(
                     ["koji", "--profile=custom-koji", "watch-task", "1234"],
                     can_fail=True,
                     logfile=None,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 ),
             ],
         )

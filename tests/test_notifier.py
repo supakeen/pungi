@@ -70,7 +70,8 @@ class TestNotifier(unittest.TestCase):
             can_fail=True,
             return_stdout=False,
             workdir=None,
-            universal_newlines=True,
+            text=True,
+            errors="replace",
             show_cmd=True,
             logfile=self.logfile,
         )

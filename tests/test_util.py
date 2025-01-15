@@ -25,7 +25,8 @@ class TestGitRefResolver(unittest.TestCase):
         self.assertEqual(url, "https://git.example.com/repo.git?somedir#CAFEBABE")
         run.assert_called_once_with(
             ["git", "ls-remote", "https://git.example.com/repo.git", "HEAD"],
-            universal_newlines=True,
+            text=True,
+            errors="replace",
         )
 
     @mock.patch("pungi.util.run")
@@ -39,7 +40,8 @@ class TestGitRefResolver(unittest.TestCase):
         self.assertEqual(url, "https://git.example.com/repo.git?somedir#CAFEBABE")
         run.assert_called_once_with(
             GIT_WITH_CREDS + ["ls-remote", "https://git.example.com/repo.git", "HEAD"],
-            universal_newlines=True,
+            text=True,
+            errors="replace",
         )
 
     @mock.patch("pungi.util.run")
@@ -53,7 +55,8 @@ class TestGitRefResolver(unittest.TestCase):
         self.assertEqual(url, "https://git.example.com/repo.git?somedir#CAFEBABE")
         run.assert_called_once_with(
             ["git", "ls-remote", "https://git.example.com/repo.git", "refs/heads/f24"],
-            universal_newlines=True,
+            text=True,
+            errors="replace",
         )
 
     def test_resolve_ref_with_commit_id(self):
@@ -72,7 +75,8 @@ class TestGitRefResolver(unittest.TestCase):
         self.assertEqual(ref, "CAFEBABE")
         run.assert_called_once_with(
             ["git", "ls-remote", "https://git.example.com/repo.git", "master"],
-            universal_newlines=True,
+            text=True,
+            errors="replace",
         )
 
     @mock.patch("pungi.util.run")
@@ -84,7 +88,8 @@ class TestGitRefResolver(unittest.TestCase):
         self.assertEqual(ref, "CAFEBABE")
         run.assert_called_once_with(
             ["git", "ls-remote", "https://git.example.com/repo.git", "HEAD"],
-            universal_newlines=True,
+            text=True,
+            errors="replace",
         )
 
     @mock.patch("pungi.util.run")
@@ -110,7 +115,8 @@ class TestGitRefResolver(unittest.TestCase):
 
         run.assert_called_once_with(
             ["git", "ls-remote", "https://git.example.com/repo.git", "HEAD"],
-            universal_newlines=True,
+            text=True,
+            errors="replace",
         )
 
     @mock.patch("pungi.util.run")
@@ -121,7 +127,8 @@ class TestGitRefResolver(unittest.TestCase):
 
         run.assert_called_once_with(
             ["git", "ls-remote", "https://git.example.com/repo.git", "HEAD"],
-            universal_newlines=True,
+            text=True,
+            errors="replace",
         )
         self.assertEqual(url, "https://git.example.com/repo.git?#CAFEBABE")
 
@@ -133,7 +140,8 @@ class TestGitRefResolver(unittest.TestCase):
 
         run.assert_called_once_with(
             ["git", "ls-remote", "https://git.example.com/repo.git", "HEAD"],
-            universal_newlines=True,
+            text=True,
+            errors="replace",
         )
         self.assertEqual(url, "git+https://git.example.com/repo.git#CAFEBABE")
 
@@ -153,7 +161,8 @@ class TestGitRefResolver(unittest.TestCase):
                 "https://git.example.com/repo.git",
                 "refs/heads/my-branch",
             ],
-            universal_newlines=True,
+            text=True,
+            errors="replace",
         )
         self.assertIn("ref does not exist in remote repo", str(ctx.exception))
 
@@ -171,7 +180,8 @@ class TestGitRefResolver(unittest.TestCase):
             [
                 mock.call(
                     ["git", "ls-remote", "https://git.example.com/repo.git", "HEAD"],
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 )
             ]
             * 2,
@@ -600,7 +610,8 @@ class TestUnmountCmd(unittest.TestCase):
                     cmd,
                     stderr=subprocess.PIPE,
                     stdout=subprocess.PIPE,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 )
             ],
         )
@@ -621,7 +632,8 @@ class TestUnmountCmd(unittest.TestCase):
                     cmd,
                     stderr=subprocess.PIPE,
                     stdout=subprocess.PIPE,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 )
             ],
         )
@@ -643,7 +655,8 @@ class TestUnmountCmd(unittest.TestCase):
                     cmd,
                     stderr=subprocess.PIPE,
                     stdout=subprocess.PIPE,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 )
             ]
             * 3,
@@ -668,7 +681,8 @@ class TestUnmountCmd(unittest.TestCase):
                     cmd,
                     stderr=subprocess.PIPE,
                     stdout=subprocess.PIPE,
-                    universal_newlines=True,
+                    text=True,
+                    errors="replace",
                 )
             ]
             * 3,
@@ -707,37 +721,43 @@ class TestUnmountCmd(unittest.TestCase):
                 cmd,
                 stderr=subprocess.PIPE,
                 stdout=subprocess.PIPE,
-                universal_newlines=True,
+                text=True,
+                errors="replace",
             ),
             mock.call(
                 cmd,
                 stderr=subprocess.PIPE,
                 stdout=subprocess.PIPE,
-                universal_newlines=True,
+                text=True,
+                errors="replace",
             ),
             mock.call(
                 cmd,
                 stderr=subprocess.PIPE,
                 stdout=subprocess.PIPE,
-                universal_newlines=True,
+                text=True,
+                errors="replace",
             ),
             mock.call(
                 ["ls", "-lA", "/path"],
                 stderr=subprocess.STDOUT,
                 stdout=subprocess.PIPE,
-                universal_newlines=True,
+                text=True,
+                errors="replace",
             ),
             mock.call(
                 ["fuser", "-vm", "/path"],
                 stderr=subprocess.STDOUT,
                 stdout=subprocess.PIPE,
-                universal_newlines=True,
+                text=True,
+                errors="replace",
             ),
             mock.call(
                 ["lsof", "+D", "/path"],
                 stderr=subprocess.STDOUT,
                 stdout=subprocess.PIPE,
-                universal_newlines=True,
+                text=True,
+                errors="replace",
             ),
         ]
         self.assertEqual(mockPopen.call_args_list, expected)
