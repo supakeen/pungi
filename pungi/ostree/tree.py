@@ -16,7 +16,6 @@
 
 import os
 import json
-import subprocess
 from kobo import shortcuts
 
 from pungi.util import makedirs
@@ -60,19 +59,13 @@ class Tree(OSTree):
         # permissions. See https://pagure.io/releng/issue/8811#comment-629051
         oldumask = os.umask(0o0002)
         try:
-            with open(log_file, "w") as f:
-                f.write(f"COMMAND: {' '.join(cmd)}\n")
-                f.flush()
-                proc = subprocess.Popen(
-                    cmd,
-                    shell=True,
-                    stdout=f,
-                    stderr=subprocess.STDOUT,
-                    universal_newlines=True,
-                )
-                ret_code = proc.wait()
-            if ret_code:
-                raise RuntimeError(f"Failed to run rpm-ostree, log_file: {log_file}")
+            shortcuts.run(
+                cmd,
+                show_cmd=True,
+                stdout=True,
+                logfile=log_file,
+                universal_newlines=True,
+            )
         finally:
             os.umask(oldumask)
 
