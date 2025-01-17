@@ -358,6 +358,8 @@ class ContainerImageScmWrapper(ScmBase):
         raise RuntimeError("Containers can only be exported as files")
 
     def export_file(self, scm_root, scm_file, target_dir, scm_branch=None, arch=None):
+        if arch == "src":
+            return
         ARCHES = {"aarch64": "arm64", "x86_64": "amd64"}
         arch = ARCHES.get(arch, arch)
         cmd = [
