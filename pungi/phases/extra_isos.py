@@ -349,7 +349,7 @@ def get_extra_files(compose, variant, arch, extra_files):
         target_path = os.path.join(extra_files_dir, target).rstrip("/")
         filelist.extend(
             os.path.join(target, f)
-            for f in getter(scm_dict, target_path, compose=compose)
+            for f in getter(scm_dict, target_path, compose=compose, arch=arch)
         )
 
     if filelist:
