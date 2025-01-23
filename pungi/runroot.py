@@ -454,6 +454,9 @@ def download_and_extract_archive(compose, task_id, fname, destination):
     # So instead let's generate a patch and attempt to convert it to a URL.
     server_path = os.path.join(koji.pathinfo.task(task_id), fname)
     archive_url = server_path.replace(koji.config.topdir, koji.config.topurl)
-    with util.temp_dir(prefix="buildinstall-download") as tmp_dir:
+    tmp_dir = compose.mkdtemp(prefix="buildinstall-download")
+    try:
         local_path = _download_archive(task_id, fname, archive_url, tmp_dir)
         _extract_archive(task_id, fname, local_path, destination)
+    finally:
+        shutil.rmtree(tmp_dir)
