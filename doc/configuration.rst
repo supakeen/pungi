@@ -629,6 +629,10 @@ Options
       * ``squashfs_only`` -- *bool* (default ``False``) pass the --squashfs_only to Lorax.
       * ``configuration_file`` -- (:ref:`scm_dict <scm_support>`) (default empty) pass the
         specified configuration file to Lorax using the -c option.
+      * ``rootfs_type`` -- *string* (default empty) pass the ``--rootfs-type``
+        option to Lorax with the provided value. If not specified, no type is
+        specified to Lorax, which will choose whatever default it is configured
+        with.
 **lorax_extra_sources**
     (*list*) -- a variant/arch mapping with urls for extra source repositories
     added to Lorax command line. Either one repo or a list can be specified.

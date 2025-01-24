@@ -154,6 +154,7 @@ class TestBuildinstallPhase(PungiTestCase):
                     skip_branding=False,
                     squashfs_only=False,
                     configuration_file=None,
+                    rootfs_type=None,
                 ),
                 mock.call(
                     "Test",
@@ -183,6 +184,7 @@ class TestBuildinstallPhase(PungiTestCase):
                     skip_branding=False,
                     squashfs_only=False,
                     configuration_file=None,
+                    rootfs_type=None,
                 ),
                 mock.call(
                     "Test",
@@ -212,6 +214,7 @@ class TestBuildinstallPhase(PungiTestCase):
                     skip_branding=False,
                     squashfs_only=False,
                     configuration_file=None,
+                    rootfs_type=None,
                 ),
             ],
         )
@@ -293,6 +296,7 @@ class TestBuildinstallPhase(PungiTestCase):
                 "skip_branding": False,
                 "squashfs_only": False,
                 "configuration_file": None,
+                "rootfs-type": None,
             },
             {
                 "product": "Test",
@@ -320,6 +324,7 @@ class TestBuildinstallPhase(PungiTestCase):
                 "skip_branding": False,
                 "squashfs_only": False,
                 "configuration_file": None,
+                "rootfs-type": None,
             },
             {
                 "product": "Test",
@@ -347,6 +352,7 @@ class TestBuildinstallPhase(PungiTestCase):
                 "skip_branding": False,
                 "squashfs_only": False,
                 "configuration_file": None,
+                "rootfs-type": None,
             },
         ]
 
@@ -444,6 +450,7 @@ class TestBuildinstallPhase(PungiTestCase):
                     skip_branding=False,
                     squashfs_only=False,
                     configuration_file=None,
+                    rootfs_type=None,
                 )
             ],
             any_order=True,
@@ -557,6 +564,7 @@ class TestBuildinstallPhase(PungiTestCase):
                         "logs/x86_64/buildinstall-Server-logs",
                         "lorax.conf",
                     ),
+                    rootfs_type=None,
                 ),
                 mock.call(
                     "Test",
@@ -585,6 +593,7 @@ class TestBuildinstallPhase(PungiTestCase):
                     skip_branding=False,
                     squashfs_only=True,
                     configuration_file=None,
+                    rootfs_type=None,
                 ),
                 mock.call(
                     "Test",
@@ -613,6 +622,7 @@ class TestBuildinstallPhase(PungiTestCase):
                     skip_branding=False,
                     squashfs_only=False,
                     configuration_file=None,
+                    rootfs_type=None,
                 ),
             ],
         )
@@ -730,6 +740,7 @@ class TestBuildinstallPhase(PungiTestCase):
                     skip_branding=False,
                     squashfs_only=False,
                     configuration_file=None,
+                    rootfs_type=None,
                 ),
                 mock.call(
                     "Test",
@@ -758,6 +769,7 @@ class TestBuildinstallPhase(PungiTestCase):
                     skip_branding=False,
                     squashfs_only=False,
                     configuration_file=None,
+                    rootfs_type=None,
                 ),
                 mock.call(
                     "Test",
@@ -786,6 +798,7 @@ class TestBuildinstallPhase(PungiTestCase):
                     skip_branding=False,
                     squashfs_only=False,
                     configuration_file=None,
+                    rootfs_type=None,
                 ),
             ],
         )
@@ -886,6 +899,7 @@ class TestBuildinstallPhase(PungiTestCase):
                     skip_branding=False,
                     squashfs_only=False,
                     configuration_file=None,
+                    rootfs_type=None,
                 ),
                 mock.call(
                     "Test",
@@ -914,6 +928,7 @@ class TestBuildinstallPhase(PungiTestCase):
                     skip_branding=False,
                     squashfs_only=False,
                     configuration_file=None,
+                    rootfs_type=None,
                 ),
                 mock.call(
                     "Test",
@@ -942,6 +957,7 @@ class TestBuildinstallPhase(PungiTestCase):
                     skip_branding=False,
                     squashfs_only=False,
                     configuration_file=None,
+                    rootfs_type=None,
                 ),
             ],
         )
@@ -1035,6 +1051,7 @@ class TestBuildinstallPhase(PungiTestCase):
                     skip_branding=False,
                     squashfs_only=False,
                     configuration_file=None,
+                    rootfs_type=None,
                 ),
                 mock.call(
                     "Test",
@@ -1063,6 +1080,7 @@ class TestBuildinstallPhase(PungiTestCase):
                     skip_branding=False,
                     squashfs_only=False,
                     configuration_file=None,
+                    rootfs_type=None,
                 ),
                 mock.call(
                     "Test",
@@ -1093,6 +1111,7 @@ class TestBuildinstallPhase(PungiTestCase):
                     skip_branding=False,
                     squashfs_only=False,
                     configuration_file=None,
+                    rootfs_type=None,
                 ),
             ],
         )

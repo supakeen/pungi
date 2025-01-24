@@ -1411,6 +1411,7 @@ def make_schema():
                         "skip_branding": {"type": "boolean"},
                         "squashfs_only": {"type": "boolean"},
                         "configuration_file": {"$ref": "#/definitions/str_or_scm_dict"},
+                        "rootfs_type": {"type": "string"},
                     },
                     "additionalProperties": False,
                 }

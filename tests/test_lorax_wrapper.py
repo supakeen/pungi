@@ -50,6 +50,7 @@ class LoraxWrapperTest(unittest.TestCase):
             squashfs_only=True,
             configuration_file="/storage/RHEL-7.8-20200731.n.0/"
             + "logs/x86_64/buildinstall-Server-logs/lorax.conf",
+            rootfs_type="erofs",
         )
 
         self.assertEqual(cmd[0], "lorax")
@@ -84,6 +85,7 @@ class LoraxWrapperTest(unittest.TestCase):
                 "--config",
                 "/storage/RHEL-7.8-20200731.n.0/"
                 + "logs/x86_64/buildinstall-Server-logs/lorax.conf",
+                "--rootfs-type=erofs",
                 "/mnt/output_dir",
             ],
         )

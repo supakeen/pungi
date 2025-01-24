@@ -94,6 +94,7 @@ class BuildinstallPhase(PhaseBase):
         squashfs_only = False
         configuration_file = None
         configuration_file_source = None
+        rootfs_type = None
         version = self.compose.conf.get(
             "treeinfo_version", self.compose.conf["release_version"]
         )
@@ -116,6 +117,7 @@ class BuildinstallPhase(PhaseBase):
             skip_branding = data.get("skip_branding", False)
             configuration_file_source = data.get("configuration_file")
             squashfs_only = data.get("squashfs_only", False)
+            rootfs_type = data.get("rootfs_type", None)
             if "version" in data:
                 version = data["version"]
         output_dir = os.path.join(output_dir, variant.uid)
@@ -171,6 +173,7 @@ class BuildinstallPhase(PhaseBase):
                 "skip_branding": skip_branding,
                 "squashfs_only": squashfs_only,
                 "configuration_file": configuration_file,
+                "rootfs-type": rootfs_type,
             }
         else:
             # If the buildinstall_topdir is set, it means Koji is used for
@@ -205,6 +208,7 @@ class BuildinstallPhase(PhaseBase):
                 skip_branding=skip_branding,
                 squashfs_only=squashfs_only,
                 configuration_file=configuration_file,
+                rootfs_type=rootfs_type,
             )
             return "rm -rf %s && %s" % (
                 shlex.quote(output_topdir),

@@ -46,6 +46,7 @@ class LoraxWrapper(object):
         skip_branding=False,
         squashfs_only=False,
         configuration_file=None,
+        rootfs_type=None,
     ):
         cmd = ["lorax"]
         cmd.append("--product=%s" % product)
@@ -105,6 +106,9 @@ class LoraxWrapper(object):
             cmd.append(configuration_file)
         output_dir = os.path.abspath(output_dir)
         cmd.append(output_dir)
+
+        if rootfs_type:
+            cmd.append("--rootfs-type=%s" % rootfs_type)
 
         # TODO: workdir
 
