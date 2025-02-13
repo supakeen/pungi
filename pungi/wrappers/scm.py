@@ -160,6 +160,9 @@ class GitWrapper(ScmBase):
         if "://" not in repo:
             repo = "file://%s" % repo
 
+        if repo.startswith("git+http"):
+            repo = repo[4:]
+
         git_cmd = ["git"]
         if "credential_helper" in self.options:
             git_cmd.extend(["-c", "credential.useHttpPath=true"])
