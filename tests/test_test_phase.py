@@ -9,10 +9,10 @@ from tests.helpers import DummyCompose, PungiTestCase, touch, FIXTURE_DIR
 
 PAD = b"\0" * 100
 UNBOOTABLE_ISO = (b"\0" * 0x8001) + b"CD001" + PAD
-ISO_WITH_MBR = (b"\0" * 0x1FE) + b"\x55\xAA" + (b"\0" * 0x7E01) + b"CD001" + PAD
+ISO_WITH_MBR = (b"\0" * 0x1FE) + b"\x55\xaa" + (b"\0" * 0x7E01) + b"CD001" + PAD
 ISO_WITH_GPT = (b"\0" * 0x200) + b"EFI PART" + (b"\0" * 0x7DF9) + b"CD001" + PAD
 ISO_WITH_MBR_AND_GPT = (
-    (b"\0" * 0x1FE) + b"\x55\xAAEFI PART" + (b"\0" * 0x7DF9) + b"CD001" + PAD
+    (b"\0" * 0x1FE) + b"\x55\xaaEFI PART" + (b"\0" * 0x7DF9) + b"CD001" + PAD
 )
 ISO_WITH_TORITO = (
     (b"\0" * 0x8001)

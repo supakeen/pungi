@@ -95,7 +95,7 @@ def is_iso(f):
 
 
 def has_mbr(f):
-    return _check_magic(f, 0x1FE, b"\x55\xAA")
+    return _check_magic(f, 0x1FE, b"\x55\xaa")
 
 
 def has_gpt(f):
