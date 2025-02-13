@@ -251,6 +251,44 @@ class TestGitRefResolver(unittest.TestCase):
         self.assertEqual(mock_resolve.call_args_list, [mock.call(url, None)])
 
 
+class TestContainerTagResolver(unittest.TestCase):
+    @mock.patch("pungi.util._skopeo_inspect")
+    def test_offline(self, inspect):
+        resolver = util.ContainerTagResolver(offline=True)
+        url = "docker://example.com/repo:latest"
+        assert url == resolver(url)
+        assert inspect.mock_calls == []
+
+    @mock.patch("pungi.util._skopeo_inspect")
+    def test_already_digest(self, inspect):
+        resolver = util.ContainerTagResolver()
+        url = "docker://example.com/repo@sha256:abcdef0123456789"
+        assert url == resolver(url)
+        assert inspect.mock_calls == []
+
+    @mock.patch("pungi.util._skopeo_inspect")
+    def test_simple(self, inspect):
+        url = "docker://example.com/repo"
+        digest = "sha256:abcdef"
+        orig_url = f"{url}:latest"
+        inspect.return_value = {"Digest": digest}
+        resolver = util.ContainerTagResolver()
+        assert f"{url}@{digest}" == resolver(orig_url)
+        assert inspect.mock_calls == [mock.call(orig_url)]
+
+    @mock.patch("pungi.util._skopeo_inspect")
+    def test_caching(self, inspect):
+        url = "docker://example.com/repo"
+        digest = "sha256:abcdef"
+        orig_url = f"{url}:latest"
+        inspect.return_value = {"Digest": digest}
+        resolver = util.ContainerTagResolver()
+        assert f"{url}@{digest}" == resolver(orig_url)
+        assert f"{url}@{digest}" == resolver(orig_url)
+        assert f"{url}@{digest}" == resolver(orig_url)
+        assert inspect.mock_calls == [mock.call(orig_url)]
+
+
 class TestGetVariantData(unittest.TestCase):
     def test_get_simple(self):
         conf = {"foo": {"^Client$": 1}}

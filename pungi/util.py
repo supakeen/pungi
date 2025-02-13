@@ -250,6 +250,45 @@ class GitUrlResolver(object):
         return self.cache[key]
 
 
+class ContainerTagResolver(object):
+    """
+    A caching resolver for container image urls that replaces tags with digests.
+    """
+
+    def __init__(self, offline=False):
+        self.offline = offline
+        self.cache = {}
+
+    def __call__(self, url):
+        if self.offline:
+            # We're offline, nothing to do
+            return url
+        if re.match(".*@sha256:[a-z0.9]+", url):
+            # We already have a digest
+            return url
+        if url not in self.cache:
+            self.cache[url] = self._resolve(url)
+        return self.cache[url]
+
+    def _resolve(self, url):
+        m = re.match("^.+(:.+)$", url)
+        if not m:
+            raise RuntimeError("Failed to find tag name")
+        tag = m.group(1)
+
+        data = _skopeo_inspect(url)
+        digest = data["Digest"]
+        return url.replace(tag, f"@{digest}")
+
+
+def _skopeo_inspect(url):
+    """Wrapper for running `skopeo inspect {url}` and parsing the output."""
+    cp = subprocess.run(
+        ["skopeo", "inspect", url], stdout=subprocess.PIPE, check=True, encoding="utf-8"
+    )
+    return json.loads(cp.stdout)
+
+
 # format: {arch|*: [data]}
 def get_arch_data(conf, var_name, arch):
     result = []

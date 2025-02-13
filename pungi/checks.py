@@ -265,6 +265,28 @@ def validate(config, offline=False, schema=None):
             if error.validator in ("anyOf", "oneOf"):
                 for suberror in error.context:
                     errors.append("    Possible reason: %s" % suberror.message)
+
+    # Resolve container tags in extra_files
+    tag_resolver = util.ContainerTagResolver(offline=offline)
+    if config.get("extra_files"):
+        for _, arch_dict in config["extra_files"]:
+            for value in arch_dict.values():
+                if isinstance(value, dict):
+                    _resolve_container_tag(value, tag_resolver)
+                elif isinstance(value, list):
+                    for subinstance in value:
+                        _resolve_container_tag(subinstance, tag_resolver)
+    if config.get("extra_isos"):
+        for cfgs in config["extra_isos"].values():
+            if not isinstance(cfgs, list):
+                cfgs = [cfgs]
+            for cfg in cfgs:
+                if isinstance(cfg.get("extra_files"), dict):
+                    _resolve_container_tag(cfg["extra_files"], tag_resolver)
+                elif isinstance(cfg.get("extra_files"), list):
+                    for c in cfg["extra_files"]:
+                        _resolve_container_tag(c, tag_resolver)
+
     return (errors + _validate_requires(schema, config, CONFIG_DEPS), warnings)
 
 
@@ -532,6 +554,18 @@ def make_schema():
             },
             "str_or_scm_dict": {
                 "anyOf": [{"type": "string"}, {"$ref": "#/definitions/scm_dict"}]
+            },
+            "extra_file": {
+                "type": "object",
+                "properties": {
+                    "scm": {"type": "string"},
+                    "repo": {"type": "string"},
+                    "branch": {"$ref": "#/definitions/optional_string"},
+                    "file": {"$ref": "#/definitions/strings"},
+                    "dir": {"$ref": "#/definitions/strings"},
+                    "target": {"type": "string"},
+                },
+                "additionalProperties": False,
             },
             "repo_dict": {
                 "type": "object",
@@ -935,20 +969,7 @@ def make_schema():
                             "properties": {
                                 "include_variants": {"$ref": "#/definitions/strings"},
                                 "extra_files": _one_or_list(
-                                    {
-                                        "type": "object",
-                                        "properties": {
-                                            "scm": {"type": "string"},
-                                            "repo": {"type": "string"},
-                                            "branch": {
-                                                "$ref": "#/definitions/optional_string"
-                                            },
-                                            "file": {"$ref": "#/definitions/strings"},
-                                            "dir": {"$ref": "#/definitions/strings"},
-                                            "target": {"type": "string"},
-                                        },
-                                        "additionalProperties": False,
-                                    }
+                                    {"$ref": "#/definitions/extra_file"}
                                 ),
                                 "filename": {"type": "string"},
                                 "volid": {"$ref": "#/definitions/strings"},
@@ -1471,21 +1492,7 @@ def make_schema():
                 "additionalProperties": False,
             },
             "extra_files": _variant_arch_mapping(
-                {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "scm": {"type": "string"},
-                            "repo": {"type": "string"},
-                            "branch": {"$ref": "#/definitions/optional_string"},
-                            "file": {"$ref": "#/definitions/strings"},
-                            "dir": {"type": "string"},
-                            "target": {"type": "string"},
-                        },
-                        "additionalProperties": False,
-                    },
-                }
+                {"type": "array", "items": {"$ref": "#/definitions/extra_file"}}
             ),
             "gather_lookaside_repos": _variant_arch_mapping(
                 {"$ref": "#/definitions/strings"}
@@ -1611,3 +1618,8 @@ def _get_gather_backends():
 
 def _get_default_gather_backend():
     return "dnf"
+
+
+def _resolve_container_tag(instance, tag_resolver):
+    if instance.get("scm") == "container-image":
+        instance["repo"] = tag_resolver(instance["repo"])
