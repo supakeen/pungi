@@ -373,8 +373,16 @@ class ContainerImageScmWrapper(ScmBase):
             "oci:" + target_dir,
             "--remove-signatures",
         ]
-        self.log_debug("Exporting container %s to %s: %s", scm_root, target_dir, cmd)
-        run(cmd, can_fail=False)
+        try:
+            self.log_debug(
+                "Exporting container %s to %s: %s", scm_root, target_dir, cmd
+            )
+            self.retry_run(cmd, can_fail=False)
+        except RuntimeError as e:
+            self.log_error(
+                "Failed to copy container image: %s %s", e, getattr(e, "output", "")
+            )
+            raise
 
 
 def _get_wrapper(scm_type, *args, **kwargs):
