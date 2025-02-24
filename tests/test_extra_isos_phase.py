@@ -524,7 +524,11 @@ class GetExtraFilesTest(helpers.PungiTestCase):
         self.assertEqual(populate_md.call_args_list, [])
 
     def test_get_file(self, get_dir, get_file, populate_md):
-        get_file.return_value = ["GPL"]
+        def mock_get_file(scm_dict, target_path, compose, arch):
+            helpers.touch(os.path.join(target_path, scm_dict["file"]))
+            return [scm_dict["file"]]
+
+        get_file.side_effect = mock_get_file
         cfg = {
             "scm": "git",
             "repo": "https://pagure.io/pungi.git",
@@ -560,7 +564,13 @@ class GetExtraFilesTest(helpers.PungiTestCase):
         )
 
     def test_get_dir(self, get_dir, get_file, populate_md):
-        get_dir.return_value = ["a", "b"]
+        def mock_get_dir(scm_dict, target_path, compose, arch):
+            files = ["a", "b"]
+            for f in files:
+                helpers.touch(os.path.join(target_path, f))
+            return files
+
+        get_dir.side_effect = mock_get_dir
         cfg = {
             "scm": "git",
             "repo": "https://pagure.io/pungi.git",
@@ -596,7 +606,11 @@ class GetExtraFilesTest(helpers.PungiTestCase):
         )
 
     def test_get_multiple_files(self, get_dir, get_file, populate_md):
-        get_file.side_effect = [["GPL"], ["setup.py"]]
+        def mock_get_file(scm_dict, target_path, compose, arch):
+            helpers.touch(os.path.join(target_path, scm_dict["file"]))
+            return [scm_dict["file"]]
+
+        get_file.side_effect = mock_get_file
         cfg1 = {
             "scm": "git",
             "repo": "https://pagure.io/pungi.git",

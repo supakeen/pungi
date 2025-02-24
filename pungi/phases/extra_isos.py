@@ -342,23 +342,24 @@ def get_extra_files(compose, variant, arch, extra_files):
     included in the ISO.
     """
     extra_files_dir = compose.paths.work.extra_iso_extra_files_dir(arch, variant)
-    filelist = []
     for scm_dict in extra_files:
         getter = get_file_from_scm if "file" in scm_dict else get_dir_from_scm
         target = scm_dict.get("target", "").lstrip("/")
         target_path = os.path.join(extra_files_dir, target).rstrip("/")
-        filelist.extend(
-            os.path.join(target, f)
-            for f in getter(scm_dict, target_path, compose=compose, arch=arch)
-        )
+        getter(scm_dict, target_path, compose=compose, arch=arch)
 
+    filelist = [
+        os.path.relpath(os.path.join(root, f), extra_files_dir)
+        for root, _, files in os.walk(extra_files_dir)
+        for f in files
+    ]
     if filelist:
         metadata.populate_extra_files_metadata(
             ExtraFiles(),
             variant,
             arch,
             extra_files_dir,
-            filelist,
+            sorted(filelist),
             compose.conf["media_checksums"],
         )
 
