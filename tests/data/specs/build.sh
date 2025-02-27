@@ -35,6 +35,11 @@ for spec in $DIR/*.spec; do
         if [ "$(basename $spec)" == "dummy-skype.spec" ]; then
             continue
         fi
+        if [ "$(basename $spec)" == "dummy-fcoe-target-utils.spec" ]; then
+            if [ "$target" == "ppc" -o "$target" == "s390" -o "$target" == "s390x" ]; then
+                continue
+            fi
+        fi
         echo "Building ${spec/.spec/} for $target"
         rpmbuild --quiet --target=$target -ba --nodeps --define "_srcrpmdir $DIR/../repo/src" --define "_rpmdir $DIR/../repo" $spec
     done
