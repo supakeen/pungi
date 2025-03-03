@@ -475,15 +475,11 @@ def run_compose(
         buildinstall_phase,
         (gather_phase, createrepo_phase),
         extrafiles_phase,
-    )
-    ostree_schema = (
-        (ostree_phase, ostree_installer_phase),
-        ostree_container_phase,
+        ostree_phase,
     )
     essentials_phase = pungi.phases.WeaverPhase(compose, essentials_schema)
-    ostree_phase = pungi.phases.WeaverPhase(compose, ostree_schema)
     essentials_phase.start()
-    ostree_phase.start()
+    ostree_container_phase.start()
     try:
         essentials_phase.stop()
 
@@ -514,6 +510,7 @@ def run_compose(
         compose_images_phase = pungi.phases.WeaverPhase(compose, compose_images_schema)
         extra_phase_schema = (
             (compose_images_phase, image_container_phase),
+            ostree_installer_phase,
             osbs_phase,
             repoclosure_phase,
         )
@@ -522,9 +519,9 @@ def run_compose(
         extra_phase.start()
         extra_phase.stop()
     finally:
-        # wait for ostree phase here too - it can happily run in parallel with
+        # wait for ostree container phase here too - it can happily run in parallel with
         # all of the other stuff, but we must ensure it always gets stopped
-        ostree_phase.stop()
+        ostree_container_phase.stop()
 
     # now we do checksums as all images are done
     image_checksum_phase.start()
