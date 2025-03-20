@@ -287,36 +287,38 @@ class KojiWrapper(object):
         :return dict: {"retcode": 0, "output": "", "task_id": 1}
         """
         task_id = None
-        with self.get_koji_cmd_env() as env:
-            retcode, output = run(
-                command,
-                can_fail=True,
-                logfile=log_file,
-                show_cmd=True,
-                env=env,
-                buffer_size=-1,
-                text=True,
-                errors="replace",
-            )
+        with tracing.span("run-runroot-cmd", command=command):
+            with self.get_koji_cmd_env() as env:
+                retcode, output = run(
+                    command,
+                    can_fail=True,
+                    logfile=log_file,
+                    show_cmd=True,
+                    env=env,
+                    buffer_size=-1,
+                    text=True,
+                    errors="replace",
+                )
 
-        # Look for first line that contains only a number. This is the ID of
-        # the new task. Usually this should be the first line, but there may be
-        # warnings before it.
-        for line in output.splitlines():
-            match = re.search(r"^(\d+)$", line)
-            if match:
-                task_id = int(match.groups()[0])
-                break
+            # Look for first line that contains only a number. This is the ID of
+            # the new task. Usually this should be the first line, but there may be
+            # warnings before it.
+            for line in output.splitlines():
+                match = re.search(r"^(\d+)$", line)
+                if match:
+                    task_id = int(match.groups()[0])
+                    break
 
-        if not task_id:
-            raise RuntimeError(
-                "Could not find task ID in output. Command '%s' returned '%s'."
-                % (" ".join(command), output)
-            )
+            if not task_id:
+                raise RuntimeError(
+                    "Could not find task ID in output. Command '%s' returned '%s'."
+                    % (" ".join(command), output)
+                )
 
-        self.save_task_id(task_id)
+            self.save_task_id(task_id)
+            tracing.set_attribute("task_id", task_id)
 
-        retcode, output = self._wait_for_task(task_id, logfile=log_file)
+            retcode, output = self._wait_for_task(task_id, logfile=log_file)
 
         return {
             "retcode": retcode,
@@ -431,9 +433,10 @@ class KojiWrapper(object):
         attempt = 0
 
         while True:
-            retcode, output = run(
-                cmd, can_fail=True, logfile=logfile, text=True, errors="replace"
-            )
+            with tracing.span("watch-task", task_id=task_id):
+                retcode, output = run(
+                    cmd, can_fail=True, logfile=logfile, text=True, errors="replace"
+                )
 
             if retcode == 0 or not (
                 self._has_connection_error(output) or self._has_offline_error(output)
@@ -457,34 +460,36 @@ class KojiWrapper(object):
         its exit code and parsed task id. This method will block until the
         command finishes.
         """
-        with self.get_koji_cmd_env() as env:
-            retcode, output = run(
-                command,
-                can_fail=True,
-                show_cmd=True,
-                logfile=log_file,
-                env=env,
-                buffer_size=-1,
-                text=True,
-                errors="replace",
-            )
+        with tracing.span("run-blocking-cmd", command=command):
+            with self.get_koji_cmd_env() as env:
+                retcode, output = run(
+                    command,
+                    can_fail=True,
+                    show_cmd=True,
+                    logfile=log_file,
+                    env=env,
+                    buffer_size=-1,
+                    text=True,
+                    errors="replace",
+                )
 
-        match = re.search(r"Created task: (\d+)", output)
-        if not match:
-            raise RuntimeError(
-                "Could not find task ID in output. Command '%s' returned '%s'."
-                % (" ".join(command), output)
-            )
-        task_id = int(match.groups()[0])
+            match = re.search(r"Created task: (\d+)", output)
+            if not match:
+                raise RuntimeError(
+                    "Could not find task ID in output. Command '%s' returned '%s'."
+                    % (" ".join(command), output)
+                )
+            task_id = int(match.groups()[0])
+            tracing.set_attribute("task_id", task_id)
 
-        self.save_task_id(task_id)
+            self.save_task_id(task_id)
 
-        if retcode != 0 and (
-            self._has_connection_error(output) or self._has_offline_error(output)
-        ):
-            retcode, output = self._wait_for_task(
-                task_id, logfile=log_file, max_retries=max_retries
-            )
+            if retcode != 0 and (
+                self._has_connection_error(output) or self._has_offline_error(output)
+            ):
+                retcode, output = self._wait_for_task(
+                    task_id, logfile=log_file, max_retries=max_retries
+                )
 
         return {
             "retcode": retcode,
