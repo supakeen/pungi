@@ -263,7 +263,7 @@ class ContainerTagResolver(object):
         if self.offline:
             # We're offline, nothing to do
             return url
-        if re.match(".*@sha256:[a-z0.9]+", url):
+        if re.match(".*@sha256:[a-z0-9]+", url):
             # We already have a digest
             return url
         if url not in self.cache:
