@@ -656,7 +656,7 @@ def fix_treeinfo_checksums(compose, iso_path, arch):
         )
         # The modified ISO no longer has implanted MD5, so that needs to be
         # fixed again.
-        compose.log_debug("Implanting new MD5 to %s fixed_path")
+        compose.log_debug("Implanting new MD5 to %s", fixed_path)
         run(
             iso.get_implantisomd5_cmd(fixed_path, compose.supported),
             logfile=compose.paths.log.log_file(
