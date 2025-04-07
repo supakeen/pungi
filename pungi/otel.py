@@ -46,7 +46,6 @@ class OtelTracing:
         from opentelemetry.exporter.otlp.proto.http.trace_exporter import (
             OTLPSpanExporter,
         )
-        from opentelemetry.instrumentation.requests import RequestsInstrumentor
 
         otel_endpoint = os.environ["OTEL_EXPORTER_OTLP_ENDPOINT"]
         provider = TracerProvider(
@@ -65,7 +64,11 @@ class OtelTracing:
         if traceparent:
             self.set_context(traceparent)
 
-        RequestsInstrumentor().instrument()
+        try:
+            from opentelemetry.instrumentation.requests import RequestsInstrumentor
+            RequestsInstrumentor().instrument()
+        except ImportError:
+            pass
 
     @contextmanager
     def span(self, name, **attributes):
