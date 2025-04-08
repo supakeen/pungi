@@ -98,6 +98,9 @@ class KiwiBuildPhase(
                     ),
                     "version": self.get_version(image_conf),
                     "repo_releasever": self.get_config(image_conf, "repo_releasever"),
+                    "use_buildroot_repo": self.get_config(
+                        image_conf, "use_buildroot_repo"
+                    ),
                 }
 
                 repo = self._get_repo(image_conf, variant)
@@ -160,6 +163,7 @@ class RunKiwiBuildThread(WorkerThread):
             optional_arches=self.failable_arches,
             version=generics["version"],
             repo_releasever=generics["repo_releasever"],
+            use_buildroot_repo=generics["use_buildroot_repo"],
         )
 
         koji.save_task_id(task_id)

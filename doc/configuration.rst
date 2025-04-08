@@ -1581,6 +1581,9 @@ KiwiBuild Settings
     * ``manifest_type`` -- the image type that is put into the manifest by
       pungi. If not supplied, an autodetected value will be provided. It may or
       may not make sense.
+    * ``use_buildroot_repo = False`` -- (*bool*) whether the task should
+      automatically enable buildroot repository corresponding to the used
+      target.
 
     The options can be set either for the specific image, or at the phase level
     (see below). Version also falls back to ``global_version``.
@@ -1605,6 +1608,9 @@ KiwiBuild Settings
 
 **kiwibuild_repo_releasever**
     (*str*) -- override releasever for all kiwibuild tasks.
+
+**kiwibuild_use_buildroot_repo**
+    (*bool*) -- set enablement of a buildroot repo for all kiwibuild tasks.
 
 
 OSBuild Composer for building images
