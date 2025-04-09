@@ -87,7 +87,7 @@ def link_files(compose, arch, variant, pkg_map, pkg_sets, manifest, srpm_map={})
         dst_relpath = os.path.join(packages_dir_relpath, package_path)
 
         # link file
-        pool.queue_put((pkg["path"], dst))
+        pool.queue_put((os.path.realpath(pkg["path"]), dst))
 
         # update rpm manifest
         pkg_obj = pkg_by_path[pkg["path"]]
@@ -116,7 +116,7 @@ def link_files(compose, arch, variant, pkg_map, pkg_sets, manifest, srpm_map={})
         dst_relpath = os.path.join(packages_dir_relpath, package_path)
 
         # link file
-        pool.queue_put((pkg["path"], dst))
+        pool.queue_put((os.path.realpath(pkg["path"]), dst))
 
         # update rpm manifest
         pkg_obj = pkg_by_path[pkg["path"]]
@@ -146,7 +146,7 @@ def link_files(compose, arch, variant, pkg_map, pkg_sets, manifest, srpm_map={})
         dst_relpath = os.path.join(packages_dir_relpath, package_path)
 
         # link file
-        pool.queue_put((pkg["path"], dst))
+        pool.queue_put((os.path.realpath(pkg["path"]), dst))
 
         # update rpm manifest
         pkg_obj = pkg_by_path[pkg["path"]]
