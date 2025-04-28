@@ -537,22 +537,14 @@ class KojiPackageSet(PackageSetBase):
         pathinfo = self.koji_wrapper.koji_module.pathinfo
         paths = []
 
-        if "getRPMChecksums" in self.koji_wrapper.koji_methods:
-
-            def checksum_validator(keyname, pkg_path):
-                checksums = self.koji_proxy.getRPMChecksums(
-                    rpm_info["id"], checksum_types=("sha256",)
-                )
-                if "sha256" in checksums.get(keyname, {}):
-                    computed = compute_file_checksums(pkg_path, ("sha256",))
-                    if computed["sha256"] != checksums[keyname]["sha256"]:
-                        raise RuntimeError("Checksum mismatch for %s" % pkg_path)
-
-        else:
-
-            def checksum_validator(keyname, pkg_path):
-                # Koji doesn't support checksums yet
-                pass
+        def checksum_validator(keyname, pkg_path):
+            checksums = self.koji_proxy.getRPMChecksums(
+                rpm_info["id"], checksum_types=("sha256",)
+            )
+            if "sha256" in checksums.get(keyname, {}):
+                computed = compute_file_checksums(pkg_path, ("sha256",))
+                if computed["sha256"] != checksums[keyname]["sha256"]:
+                    raise RuntimeError("Checksum mismatch for %s" % pkg_path)
 
         attempts_left = self.signed_packages_retries + 1
         while attempts_left > 0:

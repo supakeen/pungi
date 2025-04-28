@@ -71,8 +71,6 @@ class KojiWrapper(object):
             self.koji_proxy = tracing.instrument_xmlrpc_proxy(
                 koji.ClientSession(self.koji_module.config.server, session_opts)
             )
-            with tracing.span("koji.system.listMethods"):
-                self.koji_methods = self.koji_proxy.system.listMethods()
 
     # This retry should be removed once https://pagure.io/koji/issue/3170 is
     # fixed and released.

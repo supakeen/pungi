@@ -141,7 +141,6 @@ class TestKojiPkgset(PkgsetCompareMixin, helpers.PungiTestCase):
         self.koji_downloader = helpers.FSKojiDownloader()
         self.koji_wrapper = mock.Mock()
         self.koji_wrapper.koji_proxy.listTaggedRPMS.return_value = self.tagged_rpms
-        self.koji_wrapper.koji_methods = ["getRPM", "getRPMChecksums"]
         self.koji_wrapper.koji_module.pathinfo = self.path_info
 
     def _touch_files(self, filenames):
