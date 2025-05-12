@@ -31,6 +31,9 @@ class DummyTracing:
     def set_context(self, traceparent):
         pass
 
+    def record_exception(self, exc, set_error_status=True):
+        pass
+
 
 class OtelTracing:
     """This class implements the actual integration with opentelemetry."""
@@ -113,6 +116,17 @@ class OtelTracing:
             carrier={"traceparent": traceparent}
         )
         context.attach(ctx)
+
+    def record_exception(self, exc, set_error_status=True):
+        """Records an exception for the current span and optionally marks the
+        span as failed."""
+        from opentelemetry import trace
+
+        span = trace.get_current_span()
+        span.record_exception(exc)
+
+        if set_error_status:
+            span.set_status(trace.status.StatusCode.ERROR)
 
 
 class InstrumentedClientSession:

@@ -651,6 +651,7 @@ def cli_main():
         try:
             main()
         except (Exception, KeyboardInterrupt) as ex:
+            tracing.record_exception(ex)
             if COMPOSE:
                 COMPOSE.log_error("Compose run failed: %s" % ex)
                 COMPOSE.traceback(show_locals=getattr(ex, "show_locals", True))
