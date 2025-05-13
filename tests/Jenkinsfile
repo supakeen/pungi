@@ -1,5 +1,3 @@
-def DUFFY_SESSION_ID
-
 pipeline {
     agent {
         label 'cico-workspace'
@@ -17,6 +15,7 @@ pipeline {
                     if (params.REPO == "" || params.BRANCH == "") {
                         error "Please supply both params (REPO and BRANCH)"
                     }
+                    def DUFFY_SESSION_ID
                     try {
                         echo "Requesting duffy node ..."
                         def session_str = sh returnStdout: true, script: "set +x; duffy client --url https://duffy.ci.centos.org/api/v1 --auth-name fedora-infra --auth-key $CICO_API_KEY request-session pool=virt-ec2-t2-centos-9s-x86_64,quantity=1"
