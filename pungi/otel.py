@@ -66,6 +66,7 @@ class OtelTracing:
 
         try:
             from opentelemetry.instrumentation.requests import RequestsInstrumentor
+
             RequestsInstrumentor().instrument()
         except ImportError:
             pass
