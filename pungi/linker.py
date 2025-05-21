@@ -228,20 +228,7 @@ class Linker(kobo.log.LoggingBase):
             raise ValueError("Unknown link_type: %s" % link_type)
 
     def link(self, src, dst, link_type="hardlink-or-copy"):
-        """Link directories recursively."""
-        if os.path.isfile(src) or os.path.islink(src):
-            self._link_file(src, dst, link_type)
-            return
+        if os.path.isdir(src):
+            raise RuntimeError("Linking directories recursively is not supported")
 
-        if os.path.isfile(dst):
-            raise OSError(errno.EEXIST, "File exists")
-
-        if not self.test:
-            if not os.path.exists(dst):
-                makedirs(dst)
-            shutil.copystat(src, dst)
-
-        for i in os.listdir(src):
-            src_path = os.path.join(src, i)
-            dst_path = os.path.join(dst, i)
-            self.link(src_path, dst_path, link_type)
+        self._link_file(src, dst, link_type)
