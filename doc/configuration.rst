@@ -1021,6 +1021,11 @@ Options
     to set up your Koji client profile. In the examples, the profile name is
     "koji", which points to Fedora's koji.fedoraproject.org.
 
+**koji_cache**
+    (*str*) -- koji cache directory. Setting this causes Pungi to download
+    packages over HTTP into a cache, which is used in lieu of the Koji profile's
+    ``topdir`` setting. See :doc:`koji` for details on this behavior.
+
 **global_runroot_method**
     (*str*) -- global runroot method to use. If ``runroot_method`` is set
     per Pungi phase using a dictionary, this option defines the default
