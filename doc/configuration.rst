@@ -1007,6 +1007,8 @@ Example
    to track decisions.
 
 
+.. _koji-settings:
+
 Koji Settings
 =============
 

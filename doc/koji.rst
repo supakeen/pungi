@@ -28,7 +28,8 @@ It is possible now to run a compose from a Koji tag without direct access to
 Koji storage.
 
 Pungi can download the packages over HTTP protocol, store them in a local
-cache, and consume them from there.
+cache, and consume them from there. To enable this behavior, set the
+:ref:`koji_cache <koji-settings>` option in the compose configuration.
 
 The local cache has similar structure to what is on the Koji volume.
 
@@ -43,7 +44,8 @@ If it doesn't exist, it will be downloaded from Koji (by replacing the
     Koji URL    https://kojipkgs.fedoraproject.org/packages/foo/1/1.fc38/data/signed/abcdef/noarch/foo-1-1.fc38.noarch.rpm
     Local path                  /mnt/compose/cache/packages/foo/1/1.fc38/data/signed/abcdef/noarch/foo-1-1.fc38.noarch.rpm
 
-The packages can be hardlinked from this cache directory.
+The packages can be hard- or softlinked from this cache directory
+(``/mnt/compose/cache`` in the example).
 
 
 Cleanup
