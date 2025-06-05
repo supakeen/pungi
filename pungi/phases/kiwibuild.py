@@ -27,6 +27,7 @@ KIWIEXTENSIONS = [
     ("fex", ["squashfs.gz"], "squashfs.gz"),
     ("fex", ["squashfs"], "squashfs"),
     ("container", ["oci.tar.xz"], "tar.xz"),
+    ("wsl2", ["wsl"], "wsl"),
 ]
 
 

@@ -56,7 +56,7 @@ setup(
         "jsonschema",
         "kobo",
         "lxml",
-        "productmd>=1.43",
+        "productmd>=1.45",
         "dogpile.cache",
     ],
     tests_require=["pytest", "pytest-cov"],
