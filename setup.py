@@ -45,11 +45,11 @@ setup(
     },
     scripts=["contrib/yum-dnf-compare/pungi-compare-depsolving"],
     data_files=[
-        ("/usr/lib/tmpfiles.d", glob.glob("contrib/tmpfiles.d/*.conf")),
-        ("/usr/share/pungi", glob.glob("share/*.xsl")),
-        ("/usr/share/pungi", glob.glob("share/*.ks")),
-        ("/usr/share/pungi", glob.glob("share/*.dtd")),
-        ("/usr/share/pungi/multilib", glob.glob("share/multilib/*")),
+        ("lib/tmpfiles.d", glob.glob("contrib/tmpfiles.d/*.conf")),
+        ("share/pungi", glob.glob("share/*.xsl")),
+        ("share/pungi", glob.glob("share/*.ks")),
+        ("share/pungi", glob.glob("share/*.dtd")),
+        ("share/pungi/multilib", glob.glob("share/multilib/*")),
     ],
     test_suite="tests",
     install_requires=[
