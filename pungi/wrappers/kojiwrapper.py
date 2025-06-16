@@ -530,6 +530,7 @@ class KojiWrapper(object):
                 "createLiveMedia",
                 "createAppliance",
                 "createKiwiImage",
+                "imageBuilderBuildArch",
             ]:
                 continue
 

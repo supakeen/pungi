@@ -1726,6 +1726,102 @@ OSBuild Composer for building images
    arch.
 
 
+Image Builder Settings
+======================
+
+**imagebuilder**
+    (*dict*) -- configuration for building images with the ``koji-image-builder``
+    Koji plugin. Pungi will trigger a Koji task which will build the image with
+    the given configuration using the ``image-builder`` executable in the build
+    root.
+
+    Format: ``{variant_uid_regex: [{...}]}``.
+
+    Required keys in the configuration dict:
+
+    * ``name`` -- name of the Koji package
+    * ``types`` -- a list with a single image type string representing
+      the image type to build (e.g. ``qcow2``). Only a single image type
+      can be provided as an argument.
+
+    Optional keys:
+
+    * ``target`` -- which build target to use for the task. Either this option,
+      the global ``imagebuilder_target``, or ``global_target`` is required.
+    * ``version`` -- version for the final build (as a string). This option is
+      required if the global ``imagebuilder_version`` or its ``global_version``
+      equivalent are not specified.
+    * ``release`` -- release part of the final NVR. If neither this option nor
+      the global ``imagebuilder_release`` nor its ``global_release`` equivalent
+      are set, Koji will automatically generate a value.
+    * ``repos`` -- a list of repositories from which to consume packages for
+      building the image. By default only the variant repository is used.
+      The list items use the following formats:
+
+      * String with just the repository URL.
+      * Variant ID in the current compose.
+
+    * ``arches`` -- list of architectures for which to build the image. By
+      default, the variant arches are used. This option can only restrict it,
+      not add a new one.
+
+    * ``seed`` -- An integer that can be used to make builds more reproducible.
+      When ``image-builder`` builds images various bits and bobs are generated
+      with a PRNG (partition uuids, etc). Pinning the seed with this argument
+      or ``imagebuilder_seed`` to do so globally will make builds use the same
+      random values each time. Note that using ``seed`` requires the Koji side
+      to have at least ``koji-image-builder >= 7`` deployed.
+
+    * ``scratch`` -- A boolean to instruct ``koji-image-builder`` to perform scratch
+      builds. This might have implications on garbage collection within the ``koji``
+      instance you're targeting. Can also be set globally through
+      ``imagebuilder_scratch``.
+
+    * ``ostree`` -- A dictionary describing where to get ``ostree`` content when
+      applicable. The dictionary contains the following keys:
+
+        * ``url`` -- URL of the repository that's used to fetch the parent
+          commit from.
+        * ``ref`` -- Name of an ostree branch or tag
+
+    * ``blueprint`` -- A dictionary with a blueprint to use for the
+      image build. Blueprints can customize images beyond their initial definition.
+      For the list of supported customizations, see external
+      `Documentation <https://osbuild.org/docs/user-guide/blueprint-reference/>`__
+
+.. note::
+   There is initial support for having this task as failable without aborting
+   the whole compose. This can be enabled by setting ``"failable": ["*"]`` in
+   the config for the image. It is an on/off switch without granularity per
+   arch.
+
+
+Example Config
+--------------
+::
+
+    imagebuilder_target = 'f43-image-builder'
+    imagebuilder_seed = 43
+    imagebuilder_scratch = True
+
+    imagebuilder = {
+        "^IoT$": [
+          {
+            "name": "%s-raw" % release_name,
+            "types": ["iot-raw-xz"],
+            "arches": ["x86_64"], #, "aarch64"],
+            "repos": ["https://kojipkgs.fedoraproject.org/compose/rawhide/latest-Fedora-Rawhide/compose/Everything/$arch/os/"],
+            "ostree": {
+               "url": "https://kojipkgs.fedoraproject.org/compose/iot/repo/",
+               "ref": "fedora/rawhide/$arch/iot",
+            },
+            "subvariant": "IoT",
+            "failable": ["*"],
+          },
+        ]
+    }
+
+
 Image container
 ===============
 

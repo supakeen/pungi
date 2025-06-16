@@ -29,6 +29,7 @@ from .image_build import ImageBuildPhase  # noqa
 from .image_container import ImageContainerPhase  # noqa
 from .kiwibuild import KiwiBuildPhase  # noqa
 from .osbuild import OSBuildPhase  # noqa
+from .imagebuilder import ImageBuilderPhase  # noqa
 from .repoclosure import RepoclosurePhase  # noqa
 from .test import TestPhase  # noqa
 from .image_checksum import ImageChecksumPhase  # noqa

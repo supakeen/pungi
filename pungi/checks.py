@@ -1415,6 +1415,57 @@ def make_schema():
                     },
                 },
             },
+            "imagebuilder": {
+                "type": "object",
+                "patternProperties": {
+                    # Warning: this pattern is a variant uid regex, but the
+                    # format does not let us validate it as there is no regular
+                    # expression to describe all regular expressions.
+                    ".+": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "name": {"type": "string"},
+                                "target": {"type": "string"},
+                                "arches": {"$ref": "#/definitions/list_of_strings"},
+                                "types": {"$ref": "#/definitions/list_of_strings"},
+                                "version": {"type": "string"},
+                                "repos": {"$ref": "#/definitions/list_of_strings"},
+                                "release": {"type": "string"},
+                                "distro": {"type": "string"},
+                                "scratch": {"type": "boolean"},
+                                "ostree": {
+                                    "type": "object",
+                                    "properties": {
+                                        "parent": {"type": "string"},
+                                        "ref": {"type": "string"},
+                                        "url": {"type": "string"},
+                                    },
+                                },
+                                "failable": {"$ref": "#/definitions/list_of_strings"},
+                                "subvariant": {"type": "string"},
+                                "blueprint": {
+                                    "type": "object",
+                                    "additionalProperties": True,
+                                },
+                                "seed": {"type": "integer"},
+                            },
+                            "required": [
+                                "name",
+                                "types",
+                            ],
+                            "additionalProperties": False,
+                        },
+                    }
+                },
+                "additionalProperties": False,
+            },
+            "imagebuilder_target": {"type": "string"},
+            "imagebuilder_release": {"$ref": "#/definitions/optional_string"},
+            "imagebuilder_version": {"type": "string"},
+            "imagebuilder_seed": {"type": "integer"},
+            "imagebuilder_scratch": {"type": "boolean"},
             "lorax_options": _variant_arch_mapping(
                 {
                     "type": "object",

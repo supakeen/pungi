@@ -424,6 +424,7 @@ def run_compose(
     image_build_phase = pungi.phases.ImageBuildPhase(compose, buildinstall_phase)
     kiwibuild_phase = pungi.phases.KiwiBuildPhase(compose)
     osbuild_phase = pungi.phases.OSBuildPhase(compose)
+    imagebuilder_phase = pungi.phases.ImageBuilderPhase(compose)
     osbs_phase = pungi.phases.OSBSPhase(compose, pkgset_phase, buildinstall_phase)
     image_container_phase = pungi.phases.ImageContainerPhase(compose)
     image_checksum_phase = pungi.phases.ImageChecksumPhase(compose)
@@ -451,6 +452,7 @@ def run_compose(
         osbuild_phase,
         image_container_phase,
         kiwibuild_phase,
+        imagebuilder_phase,
     ):
         if phase.skip():
             continue
@@ -507,6 +509,7 @@ def run_compose(
             livemedia_phase,
             osbuild_phase,
             kiwibuild_phase,
+            imagebuilder_phase,
         )
         compose_images_phase = pungi.phases.WeaverPhase(compose, compose_images_schema)
         extra_phase_schema = (
@@ -537,6 +540,7 @@ def run_compose(
         and livemedia_phase.skip()
         and image_build_phase.skip()
         and kiwibuild_phase.skip()
+        and imagebuilder_phase.skip()
         and osbuild_phase.skip()
         and ostree_container_phase.skip()
     ):

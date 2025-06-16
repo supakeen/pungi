@@ -124,6 +124,12 @@ OSBuild
 Similarly to image build, this phases creates a koji `osbuild` task. In the
 background it uses OSBuild Composer to create images.
 
+ImageBuilder
+------------
+
+Similarly to image build, this phases creates a koji `imageBuilderBuild`
+task. In the background it uses `image-builder` to create images.
+
 OSBS
 ----
 
