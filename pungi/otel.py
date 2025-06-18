@@ -12,6 +12,9 @@ depending on whether environment variables configuring OTel are configured.
 class DummyTracing:
     """A dummy tracing module that doesn't actually do anything."""
 
+    def setup(self):
+        pass
+
     @contextmanager
     def span(self, *args, **kwargs):
         yield
@@ -38,7 +41,11 @@ class DummyTracing:
 class OtelTracing:
     """This class implements the actual integration with opentelemetry."""
 
-    def __init__(self):
+    def setup(self):
+        """Configure opentelemetry tracing based on environment variables. This
+        setup is optional as it may not be desirable when pungi is used as a
+        library.
+        """
         from opentelemetry import trace
         from opentelemetry.sdk.resources import Resource
         from opentelemetry.sdk.trace import TracerProvider
@@ -61,7 +68,6 @@ class OtelTracing:
             self.processor = BatchSpanProcessor(OTLPSpanExporter())
         provider.add_span_processor(self.processor)
         trace.set_tracer_provider(provider)
-        self.tracer = trace.get_tracer(__name__)
 
         traceparent = os.environ.get("TRACEPARENT")
         if traceparent:
@@ -73,6 +79,12 @@ class OtelTracing:
             RequestsInstrumentor().instrument()
         except ImportError:
             pass
+
+    @property
+    def tracer(self):
+        from opentelemetry import trace
+
+        return trace.get_tracer(__name__)
 
     @contextmanager
     def span(self, name, **attributes):

@@ -647,6 +647,8 @@ def cli_main():
     signal.signal(signal.SIGINT, sigterm_handler)
     signal.signal(signal.SIGTERM, sigterm_handler)
 
+    tracing.setup()
+
     with tracing.span("run-compose"):
         try:
             main()
