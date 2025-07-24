@@ -276,7 +276,8 @@ class ContainerTagResolver(object):
             raise RuntimeError("Failed to find tag name")
         tag = m.group(1)
 
-        data = _skopeo_inspect(url)
+        with tracing.span("skopeo-inspect", url=url):
+            data = _skopeo_inspect(url)
         digest = data["Digest"]
         return url.replace(tag, f"@{digest}")
 
@@ -1078,7 +1079,7 @@ def format_size(sz):
     return "%.3g %sB" % (sz, UNITS[unit])
 
 
-@retry(interval=60, timeout=300, wait_on=RuntimeError)
+@retry(interval=5, timeout=60, wait_on=RuntimeError)
 def _skopeo_inspect(url):
     """Wrapper for running `skopeo inspect {url}` and parsing the output.
     Retries on failure.
