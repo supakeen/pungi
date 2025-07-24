@@ -281,14 +281,6 @@ class ContainerTagResolver(object):
         return url.replace(tag, f"@{digest}")
 
 
-def _skopeo_inspect(url):
-    """Wrapper for running `skopeo inspect {url}` and parsing the output."""
-    cp = subprocess.run(
-        ["skopeo", "inspect", url], stdout=subprocess.PIPE, check=True, encoding="utf-8"
-    )
-    return json.loads(cp.stdout)
-
-
 # format: {arch|*: [data]}
 def get_arch_data(conf, var_name, arch):
     result = []
@@ -1084,3 +1076,14 @@ def format_size(sz):
         unit += 1
 
     return "%.3g %sB" % (sz, UNITS[unit])
+
+
+@retry(interval=60, timeout=300, wait_on=RuntimeError)
+def _skopeo_inspect(url):
+    """Wrapper for running `skopeo inspect {url}` and parsing the output.
+    Retries on failure.
+    """
+    cp = subprocess.run(
+        ["skopeo", "inspect", url], stdout=subprocess.PIPE, check=True, encoding="utf-8"
+    )
+    return json.loads(cp.stdout)
