@@ -20,7 +20,7 @@ packages = sorted(packages)
 
 setup(
     name="pungi",
-    version="4.9.4",
+    version="4.10.0",
     description="Distribution compose tool",
     url="https://pagure.io/pungi",
     author="Dennis Gilmore",
