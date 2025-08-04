@@ -357,6 +357,10 @@ class KojiScmWrapper(ScmBase):
             urlretrieve(url, target_file)
 
 
+class SkopeoCopyTimeoutError(RuntimeError):
+    pass
+
+
 class ContainerImageScmWrapper(ScmBase):
 
     def export_dir(self, *args, **kwargs):
@@ -382,9 +386,12 @@ class ContainerImageScmWrapper(ScmBase):
             with tracing.span("skopeo-copy", arch=arch, image=scm_root):
                 self.retry_run(cmd, can_fail=False)
         except RuntimeError as e:
-            self.log_error(
-                "Failed to copy container image: %s %s", e, getattr(e, "output", "")
-            )
+            output = getattr(e, "output", "")
+            self.log_error("Failed to copy container image: %s %s", e, output)
+
+            if "connection timed out" in output:
+                raise SkopeoCopyTimeoutError(output) from e
+
             raise
 
 
