@@ -501,7 +501,13 @@ def failable(
     else:
         compose.require_deliverable(variant, arch, deliverable, subvariant)
     try:
-        yield
+        with tracing.span(
+            f"generate-{deliverable}",
+            variant=variant.uid,
+            arch=arch,
+            subvariant=subvariant or "",
+        ):
+            yield
     except Exception as exc:
         if not can_fail:
             raise
