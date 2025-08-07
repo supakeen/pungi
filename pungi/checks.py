@@ -1450,6 +1450,7 @@ def make_schema():
                                     "additionalProperties": True,
                                 },
                                 "seed": {"type": "integer"},
+                                "manifest_type": {"type": "string"},
                             },
                             "required": [
                                 "name",

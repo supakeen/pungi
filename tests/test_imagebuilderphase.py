@@ -61,6 +61,7 @@ class TestImageBuilderPhase(PungiTestCase):
                 "repos": ["https://example.com/repo/", "Client"],
                 "types": ["custom"],
                 "version": "Rawhide",
+                "manifest_type": "custom-type",
             },
         )
         compose = DummyCompose(self.topdir, {"imagebuilder": {"^Server$": [cfg]}})
